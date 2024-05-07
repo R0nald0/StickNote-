@@ -6,16 +6,20 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.lembretes.data.entity.Lembrete
+import com.example.lembretes.data.entity.LembreteEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LembreteDao {
   @Query("SELECT * FROM Lembrete")
-  suspend fun findAll():List<Lembrete>
+   fun findAll():Flow<List<Lembrete>>
+
+
   @Insert
-  fun insertLembrete( lembrete: Lembrete):Long
+ suspend fun insertLembrete(  lembrete: LembreteEntity):Long
   @Update
-  fun update(vararg lembrete: Lembrete):Int
+ suspend fun update( lembrete: LembreteEntity):Int
 
   @Delete
-  fun deleteLembrete(vararg lembrete: Lembrete):Int
+ suspend fun deleteLembrete(  lembrete: LembreteEntity):Int
 }

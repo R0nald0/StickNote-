@@ -2,7 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="GreetingPreview">
+        <State />
+      </entry>
+      <entry key="MyCardViewPreview">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="myScreenPreview">
+        <State />
+      </entry>
+      <entry key="update_must_update_a_lembrete_and_retun_int()">
         <State />
       </entry>
     </value>

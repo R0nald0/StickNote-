@@ -29,12 +29,10 @@ class InsertStickNoteUseCaseTest {
         MockitoAnnotations.openMocks(this)
 
         stickNoteUseCase = InsertStickNoteUseCase(repository)
-
     }
 
     @After
-    fun tearDown() {
-    }
+    fun tearDown() {}
 
     @Test
     fun insert()= runTest {

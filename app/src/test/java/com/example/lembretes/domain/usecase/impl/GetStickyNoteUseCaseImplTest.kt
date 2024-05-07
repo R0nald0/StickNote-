@@ -1,11 +1,9 @@
 package com.example.lembretes.domain.usecase.impl
 
-import com.example.lembretes.data.entity.LembreteEntity
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
 import com.google.common.truth.Truth.assertThat
 
 import org.junit.After
@@ -41,7 +39,7 @@ class GetStickyNoteUseCaseImplTest {
     fun getStickyNotes_must_find_all_StickNotes() = runTest {
         Mockito.`when`(stickRepository.getStickyNotes()).thenReturn(flowOf(buildListLStickNotes()))
 
-          getStickyNoteUseCaseImpl.GetStickyNotes().collect{listStickNote->
+          getStickyNoteUseCaseImpl.getStickyNotes().collect{ listStickNote->
              assertThat(listStickNote).hasSize(3)
              assertThat(listStickNote[0]).isInstanceOf(StickyNoteDomain::class.java)
              assertThat(listStickNote[2].name).isEqualTo("desenhar")

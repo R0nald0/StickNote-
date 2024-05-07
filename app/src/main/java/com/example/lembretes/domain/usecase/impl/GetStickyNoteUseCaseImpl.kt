@@ -9,7 +9,7 @@ import javax.inject.Inject
 class GetStickyNoteUseCaseImpl @Inject constructor(
     private  val stickyNoteRepository: StickyNoteRepository
 ): GetStickyNoteUseCase {
-    override suspend fun GetStickyNotes(): Flow<List<StickyNoteDomain>> {
+    override suspend fun getStickyNotes(): Flow<List<StickyNoteDomain>> {
         return stickyNoteRepository.getStickyNotes()
     }
 }

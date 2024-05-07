@@ -1,16 +1,21 @@
 package com.example.lembretes.data.dao
 
+import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
 import com.example.lembretes.data.LembreteDatabase
 import com.example.lembretes.data.entity.LembreteEntity
+import com.example.lembretes.utils.TestDispatcherRule
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -20,8 +25,13 @@ import java.util.Date
 @RunWith(AndroidJUnit4::class)
 class LembreteDaoTest {
 
+    @get:Rule
+    val dispatcherRule = TestDispatcherRule()
+
+
     private lateinit var database : LembreteDatabase
     private lateinit var lembreteDao: LembreteDao
+
     @Before
     fun setUp() {
            database = Room.inMemoryDatabaseBuilder(
@@ -32,9 +42,9 @@ class LembreteDaoTest {
     }
 
     @Test
-    fun insertPostagem_insert_lembrete_and_return_created() {
+    fun insertPostagem_insert_lembrete_and_return_created() = runTest {
         val lembrete = LembreteEntity(
-            id = 0,
+            id = null,
             name = "fazer caminhada",
             description = "caminhas duas horas",
             dateTime = Date().time,
@@ -51,11 +61,13 @@ class LembreteDaoTest {
              lembreteDao.insertLembrete(it)
          }
 
-        val result = lembreteDao.findAll()
+         lembreteDao.findAll().test {
+             val resul = awaitItem()
+             assertThat(resul).hasSize(3)
+             assertThat(resul[0].name).isEqualTo("fazer caminhada")
+             cancel()
+         }
 
-        assertThat(result).hasSize(3)
-        assertThat(result).isNotEmpty()
-        assertThat(result[0].name).isEqualTo("fazer caminhada")
     }
 
 
@@ -64,12 +76,15 @@ class LembreteDaoTest {
         listPostagemDto().forEach {
             lembreteDao.insertLembrete(it)
         }
-
-        val result = lembreteDao.findAll()
-
-       val intLine = lembreteDao.deleteLembrete(lembrete = arrayOf(result[2]))
-
-        assertThat(intLine).isEqualTo(1)
+        val lines = lembreteDao.deleteLembrete(listPostagemDto()[1])
+       assertThat(lines).isEqualTo(1)
+//        lembreteDao.findAll().test{
+//            val result = awaitItem()
+//
+//
+//            assertThat(result).hasSize(2)
+//             cancel()
+//        }
 
     }
 
@@ -88,8 +103,8 @@ class LembreteDaoTest {
         )
 
         val update = lembreteDao.update(lembreteUpdate)
-
         assertThat(update).isEqualTo(1)
+
     }
 
     @After
@@ -99,21 +114,21 @@ class LembreteDaoTest {
 
     fun listPostagemDto() = listOf(
         LembreteEntity(
-            id = 0,
+            id = null,
             name = "fazer caminhada",
             description = "caminhas duas horas",
             dateTime = Date().time,
             isRemember = false
         ),
         LembreteEntity(
-            id = 0,
+            id = null,
             name = "Almocar",
             description = "alimentação",
             dateTime = Date().time,
             isRemember = false
         ),
         LembreteEntity(
-            id = 0,
+            id = null,
             name = "estudar",
             description = "estudar algo novo",
             dateTime = Date().time,
