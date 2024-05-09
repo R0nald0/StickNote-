@@ -15,6 +15,7 @@ interface LembreteDao {
    fun findAll():Flow<List<Lembrete>>
 
 
+
   @Insert
  suspend fun insertLembrete(  lembrete: LembreteEntity):Long
   @Update

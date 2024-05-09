@@ -75,12 +75,14 @@ import com.example.lembretes.R
 import com.example.lembretes.core.notification.showNotification
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
+import com.example.lembretes.presentation.ui.widgets.MyCardView
 import com.example.lembretes.presentation.ui.widgets.StickChips
 import com.example.lembretes.presentation.viewmodel.StickNoteState
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.utils.convertDateLongToString
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
@@ -107,21 +109,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        Log.i("_INFO", "MyApp: Onstart")
-    }
-
 }
 
 fun dateForExtense() :String{
-  val date  = Date()
- val locale =   Locale("pt","BR")
+    val date  = Date()
+    val locale = Locale("pt","BR")
     val cl = GregorianCalendar.getInstance(locale)
-  val d  = cl.get(GregorianCalendar.DAY_OF_WEEK)
-
- val format  =SimpleDateFormat( "'${geetDayOfWeek(d)}',dd MMMM,yyyy ",locale)
-  return  format.format(date.time)
+    val d  = cl.get(GregorianCalendar.DAY_OF_WEEK)
+    val t =  cl.get(GregorianCalendar.WEEK_OF_MONTH)
+    val format  =SimpleDateFormat( "'${geetDayOfWeek(d)}',dd MMMM,yyyy ",locale)
+    return  format.format(date.time)
 }
 
 fun geetDayOfWeek(day : Int):String{
@@ -136,6 +133,8 @@ fun geetDayOfWeek(day : Int):String{
       else -> ""
   }
 }
+
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -204,12 +203,12 @@ fun MyApp(
              ) {
                  StickChips(
                      label = dateForExtense(),
-                     isSelected = true
+                     isSelected = true,
                  )
                  Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
-                 StickChips(label = "Ter")
+                 StickChips(label = "Ter" ,isSelected = isSelected)
                  Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
-                 StickChips(label = "Qua")
+                 StickChips(label = "Qua", isSelected = isSelected)
                  Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
                  StickChips(label = "Qui")
                  Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
@@ -223,7 +222,6 @@ fun MyApp(
                     modifier = Modifier
                         .fillMaxSize()
                         .fillMaxWidth()
-
                         .padding(16.dp)
                 ) {
                     items(stickyNoteList) { stickNote ->
@@ -286,97 +284,7 @@ fun MyApp(
 }
 
 
-@Composable
-fun MyCardView(stickyNoteDomain: StickyNoteDomain,
-               onUpdateStateNotificaion : (StickyNoteDomain)->Unit,context: Context
-) {
 
-    var rememberStickNote by rememberSaveable {
-        mutableStateOf(stickyNoteDomain.isRemember)
-    }
-
-    Card(
-        onClick = {
-                 context.showNotification(stickyNoteDomain.name,stickyNoteDomain.description)
-        },
-        colors = CardDefaults.cardColors(
-          containerColor = MaterialTheme.colorScheme.background
-        ),
-        elevation = CardDefaults.cardElevation(
-           defaultElevation = 10.dp
-        ),
-        modifier = Modifier
-            .fillMaxSize()
-
-            .padding(5.dp)
-            
-    ) {
-        Box(
-        ) {
-            Image(
-                painter = painterResource(id =R.drawable.tree ),
-                contentDescription = "image background",
-                contentScale = ContentScale.FillWidth
-            )
-           Column(
-               modifier = Modifier
-                   .fillMaxSize()
-                   .padding(10.dp),
-               verticalArrangement = Arrangement.SpaceBetween
-           ) {
-               Row (
-                   modifier = Modifier.fillMaxWidth(),
-                   horizontalArrangement = Arrangement.Center,
-                   verticalAlignment = Alignment.CenterVertically
-               ) {
-                   Text(
-                       text = stickyNoteDomain.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-                       style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
-                       modifier = Modifier.padding(horizontal = 6.dp),
-                       textAlign =  TextAlign.Center,
-                   )
-               }
-               Text(
-                   text = stickyNoteDomain.description.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()},
-                   overflow = TextOverflow.Ellipsis,
-                   fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                   maxLines = 3,
-                   color = Color.White,
-                   modifier = Modifier
-                       .padding(8.dp,5.dp)
-               )
-               Row(
-                   horizontalArrangement = Arrangement.SpaceBetween,
-                   verticalAlignment = Alignment.CenterVertically,
-                   modifier = Modifier
-                       .fillMaxWidth()
-                       .padding(5.dp)
-               ) {
-                   Text(text = Date().convertDateLongToString(stickyNoteDomain.dateTime)?:"00/00/0000" , color = MaterialTheme.colorScheme.onPrimaryContainer)
-                   IconButton(onClick = {
-                       rememberStickNote = !rememberStickNote
-                       val stickUpdate = StickyNoteDomain(
-                           id = stickyNoteDomain.id,
-                           dateTime = stickyNoteDomain.dateTime,
-                           isRemember = rememberStickNote,
-                           description = stickyNoteDomain.description,
-                           name = stickyNoteDomain.name
-                       )
-                       onUpdateStateNotificaion(stickUpdate)
-                   }) {
-                       Icon(
-                           Icons.Filled.Notifications
-                           ,contentDescription = "notification icon",
-                           tint =  if(rememberStickNote) MaterialTheme.colorScheme.surface
-                           else MaterialTheme.colorScheme.tertiary
-                       )
-                   }
-               }
-
-           }
-        }
-    }
-}
 
 
 @SuppressLint("CoroutineCreationDuringComposition")
@@ -424,7 +332,7 @@ fun MySwippe(
         backgroundContent ={
             BoxSwipToDismis(contentAlignment = align, backGroundcolor =color , icon = icon,textTitle =textTitle )
         } ) {
-        MyCardView(stickNote, onUpdateStateNotificaion = onUpdateStateNotificaion ,context)
+        MyCardView(stickNote, onUpdateStateNotificaion = onUpdateStateNotificaion , modifier = modifier , context = context)
     }
 }
 
@@ -462,15 +370,7 @@ fun BoxSwipToDismis(
 
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-private fun MyCardViewPreview () {
-    val context = LocalContext.current
-    LembretesTheme {
-        MyCardView(stickyNoteDomain = StickyNoteDomain(id = 1,"Correr","Correr pela manhã",Date().time,false), onUpdateStateNotificaion = {},context)
-    }
-}
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
