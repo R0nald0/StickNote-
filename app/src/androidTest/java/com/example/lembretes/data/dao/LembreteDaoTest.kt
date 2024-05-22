@@ -1,16 +1,14 @@
 package com.example.lembretes.data.dao
 
-import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import com.example.lembretes.data.LembreteDatabase
 import com.example.lembretes.data.entity.LembreteEntity
 import com.example.lembretes.utils.TestDispatcherRule
+import com.example.lembretes.utils.convertDateStringToLong
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 
 import org.junit.After
@@ -47,7 +45,7 @@ class LembreteDaoTest {
             id = null,
             name = "fazer caminhada",
             description = "caminhas duas horas",
-            dateTime = Date().time,
+            dateTime = Date().convertDateStringToLong("10/05/2024")!!,
             isRemember = false
             )
 
@@ -68,6 +66,32 @@ class LembreteDaoTest {
              cancel()
          }
 
+    }
+    @Test
+    fun findStickNoteByDate_must_get_dates_on_daterminate_periodic()= runTest{
+        listPostagemDto().forEach {
+            lembreteDao.insertLembrete(it)
+        }
+
+        lembreteDao.findAll().test {
+            val resul = awaitItem()
+            assertThat(resul).hasSize(3)
+            assertThat(resul[0].name).isEqualTo("fazer caminhada")
+            resul.forEach {
+                println(" result date ${it.dateTime}.")
+            }
+            cancel()
+        }
+
+         val period1  = Date().convertDateStringToLong("09/05/2024")
+        val periodic2 = Date().convertDateStringToLong("09/05/2024")
+
+        println( "P1 = $period1   p2 - $periodic2" )
+        lembreteDao.findStickNoteByDate(firstDate = period1!!, secondDate = periodic2!!).test {
+             val result = awaitItem()
+              assertThat(result.size).isEqualTo(1)
+            cancel()
+        }
     }
 
 
@@ -98,7 +122,7 @@ class LembreteDaoTest {
             id = 1,
             name = "ler e caminhar",
             description = "caminhar duas horas e ler",
-            dateTime = Date().time,
+            dateTime = Date().convertDateStringToLong("10/05/2024")!!,
             isRemember = false
         )
 
@@ -112,26 +136,26 @@ class LembreteDaoTest {
       database.close()
     }
 
-    fun listPostagemDto() = listOf(
+    private fun listPostagemDto() = listOf(
         LembreteEntity(
             id = null,
             name = "fazer caminhada",
             description = "caminhas duas horas",
-            dateTime = Date().time,
+            dateTime = Date().convertDateStringToLong("10/05/2024")!!,
             isRemember = false
         ),
         LembreteEntity(
             id = null,
             name = "Almocar",
             description = "alimentação",
-            dateTime = Date().time,
+            dateTime = Date().convertDateStringToLong("10/05/2024")!!,
             isRemember = false
         ),
         LembreteEntity(
             id = null,
             name = "estudar",
             description = "estudar algo novo",
-            dateTime = Date().time,
+            dateTime =Date().convertDateStringToLong("09/05/2024")!!,
             isRemember = false
         )
     )

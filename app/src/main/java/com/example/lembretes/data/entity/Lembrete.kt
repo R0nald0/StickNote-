@@ -2,7 +2,10 @@ package com.example.lembretes.data.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.ProvidedTypeConverter
+import androidx.room.TypeConverter
 import com.example.lembretes.domain.model.StickyNoteDomain
+import java.util.Date
 
 typealias LembreteEntity = Lembrete
 @Entity
@@ -22,3 +25,20 @@ fun LembreteEntity.toStickNote() = StickyNoteDomain(
     dateTime = this.dateTime,
     isRemember =this.isRemember
 )
+
+
+
+@ProvidedTypeConverter
+class Converters{
+    @TypeConverter
+    fun convterDateToLong(date : Date?):Long?{
+        return  date?.time
+    }
+
+    @TypeConverter
+    fun convertLongToDate(dateLong: Long?):Date?{
+        return dateLong?.let {value->
+             Date(value)
+        }
+    }
+}

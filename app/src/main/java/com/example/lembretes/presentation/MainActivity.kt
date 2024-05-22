@@ -12,7 +12,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -30,9 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +44,6 @@ import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.rememberTopAppBarState
@@ -55,34 +51,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lembretes.R
-import com.example.lembretes.core.notification.showNotification
 import com.example.lembretes.domain.model.StickyNoteDomain
+import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.ui.widgets.MyCardView
 import com.example.lembretes.presentation.ui.widgets.StickChips
 import com.example.lembretes.presentation.viewmodel.StickNoteState
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
-import com.example.lembretes.utils.convertDateLongToString
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
@@ -103,7 +91,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ObserveModel(viewModel = viewModel, context = this)
+                    MyApp(
+                        context = this,
+                        viewModel = viewModel
+                    )
                 }
             }
         }
@@ -123,12 +114,12 @@ fun dateForExtense() :String{
 
 fun geetDayOfWeek(day : Int):String{
   return  when(day){
-        1->"Domingo "
-        2->"Segunda-Feira "
-        3->"Terça-Feira "
-        4->"Quarta-Feira "
-        5->"Quinta-Feira "
-        6->"Sexta-Feira "
+        1->"Domingo"
+        2->"Segunda"
+        3->"Terça"
+        4->"Quarta"
+        5->"Quinta"
+        6->"Sexta"
         7->"Sabado"
       else -> ""
   }
@@ -139,14 +130,13 @@ fun geetDayOfWeek(day : Int):String{
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyApp(
-     stickyNoteList : List<StickyNoteDomain>,
-     onUpdateStateNotificaion : (StickyNoteDomain)->Unit ,
      modifier: Modifier = Modifier ,
-     onDelete:(StickyNoteDomain)->Unit ,
-     context: Context
+     context: Context,
+     viewModel: StickNoteViewmodel,
 ) {
+     val state by viewModel.stickNoteState.collectAsState()
      val scroolBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-     var isSelected by rememberSaveable { mutableStateOf(false) }
+     val filterType by viewModel.stickNoteEnumFilterType.collectAsState()
 
     Scaffold(
         modifier = modifier.background(MaterialTheme.colorScheme.background),
@@ -203,78 +193,103 @@ fun MyApp(
              ) {
                  StickChips(
                      label = dateForExtense(),
-                     isSelected = true,
+                     isSelected = filterType == StickNoteEnumFilterType.Today,
+                     onClick = { viewModel.alterFilterType(StickNoteEnumFilterType.Today) },
                  )
-                 Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
-                 StickChips(label = "Ter" ,isSelected = isSelected)
-                 Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
-                 StickChips(label = "Qua", isSelected = isSelected)
-                 Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
-                 StickChips(label = "Qui")
-                 Spacer(modifier = modifier.fillMaxWidth(fraction = 0.1f))
-                 StickChips(label = "Sex")
+                 Spacer(modifier = Modifier.width(10.dp))
+                 StickChips(label = "Amanhã" ,
+                     isSelected = filterType == StickNoteEnumFilterType.TOMORROW,
+                     onClick = { viewModel.alterFilterType(StickNoteEnumFilterType.TOMORROW) })
+                 Spacer(modifier = Modifier.width(10.dp))
+                 StickChips(label = "Todos",
+                     isSelected = filterType == StickNoteEnumFilterType.All,
+                     onClick = { viewModel.alterFilterType(StickNoteEnumFilterType.All) }
+                 )
              }
 
-            if (stickyNoteList.isNotEmpty()) {
+            when(state) {
+                is StickNoteState.Success -> {
+                    val listStickNote =  (state as StickNoteState.Success).stickNoteList
+                    if (listStickNote.isEmpty()){
+                        Column(
+                            modifier = modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                textAlign = TextAlign.Center,
+                                text = "Você ainda não adicionou nenhum lembrete",
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+                            )
+                            Spacer(modifier = Modifier.height(20.dp))
+                            ElevatedButton(onClick = {
+                                val intent =
+                                    Intent(context.applicationContext, AddStickNoteActivity::class.java)
 
-                LazyColumn(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    items(stickyNoteList) { stickNote ->
-
-                        val switToDismessState = rememberSwipeToDismissBoxState()
-                        when (switToDismessState.currentValue) {
-                            SwipeToDismissBoxValue.StartToEnd -> {
-                                val intent = Intent(
-                                    context.applicationContext,
-                                    AddStickNoteActivity::class.java
-                                )
-                                intent.putExtra("stick", stickNote)
                                 context.startActivity(intent)
+                            }) {
+                                Text(
+                                    text = "Criar lembrete",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
-
-                            SwipeToDismissBoxValue.EndToStart -> {
-                                onDelete(stickNote)
-                            }
-
-                            SwipeToDismissBoxValue.Settled -> {}
                         }
+                    }else{
+                        LazyColumn(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            items(listStickNote) { stickNote ->
 
-                        MySwippe(
-                            onUpdateStateNotificaion = onUpdateStateNotificaion,
-                            stickNote = stickNote,
-                            context = context,
-                            dismissState = switToDismessState
+                                val switToDismessState = rememberSwipeToDismissBoxState()
+                                when (switToDismessState.currentValue) {
+                                    SwipeToDismissBoxValue.StartToEnd -> {
+                                        val intent = Intent(
+                                            context.applicationContext,
+                                            AddStickNoteActivity::class.java
+                                        )
+                                        intent.putExtra("stick", stickNote)
+                                        context.startActivity(intent)
+                                    }
+
+                                    SwipeToDismissBoxValue.EndToStart -> {
+                                        viewModel.deleteStickNote(stickNote)
+                                    }
+
+                                    SwipeToDismissBoxValue.Settled -> {}
+                                }
+
+                                MySwippe(
+                                    onUpdateStateNotificaion = viewModel::updateStiickNote,
+                                    stickNote = stickNote,
+                                    context = context,
+                                    dismissState = switToDismessState
+                                )
+                            }
+                        }
+                    }
+                }
+
+                is StickNoteState.Error -> {
+                    Toast.makeText(context, (state as StickNoteState.Error).message, Toast.LENGTH_SHORT).show()
+                    Log.i("INFO_", "onCreate: Erroo")
+                }
+
+                StickNoteState.Loading -> {
+                    Column(
+                        modifier = modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        CircularProgressIndicator(
+                            strokeCap = StrokeCap.Square
                         )
                     }
                 }
-            } else {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Você Ainda não adcionou nenhum lembrete",
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
 
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    ElevatedButton(onClick = {
-                        val intent =
-                            Intent(context.applicationContext, AddStickNoteActivity::class.java)
-
-                        context.startActivity(intent)
-                    }) {
-                        Text(
-                            text = "Cria novo Lembrete",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
             }
         }
 
@@ -373,32 +388,7 @@ fun BoxSwipToDismis(
 
 
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun ObserveModel(viewModel :StickNoteViewmodel , context :Context){
-      val state by viewModel.stickNoteState.collectAsState()
-    when(state) {
-        is StickNoteState.Success -> {
-            MyApp(
-                stickyNoteList =  (state as StickNoteState.Success).stickNoteList,
-               onUpdateStateNotificaion =  viewModel::updateStiickNote,
-                onDelete = viewModel::deleteStickNote,
-                context= context
-            )
-        }
 
-        is StickNoteState.Error -> {
-            Toast.makeText(context, (state as StickNoteState.Error).message, Toast.LENGTH_SHORT).show()
-            Log.i("INFO_", "onCreate: Erroo")
-        }
-
-        StickNoteState.Loading -> {
-            CircularProgressIndicator()
-        }
-    
-    }
-      
-}
 
 
 
