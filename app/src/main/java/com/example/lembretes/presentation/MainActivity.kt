@@ -27,16 +27,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -67,6 +64,7 @@ import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.ui.widgets.MyCardView
 import com.example.lembretes.presentation.ui.widgets.StickChips
+import com.example.lembretes.presentation.ui.widgets.SticnkNoteToolBar
 import com.example.lembretes.presentation.viewmodel.StickNoteState
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import dagger.hilt.android.AndroidEntryPoint
@@ -107,7 +105,6 @@ fun dateForExtense() :String{
     val locale = Locale("pt","BR")
     val cl = GregorianCalendar.getInstance(locale)
     val d  = cl.get(GregorianCalendar.DAY_OF_WEEK)
-    val t =  cl.get(GregorianCalendar.WEEK_OF_MONTH)
     val format  =SimpleDateFormat( "'${geetDayOfWeek(d)}',dd MMMM,yyyy ",locale)
     return  format.format(date.time)
 }
@@ -126,6 +123,14 @@ fun geetDayOfWeek(day : Int):String{
 }
 
 
+fun getTextNameSearch(type: StickNoteEnumFilterType):String{
+    return when(type){
+        StickNoteEnumFilterType.Today -> "para hoje"
+        StickNoteEnumFilterType.TOMORROW->"para amanhã"
+        else ->""
+    }
+}
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,40 +142,24 @@ fun MyApp(
      val state by viewModel.stickNoteState.collectAsState()
      val scroolBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
      val filterType by viewModel.stickNoteEnumFilterType.collectAsState()
+     val scheduledReminders by viewModel.stickNotesAgendas.collectAsState()
+     val states = scroolBehavior.state
+     val nameUser = "Olá User,bom dia!!"
+
+
+
 
     Scaffold(
         modifier = modifier.background(MaterialTheme.colorScheme.background),
 
         topBar = {
-            LargeTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
-                scrollBehavior = scroolBehavior,
-                actions = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon( Icons.Default.AccountCircle, contentDescription ="User avatar" )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
-                        Icon( Icons.Default.Menu, contentDescription ="User menu" )
-                    }
-                },
-
-                title = {
-                    Column(
-                    ) {
-
-                        Log.i("INFO_", "MyApp: $scroolBehavior")
-                        Text(
-                            text = "Olá Dev,Bom Dia"
-                        )
-                        Text(
-                            text = "voce tem  4 lembretes agendados",
-                            fontSize = 13.sp,
-                        )
-                    }
-                }
-            )
+           SticnkNoteToolBar(
+               scroolBehavior = scroolBehavior,
+               modifier = modifier,
+               title = nameUser,
+               isColapsed = if(scroolBehavior.state.collapsedFraction <= 0.7f) true else false ,
+               numberOfStickNotes = scheduledReminders
+           )
         },
         floatingActionButton = {
                          FloatingActionButton(onClick = {
@@ -180,7 +169,7 @@ fun MyApp(
                              Icon(Icons.Default.Add, contentDescription ="button add new stick Note" )
                          }      
         },
-    
+
     ) {paddingValues ->
         Column(
             modifier = modifier
@@ -218,7 +207,7 @@ fun MyApp(
                         ) {
                             Text(
                                 textAlign = TextAlign.Center,
-                                text = "Você ainda não adicionou nenhum lembrete",
+                                text = "Você ainda não adicionou nenhum lembrete ${getTextNameSearch(filterType)}.",
                                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
                             )
                             Spacer(modifier = Modifier.height(20.dp))

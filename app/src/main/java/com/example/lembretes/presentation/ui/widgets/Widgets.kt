@@ -5,12 +5,15 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -20,9 +23,12 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,16 +78,17 @@ fun StickChips(
             text = label,
             color = colorText,
             modifier = if (isSelected) modifier
-                 .drawBehind {
+                .drawBehind {
                     drawRoundRect(
                         color = colorBackGround,
                         cornerRadius = CornerRadius(10.dp.toPx())
                     )
-                  }
-                  .padding(8.dp)
+                }
+                .padding(8.dp)
 
             else modifier
-                .background(color = MaterialTheme.colorScheme.background) .padding(6.dp),
+                .background(color = MaterialTheme.colorScheme.background)
+                .padding(6.dp),
                 style = if (isSelected)  MaterialTheme.typography.bodyMedium
                     .copy(
                        fontSize = 12.sp,
@@ -97,7 +104,66 @@ fun StickChips(
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SticnkNoteToolBar(
+    modifier: Modifier = Modifier,
+    scroolBehavior: TopAppBarScrollBehavior,
+    title : String,
+    isColapsed :Boolean = false,
+    numberOfStickNotes :Int = 0
+) {
+    LargeTopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+        scrollBehavior = scroolBehavior,
+        actions = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon( Icons.Default.AccountCircle, contentDescription ="User avatar" )
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon( Icons.Default.Menu, contentDescription ="User menu" )
+            }
+        },
 
+        title = {
+             if (isColapsed){
+                 Column(
+                 ) {
+                     Text(
+                         text = title,
+
+                     )
+
+                     Row(
+                         horizontalArrangement = Arrangement.Center,
+                         verticalAlignment = Alignment.CenterVertically
+                     ) {
+                         val agendadosText = if (numberOfStickNotes <= 1)  "lembrete agendado" else "lembretes agendados"
+                         Text(
+                             text = "Você tem " ,
+                             fontSize = 13.sp,
+                         )
+                         Text(
+                             text =  "$numberOfStickNotes ",
+                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                         )
+                         Text(
+                             text = agendadosText ,
+                             fontSize = 13.sp,
+                         )
+                     }
+                 }
+             }else{
+                 Text(
+                     text = title,
+                     style = MaterialTheme.typography.titleLarge
+                     )
+             }
+        }
+    )
+}
 @Composable
 fun MyCardView(
     stickyNoteDomain: StickyNoteDomain,

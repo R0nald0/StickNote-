@@ -33,6 +33,8 @@ class StickNoteViewmodel @Inject constructor(
     var stickNoteState : StateFlow<StickNoteState> = _stickNoteState.asStateFlow()
     private val _stickNoteEnumFilterType = MutableStateFlow(StickNoteEnumFilterType.Today)
     var stickNoteEnumFilterType = _stickNoteEnumFilterType.asStateFlow()
+    private val _stickNotesAgendas = MutableStateFlow(0)
+    var stickNotesAgendas =  _stickNotesAgendas.asStateFlow()
 
     init {
        alterFilterType(typeFilter = _stickNoteEnumFilterType.value)
@@ -65,6 +67,9 @@ class StickNoteViewmodel @Inject constructor(
                      }
                      .collect { stickNotes ->
                          _stickNoteState.value = StickNoteState.Success(stickNoteList = stickNotes)
+                          _stickNotesAgendas.value = stickNotes.filter {stickyNote ->
+                              stickyNote.isRemember
+                          }.size
                      }
 
   }
