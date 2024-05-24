@@ -19,9 +19,21 @@ class StickNoteRepositoryImpl @Inject constructor(
 
     }
 
+    override suspend fun getStickByPeriodicDate(firstDate: Long, secondDate: Long):Flow<List<StickyNoteDomain>> {
+        try {
+          return  lembreteDao.findStickNoteByDate(firstDate, secondDate).map {notesPeriodic->
+                 notesPeriodic.map {
+                     it.toStickNote()
+                 }
+            }
+        }catch (e:Exception){
+            e.printStackTrace()
+            throw (e)
+        }
+    }
+
     override suspend fun insert(stickyNoteDomain: StickyNoteDomain): Long {
         return lembreteDao.insertLembrete(stickyNoteDomain.toLembrete())
-
     }
 
     override suspend fun update(stickyNoteDomain: StickyNoteDomain): Int {

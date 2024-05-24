@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface GetStickyNoteUseCase {
     suspend fun getStickyNotes(): Flow<List<StickyNoteDomain>>
+    suspend fun getStickNotesToday():Flow<List<StickyNoteDomain>>
+    suspend fun getStickNotesTomorrow():Flow<List<StickyNoteDomain>>
 }

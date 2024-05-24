@@ -11,6 +11,7 @@ import com.example.lembretes.data.entity.LembreteEntity
     entities = [LembreteEntity::class],
     version = 1
 )
+
 abstract class LembreteDatabase : RoomDatabase(){
     abstract fun lembreteDao():LembreteDao
 
