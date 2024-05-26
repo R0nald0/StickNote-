@@ -107,12 +107,14 @@ fun StickChips(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SticnkNoteToolBar(
+    isOpenDrawer : ()->Unit,
     modifier: Modifier = Modifier,
     scroolBehavior: TopAppBarScrollBehavior,
     title : String,
     isColapsed :Boolean = false,
     numberOfStickNotes :Int = 0
 ) {
+
     LargeTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
         scrollBehavior = scroolBehavior,
@@ -122,7 +124,7 @@ fun SticnkNoteToolBar(
             }
         },
         navigationIcon = {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(onClick = isOpenDrawer) {
                 Icon( Icons.Default.Menu, contentDescription ="User menu" )
             }
         },
@@ -133,9 +135,7 @@ fun SticnkNoteToolBar(
                  ) {
                      Text(
                          text = title,
-
                      )
-
                      Row(
                          horizontalArrangement = Arrangement.Center,
                          verticalAlignment = Alignment.CenterVertically
