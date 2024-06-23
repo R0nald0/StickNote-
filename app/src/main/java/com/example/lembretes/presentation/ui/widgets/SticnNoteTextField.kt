@@ -1,0 +1,77 @@
+package com.example.lembretes.presentation.ui.widgets
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.lembretes.presentation.ui.theme.LembretesTheme
+
+@Composable
+fun StickNoteTextField(
+    modifier: Modifier = Modifier,
+    value: String,
+    label: String,
+    isError: Boolean,
+    onChange: (String) -> Unit,
+    textStyle: TextStyle = MaterialTheme.typography.titleMedium,
+    maxLines: Int = 1,
+    singleLine: Boolean,
+    icon: @Composable() (() -> Unit)?,
+    trailingIcon: @Composable() (() -> Unit)?,
+    supportTexting:@Composable()(()->Unit)?,
+) {
+
+    OutlinedTextField(
+        maxLines = maxLines,
+        value = value,
+        singleLine = singleLine,
+        isError = isError,
+        modifier = modifier.fillMaxWidth(),
+        prefix = icon,
+        supportingText = supportTexting,
+        trailingIcon = {
+            if(isError){ trailingIcon }
+        },
+        label = {
+            Text(
+                text = label,
+                style = textStyle
+                )
+        },
+        onValueChange = onChange
+    )
+}
+
+@Preview
+@Composable
+private fun StickNoteTextFieldPreview() {
+     LembretesTheme {
+         StickNoteTextField(
+             value = "Teste",
+             label ="Teste",
+             isError = false,
+             onChange = {},
+             maxLines = 1,
+             singleLine = true,
+             icon = {
+                 Icon(Icons.Default.Person, contentDescription = "")
+             },
+             trailingIcon = {
+                 Icon(Icons.Default.Info, contentDescription = "", tint = Color.Red)
+             },
+             supportTexting = {
+                 Text(text = "dasa")
+             }
+
+         )
+     }
+}

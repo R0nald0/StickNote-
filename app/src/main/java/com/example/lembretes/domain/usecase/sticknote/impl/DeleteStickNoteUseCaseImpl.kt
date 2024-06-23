@@ -1,8 +1,8 @@
-package com.example.lembretes.domain.usecase.impl
+package com.example.lembretes.domain.usecase.sticknote.impl
 
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
-import com.example.lembretes.domain.usecase.DeleteStickNoteUseCase
+import com.example.lembretes.domain.usecase.sticknote.DeleteStickNoteUseCase
 import javax.inject.Inject
 
 class DeleteStickNoteUseCaseImpl @Inject constructor(

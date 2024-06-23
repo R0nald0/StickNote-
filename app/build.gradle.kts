@@ -21,6 +21,12 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        kapt{
+            arguments {
+                arg(name = "room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildTypes {
@@ -54,6 +60,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.navigation.compose)
+    val nav_version = "2.7.7"
+
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
@@ -64,7 +73,9 @@ dependencies {
     val lifecycle_version = "2.7.0"
 
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    //Navigation
 
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$lifecycle_version")
     implementation(libs.androidx.room.runtime)
     kapt("androidx.room:room-compiler:$roomVersion")
     // optional - Kotlin Extensions and Coroutines support for Room
@@ -75,7 +86,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version")
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

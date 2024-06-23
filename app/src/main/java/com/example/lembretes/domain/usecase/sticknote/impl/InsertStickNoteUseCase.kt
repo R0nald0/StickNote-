@@ -1,4 +1,4 @@
-package com.example.lembretes.domain.usecase.impl
+package com.example.lembretes.domain.usecase.sticknote.impl
 
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository

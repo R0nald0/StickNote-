@@ -2,6 +2,7 @@ package com.example.lembretes.domain.usecase.impl
 
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
+import com.example.lembretes.domain.usecase.sticknote.impl.InsertStickNoteUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import com.google.common.truth.Truth.assertThat

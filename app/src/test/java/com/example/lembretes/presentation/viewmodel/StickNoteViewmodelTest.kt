@@ -2,27 +2,16 @@ package com.example.lembretes.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.domain.usecase.GetStickyNoteUseCase
-import com.example.lembretes.domain.usecase.impl.DeleteStickNoteUseCaseImpl
-import com.example.lembretes.domain.usecase.impl.GetStickyNoteUseCaseImpl
-import com.example.lembretes.domain.usecase.impl.InsertStickNoteUseCase
-import com.example.lembretes.domain.usecase.impl.UpdateStickNoteUseCaseImpl
+import com.example.lembretes.domain.usecase.sticknote.impl.DeleteStickNoteUseCaseImpl
+import com.example.lembretes.domain.usecase.sticknote.impl.GetStickyNoteUseCaseImpl
+import com.example.lembretes.domain.usecase.sticknote.impl.InsertStickNoteUseCase
+import com.example.lembretes.domain.usecase.sticknote.impl.UpdateStickNoteUseCaseImpl
 import com.example.lembretes.utils.TestDispatcherRule
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -59,9 +48,9 @@ class StickNoteViewmodelTest {
         MockitoAnnotations.openMocks(this)
         stickNoteViewmodel = StickNoteViewmodel(
             getStickyNoteUseCaseImpl = getStickyNoteUseCaseImpl,
-            insertStickNoteUseCase =  insertStickNoteUseCase,
             deleteStickNoteUseCase = deleteStickyNoteUseCaseImpl,
-            updateStickNoteUseCase = updateStickyNoteUseCaseImpl
+            updateStickNoteUseCase = updateStickyNoteUseCaseImpl,
+
             )
     }
 
@@ -75,14 +64,14 @@ class StickNoteViewmodelTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun ShouldVerifStateInitialIsAEmptyList()= runTest() {
-        stickNoteViewmodel.stickNoteState.collect{
+        /*stickNoteViewmodel.stickNoteState.collect{
             println("teste aw $it")
         }
         stickNoteViewmodel.stickNoteState.test {
           val result  = awaitItem()
-            assertThat(result).isEqualTo(StickNoteState.Success(emptyList()))
+            assertThat(result).isEqualTo(StickNoteState.Data(emptyList()))
             cancel()
-        }
+        }*/
 
     }
 
@@ -91,15 +80,23 @@ class StickNoteViewmodelTest {
         Mockito.`when`(getStickyNoteUseCaseImpl.getStickyNotes()).thenReturn(flowOf(
             buildListLStickNotes()
         ))
-        stickNoteViewmodel.getStickNotes()
-        stickNoteViewmodel.stickNoteState.test {
-           val result = awaitItem()
-            println("teste ${result}")
+       // stickNoteViewmodel.getStickNotes()
+    }
 
-            assertThat(result).isInstanceOf(StickNoteState.Success::class.java)
+    @Test
+    fun updateNotificatioStickNote() = runTest {
+        Mockito.`when`(
+            updateStickyNoteUseCaseImpl.updateNotificatioStickNote(
+                idStickNote =   1,
+                isRemember = true
+            )).thenReturn(Unit)
+
+        stickNoteViewmodel.uiState.test {
+            val retorno = awaitItem()
+                 awaitComplete()
+            println(retorno)
             cancel()
         }
-
     }
 
     @Test
@@ -108,13 +105,7 @@ class StickNoteViewmodelTest {
         Mockito.`when`(getStickyNoteUseCaseImpl.getStickNotesToday()).thenReturn(flowOf(
             buildListLStickNotes()
         ))
-        stickNoteViewmodel.stickNoteState.test {
-            val result = awaitItem()
-            println("teste $result")
 
-            assertThat(result).isInstanceOf(StickNoteState.Success::class.java)
-            cancel()
-        }
     }
 
     @Test

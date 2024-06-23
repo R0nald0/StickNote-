@@ -1,8 +1,8 @@
-package com.example.lembretes.domain.usecase.impl
+package com.example.lembretes.domain.usecase.sticknote.impl
 
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
-import com.example.lembretes.domain.usecase.GetStickyNoteUseCase
+import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.utils.convertDateStringToLong
 import com.example.lembretes.utils.dateTimeTomorow
 import kotlinx.coroutines.flow.Flow
