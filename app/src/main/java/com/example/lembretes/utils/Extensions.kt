@@ -1,10 +1,32 @@
 package com.example.lembretes.utils
 
+
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import java.util.GregorianCalendar
 import java.util.Locale
+fun Date.dateForExtense() :String{
+    val date  = Date()
+    val locale = Locale("pt","BR")
+    val cl = GregorianCalendar.getInstance(locale)
+    val d  = cl.get(GregorianCalendar.DAY_OF_WEEK)
+    val format  = SimpleDateFormat( "'${geetDayOfWeek(d)}',dd MMMM,yyyy ",locale)
+    return  format.format(date.time)
+}
+fun Date.geetDayOfWeek(day : Int):String{
+    return  when(day){
+        1->"Domingo"
+        2->"Segunda"
+        3->"Terça"
+        4->"Quarta"
+        5->"Quinta"
+        6->"Sexta"
+        7->"Sabado"
+        else -> ""
+    }
+}
 
 fun Date.dateTomorow(date:Long ?):String{
     val actualDate =  if(date != null) Date(date) else Date()

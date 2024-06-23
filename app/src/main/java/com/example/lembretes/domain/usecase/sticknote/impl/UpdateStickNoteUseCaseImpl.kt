@@ -1,8 +1,8 @@
-package com.example.lembretes.domain.usecase.impl
+package com.example.lembretes.domain.usecase.sticknote.impl
 
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
-import com.example.lembretes.domain.usecase.UpdateStickNoteUseCase
+import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
 import javax.inject.Inject
 
 class UpdateStickNoteUseCaseImpl @Inject constructor(
@@ -12,4 +12,7 @@ class UpdateStickNoteUseCaseImpl @Inject constructor(
     suspend fun updateStickNote(stickNote: StickyNoteDomain): Int {
         return stickyNoteRepository.update(stickNote)
     }
-}
+
+    override suspend fun updateNotificatioStickNote(idStickNote: Int, isRemember: Boolean)
+                 = stickyNoteRepository.updateNotificatioStickNote(idStickNote, isRemember)
+    }

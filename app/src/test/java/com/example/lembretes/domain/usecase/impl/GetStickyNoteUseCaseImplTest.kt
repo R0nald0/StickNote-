@@ -3,6 +3,7 @@ package com.example.lembretes.domain.usecase.impl
 import app.cash.turbine.test
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
+import com.example.lembretes.domain.usecase.sticknote.impl.GetStickyNoteUseCaseImpl
 import com.example.lembretes.utils.convertDateStringToLong
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
