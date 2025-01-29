@@ -1,6 +1,7 @@
 package com.example.lembretes.presentation.ui.addsticknote
 
 import android.os.Build
+import android.provider.ContactsContract.Data
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -61,6 +62,7 @@ import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
 import com.example.lembretes.utils.convertDateLongToString
+import com.example.lembretes.utils.convertDateStringToLong
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -177,8 +179,8 @@ fun MyScreen(
             }
         )
 
-        var selectedDate by remember {
-            mutableStateOf(LocalDate.now())
+        var selectedDate: Long? by rememberSaveable  {
+            mutableStateOf( null )
         }
 
      val date  = stickyNoteDomain?.let{
@@ -272,8 +274,8 @@ fun MyScreen(
                 datePickerState = datePickerState,
                 dateResult =  dataResult ?:"Escolher data",
                 onSelectedDate = { date->
-                    dataResult = date.toString()
-                   selectedDate = date?.toLocalDate()
+                    dataResult = Date().convertDateLongToString(date ?: 999999)
+                    selectedDate =date
                }
             )
 
@@ -306,7 +308,11 @@ fun MyScreen(
                            id = stickyNoteDomain?.id,
                            name = lembreteName,
                            description = lembreteDescription,
-                           dateTime = selectedDate.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                           dateTime = selectedDate ?: LocalDate.now()
+                                 .plusDays(1)
+                                 .atStartOfDay(ZoneId.systemDefault())
+                                 .toInstant()
+                                 .toEpochMilli() ,
                            isRemember = isRemeber,
                            tags = tags
                        )
@@ -320,10 +326,6 @@ fun MyScreen(
         }
     }
 }
-
-
-
-
 
 @Composable
 fun StickNoteTagArea(

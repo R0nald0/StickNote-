@@ -16,26 +16,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
-import com.example.lembretes.utils.DataUtil
 import com.example.lembretes.utils.convertDateLongToString
 import java.time.Instant
-import java.time.LocalDateTime
+import java.time.LocalDate
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StickyNoteCalendar(
     modifier: Modifier = Modifier,
-    onSelectedDate :(LocalDateTime?)->Unit,
+    onSelectedDate :(Long?)->Unit,
     dateResult : String,
     datePickerState : DatePickerState
 ) {
-
-    val currentYear = DataUtil().getCurrentyear()
-    /*val datePickerState  = rememberDatePickerState(
-        yearRange = IntRange(currentYear, currentYear +3),
-    )*/
     var showDatePicker by remember { mutableStateOf(false) }
 
     OutlinedButton(
@@ -55,16 +51,7 @@ fun StickyNoteCalendar(
             modifier = modifier,
             onClick = {
                 showDatePicker = false
-                val selcc  = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    LocalDateTime.ofInstant(
-                        Instant.ofEpochMilli(datePickerState.selectedDateMillis ?:Date().time),
-                        ZoneId.systemDefault()
-                    )
-                } else {
-                    TODO("VERSION.SDK_INT < O")
-                  //  Date().convertDateLongToString(datePickerState.selectedDateMillis ?: Date().time)
-
-                }
+                val selcc  =  datePickerState.selectedDateMillis
                 onSelectedDate(selcc)
             },
             onDissmis = {showDatePicker = false}
