@@ -29,7 +29,6 @@ class StickNoteViewmodel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeState())
     var uiState :StateFlow<HomeState> = _uiState.asStateFlow()
 
-
      fun alterFilterType(typeFilter : StickNoteEnumFilterType){
            viewModelScope.launch {
                _uiState.update {
@@ -52,7 +51,7 @@ class StickNoteViewmodel @Inject constructor(
            }
      }
 
- private  fun getStickNotes(onFind: Flow<List<StickyNoteDomain>>){
+    private  fun getStickNotes(onFind: Flow<List<StickyNoteDomain>>){
    viewModelScope.launch {
 
        _uiState.update {
@@ -82,7 +81,6 @@ class StickNoteViewmodel @Inject constructor(
            }
      }
   }
-
     fun updateNotificatioStickNote(idStickNote :Int,isRemember :Boolean){
         viewModelScope.launch {
          runCatching {

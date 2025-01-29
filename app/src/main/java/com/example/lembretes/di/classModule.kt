@@ -1,9 +1,17 @@
 package com.example.lembretes.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.preferencesDataStoreFile
+import com.example.lembretes.core.Constants
 import com.example.lembretes.data.LembreteDatabase
 import com.example.lembretes.data.dao.LembreteDao
 import com.example.lembretes.data.dao.UserDao
+import com.example.lembretes.data.repository.PreferenceRepositorie
 import com.example.lembretes.data.repository.StickNoteRepositoryImpl
 import com.example.lembretes.data.repository.UserStickNoteRepositoryImpl
 import com.example.lembretes.domain.repository.StickyNoteRepository
@@ -19,6 +27,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 @Module
@@ -42,6 +53,22 @@ class classModule {
     @Provides
     fun provideInsertStickNote(repositoryImpl: StickyNoteRepository) : InsertStickNoteUseCase {
          return InsertStickNoteUseCase(repositoryImpl)
+    }
+
+    @Singleton
+    @Provides
+    fun providePreferenceRepositorie( dataStore: DataStore<Preferences>)  = PreferenceRepositorie(dataStore)
+
+    @Singleton
+    @Provides
+    fun provideDataStore( @ApplicationContext context :Context) : DataStore<Preferences> {
+        return  PreferenceDataStoreFactory.create(
+            corruptionHandler = ReplaceFileCorruptionHandler(
+                produceNewData = { emptyPreferences() }
+            ),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = { context.preferencesDataStoreFile(Constants.PREFERENCE_NAME) }
+        )
     }
 
     @Provides

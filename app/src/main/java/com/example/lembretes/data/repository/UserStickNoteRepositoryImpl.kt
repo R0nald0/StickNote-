@@ -1,7 +1,7 @@
 package com.example.lembretes.data.repository
 
 import android.util.Log
-import com.example.lembretes.core.AuthUserException
+import com.example.lembretes.core.excetion.AuthUserException
 import com.example.lembretes.data.dao.UserDao
 import com.example.lembretes.data.entity.toUser
 import com.example.lembretes.domain.model.UserDomain
@@ -17,8 +17,8 @@ class UserStickNoteRepositoryImpl @Inject constructor(
     private val TAG = "_INFO"
     override suspend fun findFistUser(): Flow<UserDomain> {
         try {
-            return userDao.findFistUser().map { it.toUser() }
-        }catch (authUser:AuthUserException){
+            return userDao.findFistUser().map { it?.toUser() ?: UserDomain()}
+        }catch (authUser: AuthUserException){
            throw  authUser
         }
     }
@@ -26,7 +26,7 @@ class UserStickNoteRepositoryImpl @Inject constructor(
     override suspend fun createUser(userDomain: UserDomain) {
          try {
              userDao.createUser(userDomain.toEntity())
-         }catch (authUser:AuthUserException){
+         }catch (authUser: AuthUserException){
              throw  authUser
          }
     }
@@ -34,7 +34,7 @@ class UserStickNoteRepositoryImpl @Inject constructor(
     override suspend fun updateUser(userDomain: UserDomain): Int {
         try {
            return userDao.updateUser(userDomain.toEntity())
-        }catch (authUser:AuthUserException){
+        }catch (authUser: AuthUserException){
             Log.i(TAG, "updateUser:${authUser.message} ")
             throw  authUser
         }
@@ -43,7 +43,7 @@ class UserStickNoteRepositoryImpl @Inject constructor(
     override suspend fun deleteUser(userDomain: UserDomain): Int {
         try {
             return userDao.deleteUser(userDomain.toEntity())
-        }catch (authUser:AuthUserException){
+        }catch (authUser: AuthUserException){
             Log.i(TAG, "updateUser:${authUser.message} ")
             throw  authUser
         }

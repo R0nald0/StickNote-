@@ -17,6 +17,8 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
         return stickyNoteRepository.getStickyNotes()
     }
 
+    override suspend fun getStickNoteById(id: Int) = stickyNoteRepository.getStickNoteById(id)
+
     override suspend fun getStickNotesToday(): Flow<List<StickyNoteDomain>> {
 
         val currenDate = Calendar.getInstance().apply {
@@ -71,5 +73,13 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
            firstDate = Date().convertDateStringToLong(firsEPock)!!,
            secondDate =  Date().convertDateStringToLong(secondEPock)!!
         )
+    }
+
+    override suspend fun getStickNoteByText(value: String) : Flow<List<StickyNoteDomain>> {
+        return if (value.contains('#')){
+            stickyNoteRepository.getStickNoteByTag(value)
+        }else{
+            stickyNoteRepository.getStickNoteByText(value)
+        }
     }
 }

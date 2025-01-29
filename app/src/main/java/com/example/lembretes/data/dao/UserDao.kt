@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface UserDao {
 
   @Query(value = "SELECT *FROM user WHERE id = 1")
-   fun findFistUser() :Flow<UserEntity>
+   fun findFistUser() :Flow<UserEntity?>
   @Insert(onConflict = OnConflictStrategy.REPLACE)
  suspend fun createUser(user: UserEntity)
 

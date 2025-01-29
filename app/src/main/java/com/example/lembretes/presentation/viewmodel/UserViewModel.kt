@@ -39,7 +39,9 @@ class UserViewModel @Inject constructor(
     fun findFirstUser(){
         viewModelScope.launch {
             findUser.findFistUser().collect { user ->
-                _user.value = user
+                if (user.id != 0 ){
+                    _user.value = user
+                }
             }
         }
     }

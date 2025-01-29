@@ -1,18 +1,27 @@
 package com.example.lembretes.utils
 
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
 import java.util.Locale
+
 fun Date.dateForExtense() :String{
     val date  = Date()
     val locale = Locale("pt","BR")
     val cl = GregorianCalendar.getInstance(locale)
-    val d  = cl.get(GregorianCalendar.DAY_OF_WEEK)
-    val format  = SimpleDateFormat( "'${geetDayOfWeek(d)}',dd MMMM,yyyy ",locale)
+    val dayOfWeek =geetDayOfWeek(cl.get(GregorianCalendar.DAY_OF_WEEK))
+
+    val format  = SimpleDateFormat( "'${dayOfWeek}',dd MMMM,yyyy ",locale)
+
     return  format.format(date.time)
 }
 fun Date.geetDayOfWeek(day : Int):String{
@@ -28,26 +37,20 @@ fun Date.geetDayOfWeek(day : Int):String{
     }
 }
 
-fun Date.dateTomorow(date:Long ?):String{
-    val actualDate =  if(date != null) Date(date) else Date()
-    val calendar = Calendar.getInstance()
-    calendar.time = actualDate
-    calendar.add(Calendar.DAY_OF_MONTH,1)
-    val dateFormat= SimpleDateFormat("dd/MM/yyy", Locale("pt-BR"))
-    return  dateFormat.format(calendar.time)
-}
+
+
 
 fun Date.dateTimeTomorow(date:Long ?,dayAfter:Int):String{
     val actualDate =  if(date != null) Date(date) else Date()
     val calendar = Calendar.getInstance()
     calendar.time = actualDate
     calendar.add(Calendar.DAY_OF_MONTH,dayAfter)
-    val dateFormat= SimpleDateFormat("dd/MM/yyy HH:mm:ss", Locale("pt-BR"))
+    val dateFormat= SimpleDateFormat("dd/MM/yyy HH:mm:ss", Locale("pt","BR"))
     return  dateFormat.format(calendar.time)
 }
 fun Date.convertDateStringToLong( dataString: String):Long?{
     try {
-        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy",Locale("pt-BR"))
+        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy",Locale("pt","BR"))
         val date = simpleDateFormat.parse(dataString)
         return date.time
     } catch (e: ParseException) {
@@ -59,10 +62,13 @@ fun Date.convertDateStringToLong( dataString: String):Long?{
 fun Date.convertDateLongToString(dataLong: Long):String?{
     try {
         val dataDeLong = Date( dataLong )
-        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy",Locale("pt-BR"))
+        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy",Locale("pt","BR"))
         return  simpleDateFormat.format(dataDeLong)
     } catch (e: ParseException) {
         e.printStackTrace()
     }
     return ""
 }
+
+inline  fun <reified T> Gson.fromJson(json:String)=
+     fromJson<T>(json,object :TypeToken<T>() {}.type)

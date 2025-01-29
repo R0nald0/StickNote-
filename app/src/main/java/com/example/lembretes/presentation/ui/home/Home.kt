@@ -7,11 +7,9 @@ import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,24 +18,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -55,33 +44,28 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lembretes.R
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.model.User
-import com.example.lembretes.presentation.model.NavigationItemDataClass
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
-import com.example.lembretes.presentation.ui.theme.Blue70
-import com.example.lembretes.presentation.ui.widgets.LoadingScreen
-import com.example.lembretes.presentation.ui.widgets.StickChips
-import com.example.lembretes.presentation.ui.widgets.StickNoteCardView
-import com.example.lembretes.presentation.ui.widgets.StickNoteDialogPerfil
-import com.example.lembretes.presentation.ui.widgets.SticnkNoteToolBar
+import com.example.lembretes.presentation.ui.home.widgets.StickNoteBoxSwipToDismiss
+import com.example.lembretes.presentation.ui.home.widgets.StickNoteDrawer
+import com.example.lembretes.presentation.ui.shared.widgets.LoadingScreen
+import com.example.lembretes.presentation.ui.shared.widgets.StickChips
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteCardView
+import com.example.lembretes.presentation.ui.shared.widgets.SticnkNoteToolBar
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
-import com.example.lembretes.utils.dateForExtense
 import kotlinx.coroutines.launch
 import java.util.Calendar
-import java.util.Date
 
 
 data class HomeState(
@@ -92,93 +76,92 @@ data class HomeState(
     val isLoading : Boolean = false,
     val erro :String? =null
 )
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
  fun HomeScreen(
     context : Context,
-    userViewModel: UserViewModel,
-    viewModel : StickNoteViewmodel,
+    userViewModel: UserViewModel = viewModel(),
+    stickNoteViewModel : StickNoteViewmodel = viewModel(),
     modifier: Modifier = Modifier,
     onUpdateStateNotificaion : (Int,Boolean)->Unit,
+    onUpdate:(StickyNoteDomain)->Unit,
     onDelete: (StickyNoteDomain) -> Unit,
     onNavigateToAddStickNote : ()->Unit,
+    onNavigateToSettingsScreen :()->Unit,
+    openSearch :()-> Unit
 ) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scroolBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     val scope = rememberCoroutineScope()
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
     val user by userViewModel.user.collectAsStateWithLifecycle()
 
     var showPerfilDialog by remember{
         mutableStateOf(false)
     }
 
-    if (showPerfilDialog){
-        StickNoteDialogPerfil(
-            user = user,
-            onDissmisRequest = { showPerfilDialog = !showPerfilDialog },
-            onSave = userViewModel::crateUser
-        )
-    }
+  StickNoteDrawer(
+      modifier = modifier,
+      user = user,
+      drawerState = drawerState,
+      showDialog = showPerfilDialog,
+      onCrateUser = userViewModel::crateUser,
+      onClickMenu = {},
+      onNavigateToSettingsScreen = onNavigateToSettingsScreen,
+  ) {
+      Scaffold(
+          modifier = modifier.background(MaterialTheme.colorScheme.background),
+          topBar = {
+              SticnkNoteToolBar(
+                  isOpenDrawer = {
+                      scope.launch {
+                          drawerState.apply {
+                              if (isClosed) open() else close()
+                          }
+                      }
+                  },
+                  scroolBehavior = scroolBehavior,
+                  modifier = modifier,
+                  title = if (scroolBehavior.state.collapsedFraction <= 0.7)
+                      "Olá ${user.name.capitalize(Locale.current)},${daySection()}!!"
+                  else "Lembrete" ,
+                  isColapsed = if(scroolBehavior.state.collapsedFraction <= 0.7f) true else false ,
+                  numberOfStickNotes = uiState.scheduledReminders,
+                  onOpenProfile = {showPerfilDialog = !showPerfilDialog},
+                  openSearch = openSearch
+              )
+          },
+          floatingActionButton = {
+              FloatingActionButton(onClick =onNavigateToAddStickNote) {
+                  Icon(Icons.Default.Add, contentDescription ="button add new stick Note" )
+              }
+          },
+      ) {paddingValues ->
+          Column(
+              modifier = modifier
+                  .fillMaxSize()
+                  .navigationBarsPadding()
+                  .padding(paddingValues)
+          ) {
 
-    ModalNavigationDrawer(
-        drawerState=drawerState,
-        drawerContent = {
-            StickNoteDrawer(
-                openDialog = {showPerfilDialog = !showPerfilDialog},
-                onCloseDrawer = {scope.launch { drawerState.close() }},
-            ) },
-    ) {
-        Scaffold(
-            modifier = modifier.background(MaterialTheme.colorScheme.background),
-            topBar = {
-                SticnkNoteToolBar(
-                    isOpenDrawer = {
-                        scope.launch {
-                            drawerState.apply {
-                                if (isClosed) open() else close()
-                            }
-                        }
-                    },
-                    scroolBehavior = scroolBehavior,
-                    modifier = modifier,
-                    title = if (scroolBehavior.state.collapsedFraction <= 0.7)
-                             "Olá ${user.name.capitalize(Locale.current)},${daySection()}!!"
-                              else "Lembrete" ,
-                    isColapsed = if(scroolBehavior.state.collapsedFraction <= 0.7f) true else false ,
-                    numberOfStickNotes = uiState.scheduledReminders,
-                    onOpenProfile = {showPerfilDialog = !showPerfilDialog},
-                )
-            },
-            floatingActionButton = {
-                FloatingActionButton(onClick =onNavigateToAddStickNote) {
-                    Icon(Icons.Default.Add, contentDescription ="button add new stick Note" )
-                }
-             },
-            ) {paddingValues ->
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(paddingValues)
-                ) {
+              MenuNavStickNote(modifier,uiState, stickNoteViewModel)
 
-                    MenuNavStickNote(modifier,uiState, viewModel)
+              StateListStickNote(
+                  uiState =   uiState,
+                  modifier =  modifier,
+                  onNavigateToAddStickNote  =onNavigateToAddStickNote,
+                  onUpdate = onUpdate,
+                  context =  context,
+                  onDelete = onDelete,
+                  onUpdateStateNotificaion= onUpdateStateNotificaion
+              )
+          }
 
-                    StateListStickNote(
-                        uiState,
-                        modifier,
-                        onNavigateToAddStickNote,
-                        context,
-                        onDelete,
-                        onUpdateStateNotificaion
-                    )
-                }
+      }
+  }
 
-        }
-
-    }
 }
 @Composable
 private fun MenuNavStickNote(
@@ -215,28 +198,28 @@ private fun MenuNavStickNote(
         )
     }
 }
+
 @Composable
 private fun StateListStickNote(
     uiState: HomeState,
     modifier: Modifier,
     onNavigateToAddStickNote: () -> Unit,
+    onUpdate: (StickyNoteDomain) -> Unit, //vefificar aqui
     context: Context,
     onDelete: (StickyNoteDomain) -> Unit,
     onUpdateStateNotificaion: (Int, Boolean) -> Unit
 ) {
     when {
         uiState.listData != null -> {
-
             val listStickNote = uiState.listData
             if (listStickNote.isEmpty()) {
-
                StickNoteNoContent(modifier, uiState.filterType, onNavigateToAddStickNote)
             } else {
 
                 StickNoteStateLazyList(
                     stickNotes = listStickNote,
                     context = context,
-                    onNavigateToAddStickNote = onNavigateToAddStickNote,
+                    onNavigateToAddStickNote = onUpdate,
                     onDelete = onDelete,
                     onUpdateStateNotificaion = onUpdateStateNotificaion
                 )
@@ -253,67 +236,6 @@ private fun StateListStickNote(
 
     }
 }
-
-
-
-@Composable
-private fun StickNoteDrawer(
-    modifier: Modifier = Modifier,
-    today : String =Date().dateForExtense(),
-    onCloseDrawer : ()->Unit,
-    openDialog:() ->Unit
-) {
-
-    ModalDrawerSheet(
-        modifier = modifier.fillMaxWidth(fraction = 0.7f),
-    )
-    {
-
-        Spacer(modifier = modifier.height(10.dp))
-        Surface(
-            modifier
-                .fillMaxWidth()
-                .fillMaxHeight(fraction = 0.2f)
-        ) {
-            Row(
-                modifier
-                    .fillMaxSize()
-                    .background(color = Blue70),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            )
-            {
-                Text(
-                    text =today,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-//                         Icon(
-//                              painter = painterResource(id = R.drawable.sun),
-//                             contentDescription = "sun",
-//                             modifier = modifier.size(60.dp),
-//                             tint = Color.Yellow
-//                         )
-            }
-        }
-
-        HorizontalDivider()
-        Spacer(modifier = modifier.height(10.dp))
-        navigationsItems().forEach {itemNav->
-            NavigationDrawerItem(
-                icon = { Icon(Icons.Filled.AccountCircle, contentDescription = "User icons") },
-                label = { Text(text = itemNav.label) },
-                selected = itemNav.selected,
-                onClick ={ onCloseDrawer()
-                           openDialog()
-                         },
-                badge = { Text(itemNav.badge) }
-            )
-        }
-    }
-}
-
 
 @Composable
 private fun StickNoteNoContent(
@@ -345,13 +267,12 @@ private fun StickNoteNoContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StickNoteStateLazyList(
     modifier: Modifier = Modifier,
     context: Context,
     stickNotes: List<StickyNoteDomain>,
-    onNavigateToAddStickNote: () ->Unit,
+    onNavigateToAddStickNote: (StickyNoteDomain) ->Unit,
     onDelete:(StickyNoteDomain)->Unit,
     onUpdateStateNotificaion : (Int,Boolean)->Unit,
     ) {
@@ -369,7 +290,7 @@ fun StickNoteStateLazyList(
 
             LaunchedEffect(key1 = switToDismessState.currentValue) {
                 when (switToDismessState.currentValue) {
-                    SwipeToDismissBoxValue.StartToEnd -> onNavigateToAddStickNote()
+                    SwipeToDismissBoxValue.StartToEnd -> onNavigateToAddStickNote(stickNote)
                     SwipeToDismissBoxValue.EndToStart -> onDelete(stickNote)
                     SwipeToDismissBoxValue.Settled -> {}
                 }
@@ -386,7 +307,6 @@ fun StickNoteStateLazyList(
     }
 }
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MySwippe(
     modifier : Modifier = Modifier,
@@ -395,7 +315,6 @@ fun MySwippe(
     stickNote :StickyNoteDomain,
     context :Context,
 ){
-
     var color  = Color.Transparent
     var align  =Arrangement.End
     var icon = R.drawable.delete_24
@@ -426,7 +345,12 @@ fun MySwippe(
         modifier = modifier.animateContentSize(),
         state = dismissState ,
         backgroundContent ={
-            BoxSwipToDismis(contentAlignment = align, backGroundcolor =color , icon = icon,textTitle =textTitle )
+            StickNoteBoxSwipToDismiss(
+                contentAlignment = align,
+                backGroundcolor =color ,
+                icon = icon,
+                textTitle =textTitle
+            )
         } ) {
         StickNoteCardView(
             stickyNoteDomain =  stickNote,
@@ -435,57 +359,6 @@ fun MySwippe(
             context = context
         )
     }
-}
-
-@Composable
-fun BoxSwipToDismis(
-    contentAlignment: Arrangement.Horizontal,
-    backGroundcolor : Color,
-    icon : Int,
-    textTitle : String
-) {
-    Box(
-        modifier = Modifier.clip(CircleShape)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .background(backGroundcolor)
-            ,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = contentAlignment
-        ) {
-            IconButton(onClick = {}) {
-                Icon(painter = painterResource(id = icon), contentDescription = "" , tint = Color.White)
-            }
-            Text(
-                text = textTitle,
-                color  = Color.White,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-    }
-}
-
-private fun navigationsItems(
-):List<NavigationItemDataClass>{
-    return  listOf(
-        NavigationItemDataClass(
-            icon =  Icons.Filled.AccountCircle,
-            label = "Perfil",
-            selected = false,
-            onClick = {},
-            badge =  ""
-        ),
-        NavigationItemDataClass(
-            icon = Icons.Filled.Settings,
-            label = "Configurações",
-            selected = false,
-            onClick = { },
-            badge = ""
-        ),
-    )
 }
 
 

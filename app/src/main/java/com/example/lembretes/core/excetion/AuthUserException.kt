@@ -1,4 +1,4 @@
-package com.example.lembretes.core
+package com.example.lembretes.core.excetion
 
 class AuthUserException(
     message:String? = null,

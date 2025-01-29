@@ -1,7 +1,6 @@
 package com.example.lembretes.presentation
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -11,17 +10,25 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lembretes.presentation.navigation.AddStickNoteNavigation
 import com.example.lembretes.presentation.navigation.HomeNavigation
+import com.example.lembretes.presentation.navigation.SearchNavigation
+import com.example.lembretes.presentation.navigation.SettingNavigation
+import com.example.lembretes.presentation.navigation.navigateToAddStiCkNote
+import com.example.lembretes.presentation.ui.SearchScreen
 import com.example.lembretes.presentation.ui.addsticknote.AddStickNoteScreen
 import com.example.lembretes.presentation.ui.home.HomeScreen
+import com.example.lembretes.presentation.ui.settings.SettingScreen
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
-import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
+import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,29 +36,81 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private  val viewModel by  viewModels<StickNoteViewmodel>()
-    private  val addUpdateViewModel by  viewModels<AddUpdateViewModel>()
     private  val userViewModel by  viewModels<UserViewModel>()
+    private  val prefViewModel by  viewModels<PreferencesViewModel>()
 
     @SuppressLint("CoroutineCreationDuringComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            LembretesTheme {
-                // A surface container using the 'background' color from the theme
+            val navController = rememberNavController()
+            val userPef   by  prefViewModel.userPreference.collectAsStateWithLifecycle()
+            LembretesTheme(
+                darkTheme = userPef.isDakrMode
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                        MyApp(
-                            modifier = Modifier,
-                            context = this,
-                            viewModel = viewModel,
-                            userViewModel = userViewModel,
-                            addUpdateViewModel = addUpdateViewModel
-                        )
+                    NavHost(
+                        navController =navController ,
+                        startDestination = HomeNavigation.route,
+                    ) {
+                        composable(route = HomeNavigation.route){
+                          val stickNoteViewModel  = hiltViewModel<StickNoteViewmodel>()
+                            LaunchedEffect(key1 = Unit) {
+                                stickNoteViewModel.alterFilterType(stickNoteViewModel.uiState.value.filterType)
+                            }
+                            HomeScreen(
+                                modifier = Modifier,
+                                userViewModel = userViewModel,
+                                stickNoteViewModel = stickNoteViewModel,
+                                context = this@MainActivity,
+                                onUpdateStateNotificaion = stickNoteViewModel::updateNotificatioStickNote,
+                                onDelete = stickNoteViewModel::deleteStickNote,
+                                onUpdate = {stickyNote ->
+                                    navController.navigateToAddStiCkNote(stickyNote.id.toString())
+                                },
+                                onNavigateToAddStickNote = {
+                                    navController.navigate(AddStickNoteNavigation.route)
+                                },
+                                onNavigateToSettingsScreen = {
+                                    navController.navigate(SettingNavigation.route)
+                                },
+                                openSearch = {navController.navigate(SearchNavigation.route)}
+                            )
+                        }
+                        composable(
+                            route = AddStickNoteNavigation.routeWithArgs,
+                            arguments = AddStickNoteNavigation.arguments,
+                        ){ backStackEntry->
+                            AddStickNoteScreen(
+                                idStikcNote = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote),
+                                modifier = Modifier,
+                                onClosed = navController::popBackStack,
+                            )
+                        }
+
+                        composable(route = SettingNavigation.route){
+                            SettingScreen(
+                                modifier = Modifier,
+                                userPreference = userPef,
+                                preferencesViewModel = prefViewModel,
+                                onClosed = {navController.popBackStack()}
+                            )
+                        }
+                        composable(route = SearchNavigation.route){
+                          val  stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
+                            SearchScreen(
+                                modifier = Modifier,
+                                onClose = {navController.popBackStack()},
+                                context= this@MainActivity,
+                                onUpadteNotification = stickNoteViewModel::updateNotificatioStickNote,
+                            )
+                        }
+
+                    }
                 }
             }
         }
@@ -63,52 +122,6 @@ class MainActivity : ComponentActivity() {
 
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun MyApp(
-     modifier: Modifier = Modifier ,
-     context: Context,
-     viewModel: StickNoteViewmodel,
-     userViewModel :UserViewModel,
-     addUpdateViewModel: AddUpdateViewModel
-) {
-     val navController = rememberNavController()
-
-    NavHost(
-        navController =navController ,
-        startDestination = HomeNavigation.route,
-    ) {
-
-        composable(route = HomeNavigation.route){
-            viewModel.alterFilterType(viewModel.uiState.value.filterType)
-                HomeScreen(
-                    userViewModel = userViewModel,
-                    modifier = modifier,
-                    context = context,
-                    viewModel = viewModel,
-                    onUpdateStateNotificaion = viewModel::updateNotificatioStickNote,
-                    onDelete = viewModel::deleteStickNote,
-                    onNavigateToAddStickNote = {
-                        navController.navigate(AddStickNoteNavigation.route)
-                    }
-               )
-        }
-        composable(route = AddStickNoteNavigation.route){
-            AddStickNoteScreen(
-                modifier = modifier,
-                stickNoteViewmodel = addUpdateViewModel,
-                onClosed ={
-
-                    navController.popBackStack()
-                          },
-                reloadoList = {
-
-                }
-            )
-        }
-
-    }
-}
 
 
 
