@@ -5,10 +5,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.time.LocalDate
-import java.time.LocalDateTime
-
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.GregorianCalendar
@@ -38,8 +34,6 @@ fun Date.geetDayOfWeek(day : Int):String{
 }
 
 
-
-
 fun Date.dateTimeTomorow(date:Long ?,dayAfter:Int):String{
     val actualDate =  if(date != null) Date(date) else Date()
     val calendar = Calendar.getInstance()
@@ -57,6 +51,14 @@ fun Date.convertDateStringToLong( dataString: String):Long?{
         e.printStackTrace()
     }
     return null
+}
+
+fun Date.dateTimeTomorowLong(dayAfter:Int):Long{
+    val calendar = Calendar.getInstance()
+    calendar.time = Date()
+    calendar.add(Calendar.DAY_OF_MONTH,dayAfter)
+
+    return  calendar.timeInMillis
 }
 
 fun Date.convertDateLongToString(dataLong: Long):String?{

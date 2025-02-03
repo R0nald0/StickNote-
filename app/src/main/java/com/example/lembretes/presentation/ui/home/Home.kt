@@ -58,9 +58,11 @@ import com.example.lembretes.domain.model.User
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.home.widgets.StickNoteBoxSwipToDismiss
 import com.example.lembretes.presentation.ui.home.widgets.StickNoteDrawer
+import com.example.lembretes.presentation.ui.shared.widgets.ContentDialog
 import com.example.lembretes.presentation.ui.shared.widgets.LoadingScreen
 import com.example.lembretes.presentation.ui.shared.widgets.StickChips
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteCardView
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
 import com.example.lembretes.presentation.ui.shared.widgets.SticnkNoteToolBar
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
@@ -97,22 +99,32 @@ data class HomeState(
     val scope = rememberCoroutineScope()
     val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
     val user by userViewModel.user.collectAsStateWithLifecycle()
-
     var showPerfilDialog by remember{
         mutableStateOf(false)
+    }
+
+    if (showPerfilDialog){
+        StickNoteDialogPerfil(
+            content ={
+                ContentDialog(
+                    user = user,
+                    onDissmisRequest = { showPerfilDialog = !showPerfilDialog},
+                    onSave = userViewModel::crateUser
+                )
+            },
+            onDissmisRequest = { showPerfilDialog = !showPerfilDialog },
+        )
     }
 
   StickNoteDrawer(
       modifier = modifier,
       user = user,
       drawerState = drawerState,
-      showDialog = showPerfilDialog,
-      onCrateUser = userViewModel::crateUser,
+
       onClickMenu = {},
       onNavigateToSettingsScreen = onNavigateToSettingsScreen,
   ) {
       Scaffold(
-          modifier = modifier.background(MaterialTheme.colorScheme.background),
           topBar = {
               SticnkNoteToolBar(
                   isOpenDrawer = {
@@ -176,6 +188,8 @@ private fun MenuNavStickNote(
         StickChips(
             label = StickNoteEnumFilterType.Today.value,
             isSelected = uiState.filterType == StickNoteEnumFilterType.Today,
+            colorBackGround = MaterialTheme.colorScheme.onPrimary,
+            colorText = MaterialTheme.colorScheme.primary,
             onClick = {
                 uiState.copy(isLoading = true)
                 viewModel.alterFilterType(StickNoteEnumFilterType.Today)
@@ -184,6 +198,8 @@ private fun MenuNavStickNote(
         Spacer(modifier = Modifier.width(10.dp))
         StickChips(label = StickNoteEnumFilterType.TOMORROW.value,
             isSelected = uiState.filterType == StickNoteEnumFilterType.TOMORROW,
+            colorBackGround = MaterialTheme.colorScheme.onPrimary,
+            colorText = MaterialTheme.colorScheme.primary,
             onClick = {
                     viewModel.alterFilterType(StickNoteEnumFilterType.TOMORROW)
                     uiState.copy(isLoading = true)
@@ -191,6 +207,8 @@ private fun MenuNavStickNote(
         Spacer(modifier = Modifier.width(10.dp))
         StickChips(label = StickNoteEnumFilterType.All.value,
             isSelected = uiState.filterType == StickNoteEnumFilterType.All,
+            colorBackGround = MaterialTheme.colorScheme.onPrimary,
+            colorText = MaterialTheme.colorScheme.primary,
             onClick = {
                     viewModel.alterFilterType(StickNoteEnumFilterType.All)
                     uiState.copy(isLoading = true)
@@ -338,9 +356,7 @@ fun MySwippe(
             }
         }
         SwipeToDismissBoxValue.Settled -> {}
-
     }
-
     SwipeToDismissBox(
         modifier = modifier.animateContentSize(),
         state = dismissState ,

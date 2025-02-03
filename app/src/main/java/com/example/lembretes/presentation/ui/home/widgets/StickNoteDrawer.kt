@@ -34,7 +34,6 @@ import com.example.lembretes.domain.model.User
 import com.example.lembretes.presentation.model.NavigationItemDataClass
 import com.example.lembretes.presentation.ui.shared.widgets.ContentDialog
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
-import com.example.lembretes.presentation.ui.theme.Blue70
 import com.example.lembretes.utils.dateForExtense
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -43,58 +42,32 @@ import java.util.Date
 @Composable
 fun StickNoteDrawer(
     modifier: Modifier = Modifier,
-    user :User,
-    showDialog : Boolean,
-    drawerState:DrawerState,
-    onNavigateToSettingsScreen :()->Unit,
-    onClickMenu :()->Unit,
-    onCrateUser :(String ,String) ->Unit,
-    content :  @Composable () -> Unit
+    user: User,
+    drawerState: DrawerState,
+    onNavigateToSettingsScreen: () -> Unit,
+    onClickMenu: () -> Unit,
+    content: @Composable () -> Unit
 ) {
 
     val scope = rememberCoroutineScope()
-    var showPerfilDialog by remember{
-        mutableStateOf(showDialog)
-    }
 
-    if (showPerfilDialog){
-        StickNoteDialogPerfil(
-            content ={
-                ContentDialog(
-                    user = user,
-                    onDissmisRequest = { showPerfilDialog = !showPerfilDialog},
-                    onSave = onCrateUser
-                )
-            },
-            onDissmisRequest = { showPerfilDialog = !showPerfilDialog },
-        )
-    }
 
     val menus = listOf(
-        NavigationItemDataClass(
-            icon =  Icons.Filled.AccountCircle,
-            label = "Perfil",
-            selected = false,
-            onClick = {
-                scope.launch {
-                    drawerState.close()
-                }
-                    showPerfilDialog = !showPerfilDialog
-            },
-            badge =  ""
-        ),
         NavigationItemDataClass(
             icon = Icons.Filled.Settings,
             label = "Configurações",
             selected = false,
-            onClick = onNavigateToSettingsScreen,
+            onClick = {
+                onNavigateToSettingsScreen
+                scope.launch { drawerState.close() }
+            },
             badge = ""
         ),
     )
 
     ModalNavigationDrawer(
         modifier = modifier,
-        drawerState=drawerState,
+        drawerState = drawerState,
         drawerContent = {
             StickNoteDrawerContent(
                 modifier = Modifier,
@@ -109,16 +82,15 @@ fun StickNoteDrawer(
 @Composable
 private fun StickNoteDrawerContent(
     modifier: Modifier = Modifier,
-    today : String = Date().dateForExtense(),
-    onClickMenu :()-> Unit,
+    today: String = Date().dateForExtense(),
+    onClickMenu: () -> Unit,
     optionsMenus: List<NavigationItemDataClass>
 ) {
 
     ModalDrawerSheet(
-        modifier = modifier.fillMaxWidth(fraction = 0.7f),
+        modifier = modifier.fillMaxWidth(fraction = 0.7f)
     )
     {
-        Spacer(modifier = modifier.height(10.dp))
         Surface(
             modifier
                 .fillMaxWidth()
@@ -127,13 +99,14 @@ private fun StickNoteDrawerContent(
             Row(
                 modifier
                     .fillMaxSize()
-                    .background(color = Blue70),
+                    .background(color = MaterialTheme.colorScheme.primary),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             )
             {
                 Text(
-                    text =today,
+                    text = today,
+                    color = MaterialTheme.colorScheme.primaryContainer,
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.Bold
                     )
@@ -149,12 +122,12 @@ private fun StickNoteDrawerContent(
 
         HorizontalDivider()
         Spacer(modifier = modifier.height(10.dp))
-        optionsMenus.forEach {itemNav->
+        optionsMenus.forEach { itemNav ->
             NavigationDrawerItem(
                 icon = { Icon(itemNav.icon, contentDescription = "User icons") },
                 label = { Text(text = itemNav.label) },
                 selected = itemNav.selected,
-                onClick =itemNav.onClick,
+                onClick = itemNav.onClick,
                 badge = { Text(itemNav.badge) }
             )
         }

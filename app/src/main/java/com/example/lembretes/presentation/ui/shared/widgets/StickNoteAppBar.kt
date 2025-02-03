@@ -20,6 +20,11 @@ fun StickNoteAppBar(
     title :  String,
 ) {
     TopAppBar(
+
+        colors = TopAppBarDefaults.topAppBarColors(
+            titleContentColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        ),
         navigationIcon = {
             IconButton(
                 onClick = onClosed,
@@ -27,18 +32,15 @@ fun StickNoteAppBar(
                     Icon(
                         Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                         contentDescription = "",
-                        tint = MaterialTheme.colorScheme.inversePrimary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             )
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
+
         title = {
             Text(
                 text = title,
-                color = MaterialTheme.colorScheme.primary
             )
         },
     )

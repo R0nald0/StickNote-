@@ -68,6 +68,7 @@ android {
 dependencies {
     // Jetpack Compose Integration
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.ui.text.google.fonts)
 
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
@@ -86,7 +87,7 @@ dependencies {
 
     val lifecycle_version = "2.7.0"
 
-
+    implementation (libs.accompanist.systemuicontroller)
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
     //Navigation
 

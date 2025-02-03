@@ -3,4 +3,5 @@
     <string name="title_activity_add_stick_note">AddStickNoteActivity</string>
     <string name="editar_lembrete">Editar Lembrete</string>
     <string name="adicionar_lembrete">Adicionar Lembrete</string>
+    <string name="descri_o">Descrição</string>
 </resources>

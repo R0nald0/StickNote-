@@ -49,7 +49,6 @@ class AddUpdateViewModel @Inject constructor(
         }
     }
     fun updateStickNote(stickyNoteDomain: StickyNoteDomain){
-        Log.d("INFO_", "updateStickNote: $stickyNoteDomain")
 
         viewModelScope.launch{
             runCatching {
@@ -70,6 +69,7 @@ class AddUpdateViewModel @Inject constructor(
     fun insertStickNote(stickyNoteDomain: StickyNoteDomain){
          //Loading
         viewModelScope.launch {
+            stickyNoteDomain.copy()
             runCatching {
                 insertStickNoteUseCase.insert(stickyNoteDomain)
             }.fold(

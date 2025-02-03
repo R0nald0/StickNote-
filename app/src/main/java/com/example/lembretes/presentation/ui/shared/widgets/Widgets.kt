@@ -5,28 +5,26 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
@@ -71,7 +69,7 @@ fun StickChips(
                 style = if (isSelected)  MaterialTheme.typography.bodyMedium
                     .copy(
                        fontSize = 12.sp,
-                       fontWeight = FontWeight.Bold
+                       fontWeight = FontWeight.W900
             )
             else MaterialTheme.typography.bodySmall
                 .copy(
@@ -95,9 +93,16 @@ fun SticnkNoteToolBar(
     onOpenProfile : ()->Unit,
     openSearch : ()->Unit,
 ) {
-
     LargeTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+        modifier = modifier.clip(
+            RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
+        ),
+        colors = TopAppBarDefaults.topAppBarColors(
+                containerColor =  MaterialTheme.colorScheme.primaryContainer,
+                scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                titleContentColor = MaterialTheme.colorScheme.primary
+
+        ),
         scrollBehavior = scroolBehavior,
         actions = {
             IconButton(onClick = openSearch) {
@@ -118,7 +123,6 @@ fun SticnkNoteToolBar(
              if (isColapsed){
                  Column(
                  ) {
-
                      Text(
                          text = title,
                          style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
@@ -134,7 +138,7 @@ fun SticnkNoteToolBar(
                              fontSize = 13.sp,
                          )
                          Text(
-                             text =  "$numberOfStickNotes ",
+                             text =  " $numberOfStickNotes ",
                              style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
                          )
                          Text(

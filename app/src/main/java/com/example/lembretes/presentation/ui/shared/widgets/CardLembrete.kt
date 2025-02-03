@@ -21,12 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.lembretes.core.notification.showNotification
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.presentation.ui.theme.Purple40
-import com.example.lembretes.presentation.ui.theme.Purple80
+
 import com.example.lembretes.utils.convertDateLongToString
 import java.util.Date
 import java.util.Locale
@@ -44,7 +44,7 @@ fun StickNoteCardView(
             context.showNotification(stickyNoteDomain.name,stickyNoteDomain.description)
         },
         colors = CardDefaults.cardColors(
-            containerColor = Purple40
+            containerColor = MaterialTheme.colorScheme.primary
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
@@ -63,13 +63,14 @@ fun StickNoteCardView(
                 text = stickyNoteDomain.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
                     Locale.getDefault()) else it.toString() },
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = Color.White
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.Bold
                 ),
             )
             IconButton(
                 modifier = modifier
                     .clip(CircleShape)
-                    .background(Purple80)
+                    .background(MaterialTheme.colorScheme.tertiary)
                     .size(35.dp),
                 onClick = {
                         stickyNoteDomain.isRemember = !stickyNoteDomain.isRemember
@@ -79,8 +80,8 @@ fun StickNoteCardView(
                     Icon(
                         Icons.Filled.Notifications
                         ,contentDescription = "notification icon",
-                        tint =  if(stickyNoteDomain.isRemember) MaterialTheme.colorScheme.onPrimary
-                        else MaterialTheme.colorScheme.tertiary
+                        tint =  if(stickyNoteDomain.isRemember) MaterialTheme.colorScheme.primaryContainer
+                                   else MaterialTheme.colorScheme.outline
                     )
                 })
         }
@@ -90,7 +91,7 @@ fun StickNoteCardView(
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.secondaryContainer,
             ),
             maxLines = 2,
             modifier = Modifier
@@ -107,7 +108,8 @@ fun StickNoteCardView(
             StickChips(
                 label =  Date().convertDateLongToString(stickyNoteDomain.dateTime?: Date().time)?:"00/00/0000",
                 isSelected = true,
-                colorBackGround = Color.White,
+                colorBackGround = MaterialTheme.colorScheme.onPrimary,
+                colorText = MaterialTheme.colorScheme.primary,
 
                 )
 
@@ -116,9 +118,8 @@ fun StickNoteCardView(
                 StickChips(
                     label = label,
                     isSelected = true,
-                    colorBackGround = Color.White,
-                    colorText = Color.Red,
-
+                    colorBackGround = MaterialTheme.colorScheme.onPrimary,
+                    colorText = MaterialTheme.colorScheme.error,
                     )
             }
         }

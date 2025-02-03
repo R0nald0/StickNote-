@@ -1,11 +1,9 @@
 package com.example.lembretes.presentation.ui.addsticknote
 
 import android.os.Build
-import android.provider.ContactsContract.Data
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,19 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
@@ -43,18 +33,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.lembretes.R
 import com.example.lembretes.domain.model.StickyNoteDomain
+import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteTagArea
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickyNoteCalendar
 import com.example.lembretes.presentation.ui.shared.widgets.LoadingScreen
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
@@ -62,7 +52,7 @@ import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
 import com.example.lembretes.utils.convertDateLongToString
-import com.example.lembretes.utils.convertDateStringToLong
+import com.example.lembretes.utils.dateTimeTomorowLong
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -72,11 +62,11 @@ import java.util.TimeZone
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AddStickNoteScreen (
+fun AddStickNoteScreen(
     modifier: Modifier = Modifier,
-    idStikcNote :String? = null,
+    idStikcNote: String? = null,
     onClosed: () -> Unit,
-    ) {
+) {
 
     val addUpdateViewModel = hiltViewModel<AddUpdateViewModel>()
 
@@ -86,33 +76,33 @@ fun AddStickNoteScreen (
 
     Log.i("INFO_", "AddStickNoteScreen: loader : $loader")
 
-    if (loader){
+    if (loader) {
         LoadingScreen(isLoading = {
-             if (idStikcNote != "0"){
-                 addUpdateViewModel.findById(idStikcNote!!.toInt())
-             }
-         loader = false
+            if (idStikcNote != "0") {
+                addUpdateViewModel.findById(idStikcNote!!.toInt())
+            }
+            loader = false
         })
-    }else{
+    } else {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background,
         ) {
             val ui by addUpdateViewModel.addScreenUi.collectAsStateWithLifecycle()
 
-            if (idStikcNote != null && idStikcNote !="0"){
-                if (ui.stickyNoteDomain.name.isNotBlank()){
+            if (idStikcNote != null && idStikcNote != "0") {
+                if (ui.stickyNoteDomain.name.isNotBlank()) {
                     MyScreen(
                         onSave = addUpdateViewModel::updateStickNote,
-                        stickyNoteDomain =  ui.stickyNoteDomain,
-                        onClosed =   onClosed,
+                        stickyNoteDomain = ui.stickyNoteDomain,
+                        onClosed = onClosed,
                     )
                 }
 
-            }else{
+            } else {
                 MyScreen(
                     onSave = addUpdateViewModel::insertStickNote,
-                    stickyNoteDomain =null,
+                    stickyNoteDomain = null,
                     modifier = modifier,
                     onClosed = onClosed
                 )
@@ -121,73 +111,72 @@ fun AddStickNoteScreen (
 
     }
 
-  if (idStikcNote != null && idStikcNote !="0"){
+    if (idStikcNote != null && idStikcNote != "0") {
         Log.d("INFO_", "AddStickNoteScreen: $idStikcNote")
-    }else{
+    } else {
         Log.d("INFO_", "AddStickNoteScreen: $idStikcNote")
     }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyScreen(
-    onSave :(StickyNoteDomain) -> Unit ,
+    onSave: (StickyNoteDomain) -> Unit,
     stickyNoteDomain: StickyNoteDomain?,
-    modifier: Modifier =Modifier,
-    onClosed : ()->Unit
-)
-{
-    Scaffold (
-        topBar = { StickNoteAppBar (
-            onClosed = onClosed,
-            title = if (stickyNoteDomain != null) stringResource(R.string.editar_lembrete) else stringResource(
-                R.string.adicionar_lembrete
-             )
+    modifier: Modifier = Modifier,
+    onClosed: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            StickNoteAppBar(
+                onClosed = onClosed,
+                title = if (stickyNoteDomain != null) stringResource(R.string.editar_lembrete) else stringResource(
+                    R.string.adicionar_lembrete
+                )
             )
         }
-    ){paddingValues->
-        var lembreteName by rememberSaveable {
-            mutableStateOf(  stickyNoteDomain?.name ?: "")
-        }
+    ) { paddingValues ->
+        var lembreteName by rememberSaveable { mutableStateOf(stickyNoteDomain?.name ?: "") }
         var lembreteDescription by rememberSaveable {
-            mutableStateOf(  stickyNoteDomain?.description?:"")
+            mutableStateOf(stickyNoteDomain?.description ?: "")
         }
         var isRemeber by rememberSaveable {
-            mutableStateOf( stickyNoteDomain?.isRemember ?:false)
+            mutableStateOf(stickyNoteDomain?.isRemember ?: false)
         }
 
         val tags = remember {
             mutableStateListOf<String>()
         }
-
         var tag by remember { mutableStateOf("") }
         val datePickerState = rememberDatePickerState(
-            selectableDates = object  : SelectableDates{
-                val zoneId =  TimeZone.getTimeZone("UTC").toZoneId()
+            selectableDates = object : SelectableDates {
+                val zoneId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    TimeZone.getTimeZone("UTC").toZoneId()
+                } else {
+                    TODO("VERSION.SDK_INT < O")
+                }
+
                 override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    val selectableDates =Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
+                    val selectableDates = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
                     val currentData = ZonedDateTime.now(zoneId)
-                    val fiveDaysRange = currentData.plusDays(4)
+                    val fiveDaysRange = currentData.minusDays(4)
                     return super.isSelectableDate(utcTimeMillis)
                 }
 
                 override fun isSelectableYear(year: Int): Boolean {
                     return true
-                 }
+                }
             }
         )
 
-        var selectedDate: Long? by rememberSaveable  {
-            mutableStateOf( null )
+        var selectedDate: Long? by rememberSaveable {
+            mutableStateOf(null)
         }
 
-     val date  = stickyNoteDomain?.let{
+        val date = stickyNoteDomain?.let {
             Date().convertDateLongToString(it.dateTime)
-     }
-
-
+        }
         var dataResult: String? by remember {
             mutableStateOf(date)
         }
@@ -198,23 +187,23 @@ fun MyScreen(
                 .verticalScroll(state = rememberScrollState())
                 .padding(paddingValues)
                 .padding(16.dp)
-                .fillMaxSize()
-                ,
+                .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Image(
                 modifier = modifier.size(120.dp),
                 painter = painterResource(id = R.drawable.iconstickynote),
-                contentDescription ="Stick note icon" )
+                contentDescription = "Stick note icon"
+            )
 
             Spacer(modifier = modifier.height(5.dp))
             StickNoteTextField(
                 maxLines = 1,
-                value = lembreteName ,
-                label ="Título" ,
+                value = lembreteName,
+                label = "Título",
                 isError = false,
-                onChange = {value-> lembreteName = value},
-                singleLine = true ,
+                onChange = { value -> lembreteName = value },
+                singleLine = true,
                 icon = { /*TODO*/ },
                 trailingIcon = { /*TODO*/ },
                 supportTexting = {}
@@ -222,10 +211,10 @@ fun MyScreen(
 
             StickNoteTextField(
                 maxLines = 5,
-                value =  lembreteDescription,
-                label ="Descrição" ,
+                value = lembreteDescription,
+                label = stringResource(R.string.descri_o),
                 isError = false,
-                onChange = {value->
+                onChange = { value ->
                     lembreteDescription = value
                 },
                 singleLine = false,
@@ -234,188 +223,139 @@ fun MyScreen(
                 supportTexting = {}
             )
 
-             Spacer(modifier.height(15.dp))
+            Spacer(modifier.height(15.dp))
 
-             LaunchedEffect(key1 = stickyNoteDomain?.tags?.isNotEmpty()) {
-                 if (stickyNoteDomain != null && stickyNoteDomain.tags.isNotEmpty()){
-                     tags.addAll(stickyNoteDomain.tags)
-                 }
-             }
-             StickNoteTagArea(
-                 modifier = modifier,
-                 limitCha = 3,
-                 label = "Tag",
-                 tags =  tags,
-                 tag = tag,
-                 onAdd = {
-                         if (tag.isBlank()) return@StickNoteTagArea
-                         if (tags.size <= 1){
-                             val tagFormat = tag.replaceBefore(tag.first(),"#")
-                             tags.add(tagFormat)
-                             tag =""
-                         }
-                     },
-                 onRemove = {
-                     if (tags.size > 0){
-                         Log.i("INFO_", "MyScreen: $it")
-                         tags.remove(it)
-                     }
-                 },
-                 onTextChange = {
-                     if (it.length <= 3){
-                         tag = it.lowercase()
-                     }
-                 }
-             )
+            LaunchedEffect(key1 = stickyNoteDomain?.tags?.isNotEmpty()) {
+                if (stickyNoteDomain != null && stickyNoteDomain.tags.isNotEmpty()) {
+                    tags.addAll(stickyNoteDomain.tags)
+                }
+            }
+            StickNoteTagArea(
+                modifier = modifier,
+                limitCha = 3,
+                label = "Tag",
+                tags = tags,
+                tag = tag,
+                onAdd = {
+                    if (tag.isBlank()) return@StickNoteTagArea
+                    if (tags.size <= 1) {
+                        val tagFormat = tag.replaceBefore(tag.first(), "#")
+                        tags.add(tagFormat)
+                        tag = ""
+                    }
+                },
+                onRemove = {
+                    if (tags.size > 0) {
+                        Log.i("INFO_", "MyScreen: $it")
+                        tags.remove(it)
+                    }
+                },
+                onTextChange = {
+                    if (it.length <= 3) {
+                        tag = it.lowercase()
+                    }
+                }
+            )
 
-             Spacer(modifier.height(20.dp))
-        StickyNoteCalendar(
-              modifier =  modifier,
+            Spacer(modifier.height(20.dp))
+
+            StickyNoteCalendar(
+                modifier = modifier,
                 datePickerState = datePickerState,
-                dateResult =  dataResult ?:"Escolher data",
-                onSelectedDate = { date->
+                dateResult = dataResult ?: "Escolher data",
+                onSelectedDate = { date ->
                     dataResult = Date().convertDateLongToString(date ?: 999999)
-                    selectedDate =date
-               }
+                    selectedDate = date
+                }
             )
 
             Row(
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .clickable {
-                       isRemeber = !isRemeber
-                   },
-               horizontalArrangement = Arrangement.Start,
-              verticalAlignment = Alignment.CenterVertically
-           ) {
-               Checkbox(checked =  isRemeber,
-                   onCheckedChange ={isChecek ->
-                   isRemeber = isChecek
-               } )
-               Text(text = "Relembrar?")
-           }
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        isRemeber = !isRemeber
+                    },
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(checked = isRemeber,
+                    onCheckedChange = { isChecek ->
+                        isRemeber = isChecek
+                    })
+                Text(text = "Relembrar?")
+            }
 
-           Row(
-               modifier = modifier
-                   .fillMaxWidth()
-                   .padding(20.dp),
-              horizontalArrangement = Arrangement.End
-           ) {
-               ElevatedButton(
-                   enabled =  validateField(lembreteName,lembreteDescription),
-                   onClick = {
-                       val stickNote = StickyNoteDomain(
-                           id = stickyNoteDomain?.id,
-                           name = lembreteName,
-                           description = lembreteDescription,
-                           dateTime = selectedDate ?: LocalDate.now()
-                                 .plusDays(1)
-                                 .atStartOfDay(ZoneId.systemDefault())
-                                 .toInstant()
-                                 .toEpochMilli() ,
-                           isRemember = isRemeber,
-                           tags = tags
-                       )
-
-                     onSave(stickNote)
-                       onClosed()
-                   }) {
-                   Text("Salvar")
-               }
-           }
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                ElevatedButton(
+                    enabled = validateField(lembreteName, lembreteDescription),
+                    onClick = {
+                        createUpdateStickNote(
+                            stickyNoteDomain,
+                            lembreteName,
+                            lembreteDescription,
+                            selectedDate,
+                            isRemeber,
+                            tags,
+                            onSave,
+                            onClosed
+                        )
+                    }) {
+                    Text("Salvar")
+                }
+            }
         }
     }
 }
 
-@Composable
-fun StickNoteTagArea(
-    modifier: Modifier = Modifier,
-    label : String,
-    limitCha : Int ,
-    tags : List<String>,
-    tag :String,
-    onAdd : ()->Unit,
-    onRemove :(String)->Unit,
-    onTextChange:(String)->Unit
+private fun createUpdateStickNote(
+    stickyNoteDomain: StickyNoteDomain?,
+    lembreteName: String,
+    lembreteDescription: String,
+    selectedDate: Long?,
+    isRemeber: Boolean,
+    tags: SnapshotStateList<String>,
+    onSave: (StickyNoteDomain) -> Unit,
+    onClosed: () -> Unit
 ) {
-    Column(
-        modifier = modifier.padding(16.dp)
-    ) {
-        Row(
-            modifier = modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            StickNoteTextField(
-                modifier = Modifier.fillMaxWidth(0.6f),
-                value = tag,
-                label = label,
-                isError = false,
-                enable = tags.size < 2,
-                maxLines = 1,
-                onChange = onTextChange ,
-                supportTexting = {
-                    Row(
-                        modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        Text(text = "${tag.length}/$limitCha")
-                    }
-                },
-                singleLine =true ,
-                icon = { /*TODO*/ },
-                trailingIcon = { /*TODO*/ }
-            )
-            IconButton(
-                modifier = Modifier.
-                background(color = Color.Blue , shape = CircleShape),
-                onClick = onAdd) {
-                Icon(Icons.Filled.Add, contentDescription ="" , tint = Color.Green)
-            }
-        }
-
-       Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier
-        ) {
-            tags.forEach {
-                InputChip(
-                    selected = true,
-                    trailingIcon = { Icon( Icons.Filled.Close, contentDescription ="" )},
-                    onClick = {onRemove(it)} ,
-                    label = {
-                        Text(
-                            text = it,
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold
-                             ),
-                            )
-                    }
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun StickNoteSurFaceHasTagAreaPrev() {
-    LembretesTheme {
-        StickNoteTagArea(
-            limitCha = 3,
-            label = "Tag",
-            tags = listOf("#tes","#tag"),
-            tag = "",
-            onTextChange = {},
-            onRemove = {},
-            onAdd = {}
+    val stickNote = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        StickyNoteDomain(
+            id = stickyNoteDomain?.id,
+            name = lembreteName,
+            description = lembreteDescription,
+            dateTime = selectedDate ?: LocalDate.now()
+                .plusDays(1)
+                .atStartOfDay(ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli(),
+            isRemember = isRemeber,
+            tags = tags
         )
+    } else {
+        StickyNoteDomain(
+            id = stickyNoteDomain?.id,
+            name = lembreteName,
+            description = lembreteDescription,
+            dateTime = selectedDate ?: Date().dateTimeTomorowLong(1),
+            isRemember = isRemeber,
+            tags = tags
+        )
+
     }
+
+    onSave(stickNote)
+    onClosed()
 }
 
-fun validateField(name: String , desciption : String):Boolean{
-    if (name.isNotBlank() && desciption.isNotBlank()){
+
+
+
+fun validateField(name: String, desciption: String): Boolean {
+    if (name.isNotBlank() && desciption.isNotBlank()) {
         return true
     }
     return false
@@ -426,7 +366,7 @@ fun validateField(name: String , desciption : String):Boolean{
 @Composable
 private fun MyScreenPreview() {
     LembretesTheme {
-        MyScreen({},null, onClosed = {})
+        MyScreen({}, null, onClosed = {})
     }
 }
 

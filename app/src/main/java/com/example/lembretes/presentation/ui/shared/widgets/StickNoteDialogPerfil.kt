@@ -1,5 +1,6 @@
 package com.example.lembretes.presentation.ui.shared.widgets
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -80,7 +82,9 @@ fun ContentDialog(
     Box(
         modifier = modifier
             .padding(8.dp)
-            .background(Color.White, shape = RoundedCornerShape(size = 20.dp))
+            .background(MaterialTheme.colorScheme.background,
+                shape = RoundedCornerShape(size = 20.dp)
+            )
         ,
         contentAlignment = Alignment.Center
     ) {
@@ -93,7 +97,8 @@ fun ContentDialog(
         ) {
             Text(
                 text = "Customize seu Perfil",
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
             ImagePerfil()
@@ -119,15 +124,17 @@ fun ContentDialog(
                 supportTexting = {
                     Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp),
+                            .fillMaxWidth(),
                         horizontalArrangement =
                         if (isError) Arrangement.SpaceBetween
                         else Arrangement.End
                     ) {
-
-                        if (isError)  Text(text = "Minimo de 3 caracteres")
-                        Text(text = "Limit ${name.length}/${10}")
+                         if (isError)  Text(text = "Mínimo de 10 caracteres ",
+                             style = MaterialTheme.typography.labelSmall
+                             )
+                        Text(text = "${name.length}/${10}",
+                            style = MaterialTheme.typography.labelSmall
+                            )
                     }
                 }
             )
@@ -139,7 +146,9 @@ fun ContentDialog(
                 horizontalArrangement = Arrangement.End
             ){
                 TextButton(onClick = onDissmisRequest) {
-                    Text(text = "Cancelar")
+                    Text(text = "Cancelar",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
                 TextButton(onClick = {
                     if (name.isNotBlank()){
@@ -161,7 +170,6 @@ private fun ImagePerfil() {
         modifier = Modifier
             .padding(8.dp)
             .clip(CircleShape),
-
     ){
         Image(
             modifier = Modifier
@@ -203,6 +211,27 @@ private fun StickNoteDialogPerfilPreview() {
             content = {
                 ContentDialog(
                     user = UserDomain(1,"Teste",""),
+
+                    onDissmisRequest = { /*TODO*/ },
+                    onSave = {t, s ->}
+
+                )
+            }
+
+        )
+
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun StickNoteDialogPerfilDarkPreview() {
+    LembretesTheme {
+        StickNoteDialogPerfil (
+            onDissmisRequest = {},
+            content = {
+                ContentDialog(
+                    user = UserDomain(1,"Testessssssss",""),
 
                     onDissmisRequest = { /*TODO*/ },
                     onSave = {t, s ->}
