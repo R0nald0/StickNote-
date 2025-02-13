@@ -85,7 +85,8 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     testImplementation("org.testng:testng:6.9.6")
 
-    val lifecycle_version = "2.7.0"
+    //Coil
+    implementation(libs.coil.compose)
 
     implementation (libs.accompanist.systemuicontroller)
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
@@ -105,11 +106,8 @@ dependencies {
 
     implementation (libs.gson)
 
-
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx.v270)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)

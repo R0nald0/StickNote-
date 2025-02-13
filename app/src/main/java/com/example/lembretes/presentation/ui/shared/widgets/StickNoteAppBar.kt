@@ -20,7 +20,6 @@ fun StickNoteAppBar(
     title :  String,
 ) {
     TopAppBar(
-
         colors = TopAppBarDefaults.topAppBarColors(
             titleContentColor = MaterialTheme.colorScheme.primary,
             containerColor = MaterialTheme.colorScheme.primaryContainer

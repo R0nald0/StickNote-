@@ -7,6 +7,7 @@ import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.usecase.sticknote.DeleteStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
+import com.example.lembretes.domain.usecase.user.FindUser
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.home.HomeState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,16 +26,24 @@ class StickNoteViewmodel @Inject constructor(
     private val getStickyNoteUseCaseImpl: GetStickyNoteUseCase,
     private val updateStickNoteUseCase: UpdateStickNoteUseCase,
     private val deleteStickNoteUseCase: DeleteStickNoteUseCase,
+    private val findUser: FindUser,
     ):ViewModel() {
+
     val TAG = "_INFO"
     private val _uiState = MutableStateFlow(HomeState())
     var uiState :StateFlow<HomeState> = _uiState.asStateFlow()
+
+    init {
+        findFirstUser()
+        alterFilterType(uiState.value.filterType)
+    }
 
      fun alterFilterType(typeFilter : StickNoteEnumFilterType){
            viewModelScope.launch {
                _uiState.update {
                   it.copy(filterType = typeFilter)
                }
+
                when(_uiState.value.filterType){
                   StickNoteEnumFilterType.Today ->{
                        val todayNotes =getStickyNoteUseCaseImpl.getStickNotesToday()
@@ -107,6 +117,23 @@ class StickNoteViewmodel @Inject constructor(
                      Log.i(TAG, "deleteStickNote: erro ao deletetar ${erro.message }")
                  },
              )
+        }
+    }
+
+    fun findFirstUser(){
+        viewModelScope.launch {
+           kotlin.runCatching {
+                findUser.findFistUser().first()
+           } .fold(
+               onSuccess = {user ->
+                   _uiState.update {
+                       it.copy(user = user)
+                   }
+               },
+               onFailure ={erro ->
+                   Log.i(TAG, "deleteStickNote: erro ao deletetar ${erro.message }")
+               },
+           )
         }
     }
 

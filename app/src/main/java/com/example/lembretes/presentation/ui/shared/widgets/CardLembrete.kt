@@ -20,13 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.lembretes.core.notification.showNotification
 import com.example.lembretes.domain.model.StickyNoteDomain
-
 import com.example.lembretes.utils.convertDateLongToString
 import java.util.Date
 import java.util.Locale

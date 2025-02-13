@@ -19,16 +19,16 @@ class UserViewModel @Inject constructor(
     private val createUser: CreateUser,
 ):ViewModel() {
      private val _user = MutableStateFlow(User())
-      var user : StateFlow<User> =_user.asStateFlow()
+     var user : StateFlow<User> =_user.asStateFlow()
 
     fun crateUser(name :String ,urlPerfilPhoto : String){
         viewModelScope.launch{
             runCatching {
-                val user = User(id = 1, name = name, photoProfile = "")
+                val user = User(id = 1, name = name, photoProfile = urlPerfilPhoto)
                 createUser.createUser(user)
             }.fold(
                 onSuccess = {
-                    Log.i("INFO_", "crateUser: usuario criado com o usuario")
+                    Log.i("INFO_", "erroe: erro ao cadastrar usuario ${user.value}")
                 },
                 onFailure = {
                     Log.i("INFO_", "erroe: erro ao cadastrar usuario ${it.message} ${it.stackTrace}")

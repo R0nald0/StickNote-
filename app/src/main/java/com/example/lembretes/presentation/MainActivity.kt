@@ -1,6 +1,5 @@
 package com.example.lembretes.presentation
 
-import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -30,25 +29,25 @@ import com.example.lembretes.presentation.ui.settings.SettingScreen
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
-import com.example.lembretes.presentation.viewmodel.UserViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private  val userViewModel by  viewModels<UserViewModel>()
+
     private  val prefViewModel by  viewModels<PreferencesViewModel>()
 
-    @SuppressLint("CoroutineCreationDuringComposition")
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             val navController = rememberNavController()
-            val userPef   by  prefViewModel.userPreference.collectAsStateWithLifecycle()
+            val userPef  by  prefViewModel.userPreference.collectAsStateWithLifecycle()
             LembretesTheme(
                 darkTheme = userPef.isDakrMode
-            ) {
+            )   {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -59,16 +58,14 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(route = HomeNavigation.route){
                           val stickNoteViewModel  = hiltViewModel<StickNoteViewmodel>()
-                            LaunchedEffect(key1 = Unit) {
+                            LaunchedEffect( Unit) {
                                 stickNoteViewModel.alterFilterType(stickNoteViewModel.uiState.value.filterType)
                             }
+
                             HomeScreen(
                                 modifier = Modifier,
-                                userViewModel = userViewModel,
                                 stickNoteViewModel = stickNoteViewModel,
                                 context = this@MainActivity,
-                                onUpdateStateNotificaion = stickNoteViewModel::updateNotificatioStickNote,
-                                onDelete = stickNoteViewModel::deleteStickNote,
                                 onUpdate = {stickyNote ->
                                     navController.navigateToAddStiCkNote(stickyNote.id.toString())
                                 },
@@ -101,7 +98,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(route = SearchNavigation.route){
-                          val  stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
+                            val  stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
                             SearchScreen(
                                 modifier = Modifier,
                                 onClose = {navController.popBackStack()},
@@ -112,12 +109,9 @@ class MainActivity : ComponentActivity() {
 
                     }
                 }
+
             }
         }
-    }
-    override fun onStart() {
-        userViewModel.findFirstUser()
-        super.onStart()
     }
 
 }

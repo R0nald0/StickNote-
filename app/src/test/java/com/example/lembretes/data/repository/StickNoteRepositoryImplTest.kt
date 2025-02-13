@@ -43,7 +43,7 @@ class StickNoteRepositoryImplTest {
     @Test
     fun getStickyNotes_must_findAll_stickNote() = runTest {
 
-       Mockito.`when`(lembreteDao.findAll()).thenReturn(buildListLStickNotes())
+      // Mockito.`when`(lembreteDao.findAll()).thenReturn(buildListLStickNotes())
 
        stickNoteRepositoryImpl.getStickyNotes().collect{ listStick->
           assertThat(listStick.size).isEqualTo(3)
@@ -58,10 +58,10 @@ class StickNoteRepositoryImplTest {
         val fistDate= Date().convertDateStringToLong("10/09/2023")!!
         val secondDate = Date().convertDateStringToLong("10/09/2023")!!
 
-        Mockito.`when`(lembreteDao.findStickNoteByDate(
+        /*Mockito.`when`(lembreteDao.findStickNoteByDate(
             firstDate =fistDate ,
             secondDate =secondDate )).thenReturn(buildListLStickNotes()
-            )
+        ) */
 
         stickNoteRepositoryImpl.getStickByPeriodicDate( fistDate,secondDate).test {
             val result = awaitItem()
@@ -96,21 +96,24 @@ class StickNoteRepositoryImplTest {
             name = "ler e caminhar",
             description = "caminhar duas horas e ler",
             dateTime = Date().convertDateStringToLong("10/09/2023")!!,
-            isRemember = false
+            isRemember = false,
+            tags = TODO()
         ),
         LembreteEntity(
             id = 2,
             name = "ler e caminhar",
             description = "estudar kotlin",
             dateTime = Date().convertDateStringToLong("10/09/2023")!!,
-            isRemember = true
+            isRemember = true,
+            tags = TODO()
         ),
         LembreteEntity(
             id = 3,
             name = "desenhar",
             description = "desenhar algo",
             dateTime = Date().convertDateStringToLong("10/09/2023")!!,
-            isRemember = false
+            isRemember = false,
+            tags = TODO()
         )
     ))
 }

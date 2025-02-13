@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.HorizontalDivider
@@ -21,19 +20,13 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.lembretes.domain.model.User
 import com.example.lembretes.presentation.model.NavigationItemDataClass
-import com.example.lembretes.presentation.ui.shared.widgets.ContentDialog
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
 import com.example.lembretes.utils.dateForExtense
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -58,7 +51,7 @@ fun StickNoteDrawer(
             label = "Configurações",
             selected = false,
             onClick = {
-                onNavigateToSettingsScreen
+                onNavigateToSettingsScreen()
                 scope.launch { drawerState.close() }
             },
             badge = ""

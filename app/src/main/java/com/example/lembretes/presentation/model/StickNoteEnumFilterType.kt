@@ -4,6 +4,6 @@ import com.example.lembretes.utils.dateForExtense
 import java.util.Date
 
 enum class StickNoteEnumFilterType(val value: String) {
-    Today(value = Date().dateForExtense()),All(value = "Todos"),TOMORROW(value = "Amanhâ")
+    Today(value = Date().dateForExtense()),TOMORROW(value = "Amanhâ"),All(value = "Todos"),
 
 }

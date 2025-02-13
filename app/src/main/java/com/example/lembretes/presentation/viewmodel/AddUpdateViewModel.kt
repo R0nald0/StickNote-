@@ -22,6 +22,8 @@ data class UiAddScreen(
    val stickyNoteDomain: StickyNoteDomain
 )
 
+
+
 @HiltViewModel
 class AddUpdateViewModel @Inject constructor(
     private val updateStickNoteUseCase: UpdateStickNoteUseCase,
@@ -69,7 +71,6 @@ class AddUpdateViewModel @Inject constructor(
     fun insertStickNote(stickyNoteDomain: StickyNoteDomain){
          //Loading
         viewModelScope.launch {
-            stickyNoteDomain.copy()
             runCatching {
                 insertStickNoteUseCase.insert(stickyNoteDomain)
             }.fold(

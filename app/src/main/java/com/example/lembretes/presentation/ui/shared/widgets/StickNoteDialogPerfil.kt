@@ -1,7 +1,9 @@
 package com.example.lembretes.presentation.ui.shared.widgets
 
 import android.content.res.Configuration
-import androidx.compose.foundation.Image
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,31 +36,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import coil.compose.AsyncImage
 import com.example.lembretes.R
 import com.example.lembretes.domain.model.User
 import com.example.lembretes.domain.model.UserDomain
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
+import com.example.lembretes.utils.createJpgImageFromInputStream
 
 @Composable
 fun StickNoteDialogPerfil(
     modifier: Modifier = Modifier,
-    content : @Composable() ((
-         onDissminn: ()->Unit
-            ) -> Unit),
+    content : @Composable() ((onDissminn: ()->Unit) -> Unit),
     onDissmisRequest : ()->Unit,
     ) {
-    
     Dialog(
         onDismissRequest = { onDissmisRequest() },
     ) {
-        content(
-            onDissmisRequest
-        )
+        content(onDissmisRequest)
     }
 }
 
@@ -67,14 +66,28 @@ fun StickNoteDialogPerfil(
 fun ContentDialog(
     user: User?,
     modifier: Modifier = Modifier,
-    onDissmisRequest : ()->Unit,
+    onDismissRequest : ()->Unit,
     onSave :(String,String)->Unit,
 ) {
+    val context = LocalContext.current
     var name by rememberSaveable {
         mutableStateOf(user?.name ?: "")
     }
     var isError by remember {
         mutableStateOf(false)
+    }
+    var imagePefil by rememberSaveable {
+        mutableStateOf(user?.photoProfile ?: "")
+    }
+    val laucher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) {uriImage ->
+         if (uriImage == null) {
+             Toast.makeText(context,"Nehuma Imagem Selecionada",  Toast.LENGTH_SHORT).show()
+             return@rememberLauncherForActivityResult
+         }
+
+        imagePefil = context.createJpgImageFromInputStream(uri = uriImage)
     }
 
     isError = name.length > 10
@@ -82,10 +95,10 @@ fun ContentDialog(
     Box(
         modifier = modifier
             .padding(8.dp)
-            .background(MaterialTheme.colorScheme.background,
+            .background(
+                MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(size = 20.dp)
-            )
-        ,
+            ),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -93,7 +106,6 @@ fun ContentDialog(
                 .padding(32.dp)
                 .clip(shape = RoundedCornerShape(30.dp)),
             horizontalAlignment = Alignment.CenterHorizontally
-
         ) {
             Text(
                 text = "Customize seu Perfil",
@@ -101,7 +113,13 @@ fun ContentDialog(
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
-            ImagePerfil()
+            ImagePerfil(
+                uriImage = imagePefil ,
+                onAddPhoto = {
+                laucher.launch("image/*")
+            }
+
+            )
             Spacer(modifier = Modifier.height(8.dp))
             StickNoteTextField(
                 modifier = modifier,
@@ -145,15 +163,15 @@ fun ContentDialog(
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ){
-                TextButton(onClick = onDissmisRequest) {
+                TextButton(onClick = onDismissRequest) {
                     Text(text = "Cancelar",
                         color = MaterialTheme.colorScheme.error
                     )
                 }
                 TextButton(onClick = {
                     if (name.isNotBlank()){
-                        onSave(name,"")
-                        onDissmisRequest()
+                        onSave(name,imagePefil.toString())
+                        onDismissRequest()
                     }
                 }) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -164,22 +182,27 @@ fun ContentDialog(
     }
 }
 @Composable
-private fun ImagePerfil() {
+private fun ImagePerfil(
+    uriImage: String,
+    onAddPhoto:()->Unit
+) {
     Box (
         contentAlignment = Alignment.BottomEnd,
         modifier = Modifier
             .padding(8.dp)
             .clip(CircleShape),
     ){
-        Image(
+        AsyncImage(
             modifier = Modifier
                 .size(width = 120.dp, height = 120.dp)
                 .background(color = Color.Gray, shape = CircleShape),
-            painter = painterResource(id = R.drawable.tree),
             contentScale = ContentScale.Crop,
             contentDescription = "",
+            placeholder = painterResource(R.drawable.ic_person_24),
+            model = uriImage
         )
-        IconButton(onClick = { /*TODO*/ }) {
+
+        IconButton(onClick = onAddPhoto) {
             Icon(
                 Icons.Default.Add,
                 contentDescription = "Add Button",
@@ -188,7 +211,6 @@ private fun ImagePerfil() {
                     .background(
                         color = Color.Gray.copy(alpha = .5f),
                         shape = CircleShape)
-
             )
         }
     }
@@ -199,7 +221,7 @@ private fun ImagePerfil() {
 @Composable
 private fun ImagePerfilPreview() {
     LembretesTheme {
-        ImagePerfil ()
+        ImagePerfil (uriImage = "",{})
     }
 }
 @Preview
@@ -211,15 +233,11 @@ private fun StickNoteDialogPerfilPreview() {
             content = {
                 ContentDialog(
                     user = UserDomain(1,"Teste",""),
-
-                    onDissmisRequest = { /*TODO*/ },
+                    onDismissRequest = { /*TODO*/ },
                     onSave = {t, s ->}
-
                 )
             }
-
         )
-
     }
 }
 
@@ -233,7 +251,7 @@ private fun StickNoteDialogPerfilDarkPreview() {
                 ContentDialog(
                     user = UserDomain(1,"Testessssssss",""),
 
-                    onDissmisRequest = { /*TODO*/ },
+                    onDismissRequest = { /*TODO*/ },
                     onSave = {t, s ->}
 
                 )
