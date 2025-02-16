@@ -80,6 +80,9 @@ dependencies {
     // hiltViewModel
     implementation(libs.androidx.hilt.navigation.compose)
 
+    //splahsScreen
+    implementation(libs.androidx.core.splashscreen)
+
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
