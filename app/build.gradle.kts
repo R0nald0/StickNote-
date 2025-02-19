@@ -72,13 +72,13 @@ dependencies {
 
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
-    // https://github.com/kizitonwose/Calendar?tab=readme-ov-file
-    implementation("com.kizitonwose.calendar:compose:2.5.4")
+
 
 
     implementation(libs.androidx.appcompat)
     // hiltViewModel
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.jetbrains.kotlinx.datetime)
 
     //splahsScreen
     implementation(libs.androidx.core.splashscreen)

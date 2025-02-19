@@ -16,13 +16,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -51,14 +48,12 @@ import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
-import com.example.lembretes.utils.convertDateLongToString
-import com.example.lembretes.utils.dateTimeTomorowLong
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.util.Date
-import java.util.TimeZone
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -102,7 +97,7 @@ fun AddStickNoteScreen(
             } else {
                 MyScreen(
                     onSave = addUpdateViewModel::insertStickNote,
-                    stickyNoteDomain = ui.stickyNoteDomain,
+                    stickyNoteDomain = null,
                     modifier = modifier,
                     onClosed = onClosed
                 )
@@ -114,7 +109,8 @@ fun AddStickNoteScreen(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+@OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
 fun MyScreen(
     onSave: (StickyNoteDomain) -> Unit,
@@ -126,7 +122,7 @@ fun MyScreen(
         topBar = {
             StickNoteAppBar(
                 onClosed = onClosed,
-                title = if (stickyNoteDomain!!.name.isNotEmpty()) stringResource(R.string.editar_lembrete)
+                title = if (stickyNoteDomain != null) stringResource(R.string.editar_lembrete)
                 else stringResource(R.string.adicionar_lembrete)
             )
         }
@@ -134,34 +130,11 @@ fun MyScreen(
         var isRemember by rememberSaveable { mutableStateOf(false) }
         val tags = remember { mutableStateListOf<String>() }
         var tag by remember { mutableStateOf("") }
-        val datePickerState = rememberDatePickerState(
-            selectableDates = object : SelectableDates {
-                val zoneId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    TimeZone.getTimeZone("UTC").toZoneId()
-                } else {
-                    TODO("VERSION.SDK_INT < O")
-                }
 
-                override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                    val selectableDates = Instant.ofEpochMilli(utcTimeMillis).atZone(zoneId)
-                    val currentData = ZonedDateTime.now(zoneId)
-                    val fiveDaysRange = currentData.minusDays(4)
-                    return super.isSelectableDate(utcTimeMillis)
-                }
-
-                override fun isSelectableYear(year: Int): Boolean {
-                    return true
-                }
-            }
-        )
         var selectedDate: Long? by rememberSaveable {
-            mutableStateOf(null)
-        }
-        val date = stickyNoteDomain?.let {
-            Date().convertDateLongToString(it.dateTime)
-        }
-        var dataResult: String? by remember {
-            mutableStateOf(date)
+            mutableStateOf(
+                stickyNoteDomain?.dateTime
+            )
         }
 
         Column(
@@ -185,11 +158,11 @@ fun MyScreen(
 
             Image(
                 modifier = modifier.size(120.dp),
-                painter = painterResource(id = R.drawable.iconstickynote),
-                contentDescription = "Stick note icon"
+                painter = painterResource(id = R.drawable.agenda),
+                contentDescription = "Logo aplicativo"
             )
 
-            Spacer(modifier = modifier.height(5.dp))
+            Spacer(modifier = modifier.height(16.dp))
 
             StickNoteTextField(
                 maxLines = 1,
@@ -198,8 +171,8 @@ fun MyScreen(
                 isError = false,
                 onChange = { value -> lembreteName = value },
                 singleLine = true,
-                icon = { /*TODO*/ },
-                trailingIcon = { /*TODO*/ },
+                icon = {  },
+                trailingIcon = { },
                 supportTexting = {}
             )
 
@@ -210,11 +183,10 @@ fun MyScreen(
                 isError = false,
                 onChange = { value ->
                     lembreteDescription = value
-
                 },
                 singleLine = false,
-                icon = { /*TODO*/ },
-                trailingIcon = { /*TODO*/ },
+                icon = {  },
+                trailingIcon ={} ,
                 supportTexting = {}
             )
 
@@ -242,7 +214,6 @@ fun MyScreen(
                 },
                 onRemove = {
                     if (tags.size > 0) {
-                        Log.i("INFO_", "MyScreen: $it")
                         tags.remove(it)
                     }
                 },
@@ -257,11 +228,16 @@ fun MyScreen(
 
             StickyNoteCalendar(
                 modifier = modifier,
-                datePickerState = datePickerState,
-                dateResult = dataResult ?: "Escolher data",
-                onSelectedDate = { date ->
-                    dataResult = Date().convertDateLongToString(date ?: 999999)
-                    selectedDate = date
+                date = stickyNoteDomain?.dateTime?.let {
+                    Instant.fromEpochMilliseconds(it).toLocalDateTime(
+                        TimeZone.UTC).date.format(kotlinx.datetime.LocalDate.Format {
+                        byUnicodePattern("dd/MM/yyyy")
+                    })
+                },
+                onSelectedDate ={date ->
+                     date?.let {
+                         selectedDate = date
+                     }
                 }
             )
 
@@ -292,7 +268,7 @@ fun MyScreen(
                             onClosed
                         )
                     }) {
-                    Text("Salvar")
+                    Text(stringResource(R.string.salvar))
                 }
             }
         }
@@ -309,40 +285,24 @@ private fun createUpdateStickNote(
     onSave: (StickyNoteDomain) -> Unit,
     onClosed: () -> Unit
 ) {
-    val stickNote = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        StickyNoteDomain(
+
+      val stickNote = StickyNoteDomain(
             id = stickyNoteDomain?.id,
             name = lembreteName,
             description = lembreteDescription,
-            dateTime = selectedDate ?: LocalDate.now()
-                .plusDays(1)
-                .atStartOfDay(ZoneId.systemDefault())
-                .toInstant()
-                .toEpochMilli(),
+            dateTime = selectedDate!!,
             isRemember = isRemeber,
             tags = tags
         )
-    } else {
-        StickyNoteDomain(
-            id = stickyNoteDomain?.id,
-            name = lembreteName,
-            description = lembreteDescription,
-            dateTime = selectedDate ?: Date().dateTimeTomorowLong(1),
-            isRemember = isRemeber,
-            tags = tags
-        )
-
-    }
-
     onSave(stickNote)
     onClosed()
 }
 
 fun validateField(name: String, desciption: String): Boolean {
-    return name.isNotBlank() && desciption.isNotBlank()
+    return name.isNotBlank() && desciption.isNotBlank() 
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Preview
 @Composable
 private fun MyScreenPreview() {

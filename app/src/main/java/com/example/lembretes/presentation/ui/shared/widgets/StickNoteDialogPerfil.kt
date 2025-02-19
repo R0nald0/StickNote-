@@ -192,6 +192,7 @@ private fun ImagePerfil(
             .padding(8.dp)
             .clip(CircleShape),
     ){
+        //TODO AO SALVAR PELA PRIMEIRA VEZ PERFIL NÂO ESTA CARREGANDO OS DADOS NA HOME
         AsyncImage(
             modifier = Modifier
                 .size(width = 120.dp, height = 120.dp)
