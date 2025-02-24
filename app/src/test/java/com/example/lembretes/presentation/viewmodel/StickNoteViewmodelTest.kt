@@ -2,10 +2,12 @@ package com.example.lembretes.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.example.lembretes.domain.model.StickyNoteDomain
+import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.impl.DeleteStickNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.sticknote.impl.GetStickyNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.sticknote.impl.InsertStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.impl.UpdateStickNoteUseCaseImpl
+import com.example.lembretes.domain.usecase.user.FindUser
 import com.example.lembretes.utils.TestDispatcherRule
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -33,16 +35,15 @@ class StickNoteViewmodelTest {
     lateinit var getStickyNoteUseCaseImpl: GetStickyNoteUseCaseImpl
     @Mock
     lateinit var updateStickyNoteUseCaseImpl: UpdateStickNoteUseCaseImpl
-
     @Mock
     lateinit var deleteStickyNoteUseCaseImpl: DeleteStickNoteUseCaseImpl
-
     @Mock
     lateinit var insertStickNoteUseCase: InsertStickNoteUseCase
+    @Mock
+    lateinit var  findUserUseCase: FindUser
 
 
-
-    lateinit var stickNoteViewmodel: StickNoteViewmodel
+    private lateinit var stickNoteViewmodel: StickNoteViewmodel
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
@@ -50,7 +51,7 @@ class StickNoteViewmodelTest {
             getStickyNoteUseCaseImpl = getStickyNoteUseCaseImpl,
             deleteStickNoteUseCase = deleteStickyNoteUseCaseImpl,
             updateStickNoteUseCase = updateStickyNoteUseCaseImpl,
-
+            findUser = findUserUseCase
             )
     }
 

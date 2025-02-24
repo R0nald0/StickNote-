@@ -7,9 +7,11 @@ import com.example.lembretes.domain.repository.UserStickNoteRepository
 import com.example.lembretes.domain.usecase.sticknote.DeleteStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
+import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.impl.DeleteStickNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.sticknote.impl.GetStickyNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.sticknote.impl.UpdateStickNoteUseCaseImpl
+import com.example.lembretes.domain.usecase.sticknote.impl.ValidateStickNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.user.CreateUser
 import com.example.lembretes.domain.usecase.user.FindUser
 import com.example.lembretes.domain.usecase.user.impl.CreateUserImpl
@@ -24,7 +26,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 interface InterfaceModule {
 
-
+    @Binds
+    fun validateStickNoteUseCase(validateStickNoteUseCaseImpl: ValidateStickNoteUseCaseImpl):ValidateStickNoteUseCase
     @Binds
     fun bindCreateUser(createUser: CreateUserImpl):CreateUser
     @Binds

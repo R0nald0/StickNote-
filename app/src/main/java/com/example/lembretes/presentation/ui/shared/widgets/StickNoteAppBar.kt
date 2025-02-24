@@ -22,7 +22,7 @@ fun StickNoteAppBar(
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             titleContentColor = MaterialTheme.colorScheme.primary,
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = MaterialTheme.colorScheme.inversePrimary
         ),
         navigationIcon = {
             IconButton(

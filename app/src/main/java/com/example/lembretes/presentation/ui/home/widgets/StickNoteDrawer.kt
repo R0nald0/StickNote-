@@ -92,7 +92,7 @@ private fun StickNoteDrawerContent(
             Row(
                 modifier
                     .fillMaxSize()
-                    .background(color = MaterialTheme.colorScheme.primary),
+                    .background(color = MaterialTheme.colorScheme.inversePrimary),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             )

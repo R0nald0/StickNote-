@@ -285,7 +285,7 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
-    // Other default colors to override
+// Other default colors to override
 //    background = Color(0xFFFFFBFE),
 //    surface = Color(0xFFC933A3),
 //    onPrimary = Color.White,
@@ -293,7 +293,6 @@ val unspecified_scheme = ColorFamily(
 //    onTertiary = Color.White,
 //    onBackground = Color(0xFF1C1B1F),
 //    onSurface = Color(0xFF1C1B1F),
-
 
 
 /*@Composable
@@ -344,10 +343,10 @@ fun LembretesTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-   val systemUiController  = rememberSystemUiController()
+    val systemUiController = rememberSystemUiController()
     systemUiController.setSystemBarsColor(
-     color =   if( !darkTheme )MaterialTheme.colorScheme.primaryContainer
-                 else MaterialTheme.colorScheme.onSecondaryContainer,
+        color = if (!darkTheme) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.onSecondaryContainer,
         darkIcons = !darkTheme
 
     )

@@ -68,8 +68,8 @@ fun StickNoteToolBar(
             RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
         ),
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            containerColor = MaterialTheme.colorScheme.inversePrimary,
+            scrolledContainerColor = MaterialTheme.colorScheme.inversePrimary,
             titleContentColor = MaterialTheme.colorScheme.primary
 
         ),
@@ -78,23 +78,23 @@ fun StickNoteToolBar(
             IconButton(onClick = openSearch) {
                 Icon(Icons.Default.Search, contentDescription = "User avatar")
             }
-                AsyncImage(
-                    modifier = Modifier
-                        .size(width = 50.dp, height = 50.dp)
-                        .clip(CircleShape)
-                        .background(color = Color.Gray)
-                        .border(
-                            border = BorderStroke(
-                                color = MaterialTheme.colorScheme.primary, width = 2.dp
-                            ), shape = CircleShape
-                        )
-                        .clickable { onOpenProfile() },
-                    contentScale = ContentScale.Crop,
-                    alpha = 0.7f,
-                    contentDescription = "imagem usuario",
-                    error = painterResource(R.drawable.ic_person_24),
-                    model = Uri.parse(user.photoProfile)
-                )
+            AsyncImage(
+                modifier = Modifier
+                    .size(width = 50.dp, height = 50.dp)
+                    .clip(CircleShape)
+                    .background(color = Color.Gray)
+                    .border(
+                        border = BorderStroke(
+                            color = MaterialTheme.colorScheme.primary, width = 2.dp
+                        ), shape = CircleShape
+                    )
+                    .clickable { onOpenProfile() },
+                contentScale = ContentScale.Crop,
+                alpha = 0.7f,
+                contentDescription = "imagem usuario",
+                error = painterResource(R.drawable.ic_person_24),
+                model = Uri.parse(user.photoProfile)
+            )
 
 
         },

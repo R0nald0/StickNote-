@@ -54,7 +54,7 @@ fun StickNoteTagArea(
                 enable = tags.size < 2,
                 maxLines = 1,
                 onChange = onTextChange,
-                supportTexting = {
+                supportTexting ={
                     Row(
                         modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
@@ -68,7 +68,7 @@ fun StickNoteTagArea(
             )
             IconButton(
                 modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.inversePrimary,
                     shape = CircleShape
                 ),
                 onClick = onAdd
