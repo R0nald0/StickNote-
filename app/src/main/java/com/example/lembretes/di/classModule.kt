@@ -20,6 +20,7 @@ import com.example.lembretes.domain.usecase.sticknote.impl.DeleteStickNoteUseCas
 import com.example.lembretes.domain.usecase.sticknote.impl.GetStickyNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.sticknote.impl.InsertStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.impl.UpdateStickNoteUseCaseImpl
+import com.example.lembretes.domain.usecase.sticknote.impl.ValidateStickNoteUseCaseImpl
 import com.example.lembretes.domain.usecase.user.impl.CreateUserImpl
 import com.example.lembretes.domain.usecase.user.impl.FindUserImpl
 import dagger.Module
@@ -35,6 +36,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class classModule {
+    @Provides
+    @Singleton
+    fun provideValidateStickNoteUseCase() : ValidateStickNoteUseCaseImpl {
+        return  ValidateStickNoteUseCaseImpl()
+    }
+
     @Provides
     @Singleton
     fun provideCreateUser(userStickNoteRepository: UserStickNoteRepository) : CreateUserImpl {

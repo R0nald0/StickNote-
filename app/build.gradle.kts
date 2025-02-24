@@ -126,14 +126,15 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    testImplementation (libs.truth.v142)
     //Dependências biblioteca Truth
-    testImplementation (libs.truth.v113)
-    androidTestImplementation ("com.google.truth:truth:1.4.2")
+    testImplementation ("com.google.truth:truth:1.2.0")
+
     //Kotlin-coroutineTeste
     testImplementation("app.cash.turbine:turbine:1.1.0")
     androidTestImplementation("app.cash.turbine:turbine:1.1.0")
+
     testImplementation (libs.kotlinx.coroutines.test)
+
     //Dependência da Biblioteca Mockito
     testImplementation (libs.mockito.core)
 

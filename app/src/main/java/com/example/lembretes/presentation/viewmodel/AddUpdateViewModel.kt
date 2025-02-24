@@ -7,6 +7,7 @@ import com.example.lembretes.domain.model.StickyNote
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
+import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.impl.InsertStickNoteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,25 +20,23 @@ import javax.inject.Inject
 
 
 data class UiAddScreen(
-   val stickyNoteDomain: StickyNoteDomain
+   val stickyNoteDomain: StickyNoteDomain,
+   val erros : Map<String,String>,
+   val isSuccess :Boolean
 )
-
-
 
 @HiltViewModel
 class AddUpdateViewModel @Inject constructor(
     private val updateStickNoteUseCase: UpdateStickNoteUseCase,
     private val insertStickNoteUseCase: InsertStickNoteUseCase,
-    private val getStickyNoteUseCase: GetStickyNoteUseCase
+    private val getStickyNoteUseCase: GetStickyNoteUseCase,
+    private val validateStickNoteUseCase: ValidateStickNoteUseCase
 ) : ViewModel() {
 
-    private val _addScreeUi = MutableStateFlow(UiAddScreen(StickyNote(id = null)))
+    private val _addScreeUi = MutableStateFlow(UiAddScreen(StickyNote(id = null), erros = emptyMap(),false))
     var addScreenUi : StateFlow<UiAddScreen> = _addScreeUi.asStateFlow()
 
-
-
     fun findById(id:Int){
-
         viewModelScope.launch {
            getStickyNoteUseCase.getStickNoteById(id)
                .catch {  }
@@ -49,6 +48,21 @@ class AddUpdateViewModel @Inject constructor(
                    }
                }
         }
+    }
+
+    fun validateFieldStickNote(stickyNoteDomain: StickyNoteDomain){
+          val result = validateStickNoteUseCase.validateFieldsStickNote(stickyNoteDomain.name,stickyNoteDomain.description,stickyNoteDomain.dateTime)
+           if (result.isNotEmpty()){
+               _addScreeUi.update {state ->
+                   state.copy(erros = result, isSuccess = false)
+               }
+               return
+           }
+        _addScreeUi.update {state ->
+            state.copy(erros = result, isSuccess = true)
+         }
+          if (stickyNoteDomain.id == null) insertStickNote(stickyNoteDomain)
+          else updateStickNote(stickyNoteDomain)
     }
     fun updateStickNote(stickyNoteDomain: StickyNoteDomain){
 

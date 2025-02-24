@@ -110,7 +110,7 @@ fun ContentDialog(
             Text(
                 text = "Customize seu Perfil",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.inversePrimary
             )
             Spacer(modifier = Modifier.height(16.dp))
             ImagePerfil(

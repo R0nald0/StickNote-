@@ -113,7 +113,10 @@ data class HomeState(
               )
           },
           floatingActionButton = {
-              FloatingActionButton(onClick =onNavigateToAddStickNote) {
+              FloatingActionButton(
+                  containerColor = MaterialTheme.colorScheme.inversePrimary,
+                  onClick =onNavigateToAddStickNote
+              ) {
                   Icon(Icons.Default.Add, contentDescription ="button add new stick Note" )
               }
           },

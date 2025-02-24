@@ -9,6 +9,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -28,18 +33,23 @@ fun StickNoteTextField(
     singleLine: Boolean,
     icon: @Composable() (() -> Unit)?,
     trailingIcon: @Composable() (() -> Unit)?,
-    supportTexting:@Composable()(()->Unit)?,
+    supportTexting :@Composable() (() -> Unit)?  ,
 ) {
+     var erroText by remember {
+         mutableStateOf(supportTexting)
+     }
 
     OutlinedTextField(
         maxLines = maxLines,
         value = value,
         enabled = enable,
         singleLine = singleLine,
-        isError = isError,
+        isError = if (value.isEmpty()) {
+            isError
+        } else false,
         modifier = modifier.fillMaxWidth(),
         prefix = icon,
-        supportingText = supportTexting,
+        supportingText = if (value.isEmpty()) erroText else null,
         trailingIcon = {
             if(isError){ trailingIcon }
         },
@@ -50,6 +60,8 @@ fun StickNoteTextField(
                 )
         },
         onValueChange = onChange
+
+
     )
 }
 
@@ -70,9 +82,7 @@ private fun StickNoteTextFieldPreview() {
              trailingIcon = {
                  Icon(Icons.Default.Info, contentDescription = "", tint = Color.Red)
              },
-             supportTexting = {
-                 Text(text = "dasa")
-             }
+             supportTexting ={}
 
          )
      }
