@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -119,7 +120,7 @@ fun AddStickNoteScreen(
 }
 
 
-@OptIn(FormatStringsInDatetimeFormats::class)
+@OptIn(FormatStringsInDatetimeFormats::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(
     onSave: (StickyNoteDomain) -> Unit,
@@ -128,6 +129,7 @@ fun MyScreen(
     onClosed: () -> Unit
 ) {
     val ui by viewModel.addScreenUi.collectAsStateWithLifecycle()
+
 
     Scaffold(
         topBar = {
@@ -264,12 +266,15 @@ fun MyScreen(
                 isError = ui.erros.containsKey("date") to ui.erros["date"],
                 onSelectedDate = { date ->
                     date?.let {
+                        //TODO verificar tocar em salvar campos de titulo e descriçao estao vido com erro no addViewModel,
+                        //  e não esta sainda da view addStickNote
                         ui.stickyNoteDomain.copy(dateTime = date)
                         viewModel.validateFieldStickNote(stickyNoteDomain = ui.stickyNoteDomain.copy(dateTime = date))
                         selectedDate = date
                     }
                 }
             )
+
 
             StickNoteCheckBox(
                 modifier = Modifier,
