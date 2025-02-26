@@ -61,7 +61,7 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun AddStickNoteScreen(
     modifier: Modifier = Modifier,
-    idStikcNote: String? = null,
+    idStikcNote: Int ,
     onClosed: () -> Unit,
 ) {
 
@@ -105,14 +105,16 @@ fun AddStickNoteScreen(
             }
 
         }*/
-    if (idStikcNote != null) {
+    if (idStikcNote != 0) {
         SideEffect {
-            addUpdateViewModel.findById(idStikcNote.toInt())
+            addUpdateViewModel.findById(idStikcNote)
         }
     }
 
+
     MyScreen(
-        onSave = addUpdateViewModel::validateFieldStickNote,
+        onSave =  if(idStikcNote != 0) addUpdateViewModel::updateStickNote
+                  else addUpdateViewModel::insertStickNote ,
         viewModel = addUpdateViewModel,
         modifier = modifier,
         onClosed = onClosed
@@ -120,7 +122,7 @@ fun AddStickNoteScreen(
 }
 
 
-@OptIn(FormatStringsInDatetimeFormats::class, ExperimentalMaterial3Api::class)
+@OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
 fun MyScreen(
     onSave: (StickyNoteDomain) -> Unit,
@@ -183,9 +185,7 @@ fun MyScreen(
 
                 },
                 singleLine = true,
-                icon = {
-
-                },
+                icon = {},
                 trailingIcon = {
                     if (ui.erros.containsKey("title")) {
                         Icon(
@@ -269,12 +269,15 @@ fun MyScreen(
                         //TODO verificar tocar em salvar campos de titulo e descriçao estao vido com erro no addViewModel,
                         //  e não esta sainda da view addStickNote
                         ui.stickyNoteDomain.copy(dateTime = date)
-                        viewModel.validateFieldStickNote(stickyNoteDomain = ui.stickyNoteDomain.copy(dateTime = date))
+                        viewModel.validateFieldStickNote(stickyNoteDomain = ui.stickyNoteDomain.copy(
+                            dateTime = date,
+                            name = lembreteName,
+                            description = lembreteDescription
+                            ))
                         selectedDate = date
                     }
                 }
             )
-
 
             StickNoteCheckBox(
                 modifier = Modifier,

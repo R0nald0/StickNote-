@@ -20,7 +20,7 @@ class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
            erros.putAll( mapOf("description" to "O campo descrição precisa ser preenchido"))
         }
 
-        if (date == null ) {
+        if (date == null || date == 0L) {
             erros.putAll(mapOf("date" to "Data Inválida"))
             return erros
         }

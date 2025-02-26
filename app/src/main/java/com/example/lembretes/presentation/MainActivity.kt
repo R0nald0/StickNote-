@@ -31,10 +31,6 @@ import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -88,8 +84,9 @@ class MainActivity : ComponentActivity() {
                             route = AddStickNoteNavigation.routeWithArgs,
                             arguments = AddStickNoteNavigation.arguments,
                         ){ backStackEntry->
+                            val id = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)?.toInt()
                             AddStickNoteScreen(
-                                idStikcNote = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote),
+                                idStikcNote = id ?: 0,
                                 modifier = Modifier,
                                 onClosed = navController::popBackStack,
                             )

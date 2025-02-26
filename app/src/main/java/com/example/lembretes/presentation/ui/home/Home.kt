@@ -129,13 +129,12 @@ data class HomeState(
           ) {
 
              MenuNavStickNote(
+                 //TODO Refatoras Filtros para tras stickNote por data sem os horarios
                  modifier =modifier,
                  uiState = uiState,
                  onFilterType = {
                      filterType -> stickNoteViewModel.alterFilterType(filterType)
                   }
-
-
              )
 
               StateListStickNote(
