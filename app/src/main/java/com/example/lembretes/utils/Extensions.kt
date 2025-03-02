@@ -71,7 +71,7 @@ fun Date.dateTimeTomorowLong(dayAfter:Int):Long{
 fun Date.convertDateLongToString(dataLong: Long):String?{
     try {
         val dataDeLong = Date( dataLong )
-        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy hh:mm:ss",Locale("pt","BR"))
+        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm",Locale("pt","BR"))
         return  simpleDateFormat.format(dataDeLong)
     } catch (e: ParseException) {
         e.printStackTrace()

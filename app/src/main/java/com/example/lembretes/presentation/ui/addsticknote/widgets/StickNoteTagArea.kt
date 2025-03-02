@@ -63,8 +63,8 @@ fun StickNoteTagArea(
                     }
                 },
                 singleLine = true,
-                icon = { /*TODO*/ },
-                trailingIcon = { /*TODO*/ }
+                icon = { },
+                trailingIcon = {}
             )
             IconButton(
                 modifier = Modifier.background(

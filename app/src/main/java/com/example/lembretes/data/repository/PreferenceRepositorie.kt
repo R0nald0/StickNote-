@@ -6,7 +6,7 @@ import androidx.datastore.core.IOException
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.example.lembretes.core.Constants
-import com.example.lembretes.core.excetion.PreferencesException
+import com.example.lembretes.core.exception.PreferencesException
 import com.example.lembretes.presentation.viewmodel.UserPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

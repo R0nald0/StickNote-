@@ -266,8 +266,6 @@ fun MyScreen(
                 isError = ui.erros.containsKey("date") to ui.erros["date"],
                 onSelectedDate = { date ->
                     date?.let {
-                        //TODO verificar tocar em salvar campos de titulo e descriçao estao vido com erro no addViewModel,
-                        //  e não esta sainda da view addStickNote
                         ui.stickyNoteDomain.copy(dateTime = date)
                         viewModel.validateFieldStickNote(stickyNoteDomain = ui.stickyNoteDomain.copy(
                             dateTime = date,

@@ -1,7 +1,7 @@
 package com.example.lembretes.data.repository
 
 import android.util.Log
-import com.example.lembretes.core.excetion.AuthUserException
+import com.example.lembretes.core.exception.AuthUserException
 import com.example.lembretes.data.dao.UserDao
 import com.example.lembretes.data.entity.toUser
 import com.example.lembretes.domain.model.UserDomain

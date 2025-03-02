@@ -146,8 +146,8 @@ fun StickNoteToolBar(
 private fun SticnkNoteToolBarPreview() {
     LembretesTheme {
         StickNoteToolBar(
-            isOpenDrawer = { /*TODO*/ },
-            onOpenProfile = { /*TODO*/ },
+            isOpenDrawer = {  },
+            onOpenProfile = {  },
             user = User(1, "Test", ""),
             openSearch = {}
         )

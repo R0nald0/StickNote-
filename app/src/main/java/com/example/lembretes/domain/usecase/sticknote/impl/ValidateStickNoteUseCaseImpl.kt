@@ -14,14 +14,14 @@ class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
     ): Map<String, String> {
         val erros = mutableMapOf<String,String>()
         if (title.isBlank()) {
-            erros.putAll(mapOf("title" to "O campo titulo precisa ser preenchido"))
+            erros.putAll(mapOf("title" to "O campo título precisa ser preenchido"))
         }
         if (description.isBlank()) {
            erros.putAll( mapOf("description" to "O campo descrição precisa ser preenchido"))
         }
 
         if (date == null || date == 0L) {
-            erros.putAll(mapOf("date" to "Data Inválida"))
+            erros.putAll(mapOf("date" to "Data inválida"))
             return erros
         }
 
@@ -29,7 +29,7 @@ class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
         val dateChosedByUser =Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC)
 
         if (   dateChosedByUser  < actualDate ) {
-            erros.putAll( mapOf("date" to "Data Inválida"))
+            erros.putAll( mapOf("date" to "Data inválida"))
         }
 
      return  erros

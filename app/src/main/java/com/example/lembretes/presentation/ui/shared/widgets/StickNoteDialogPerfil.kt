@@ -234,7 +234,7 @@ private fun StickNoteDialogPerfilPreview() {
             content = {
                 ContentDialog(
                     user = UserDomain(1,"Teste",""),
-                    onDismissRequest = { /*TODO*/ },
+                    onDismissRequest = { },
                     onSave = {t, s ->}
                 )
             }
@@ -252,7 +252,7 @@ private fun StickNoteDialogPerfilDarkPreview() {
                 ContentDialog(
                     user = UserDomain(1,"Testessssssss",""),
 
-                    onDismissRequest = { /*TODO*/ },
+                    onDismissRequest = { },
                     onSave = {t, s ->}
 
                 )

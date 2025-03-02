@@ -78,7 +78,7 @@ fun StickNoteCardView(
                     Icon(
                         Icons.Filled.Notifications
                         ,contentDescription = "notification icon",
-                        tint =  if(stickyNoteDomain.isRemember) MaterialTheme.colorScheme.primaryContainer
+                        tint =  if(stickyNoteDomain.isRemember) MaterialTheme.colorScheme.inversePrimary
                                    else MaterialTheme.colorScheme.outline
                     )
                 })
@@ -107,10 +107,8 @@ fun StickNoteCardView(
                 label =  Date().convertDateLongToString(stickyNoteDomain.dateTime?: Date().time)?:"00/00/0000",
                 isSelected = true,
                 colorBackGround = MaterialTheme.colorScheme.onPrimary,
-                colorText = MaterialTheme.colorScheme.primary,
-
-                )
-
+                colorText = MaterialTheme.colorScheme.primary
+            )
 
             stickyNoteDomain.tags.forEach {label->
                 StickChips(
