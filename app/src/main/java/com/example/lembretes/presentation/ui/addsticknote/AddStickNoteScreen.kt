@@ -1,8 +1,21 @@
 package com.example.lembretes.presentation.ui.addsticknote
 
+import android.Manifest
+import android.app.Activity
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,15 +26,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -34,19 +49,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lembretes.R
+import com.example.lembretes.core.Constants
+import com.example.lembretes.core.notification.StickNoteAlarmManeger
+import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
 import com.example.lembretes.domain.model.StickyNoteDomain
+import com.example.lembretes.presentation.ui.DescriptionActivity
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteCheckBox
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteTagArea
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickyNoteCalendar
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
@@ -61,8 +85,9 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun AddStickNoteScreen(
     modifier: Modifier = Modifier,
-    idStikcNote: Int ,
+    idStikcNote: Int,
     onClosed: () -> Unit,
+    activity:  Activity
 ) {
 
     val addUpdateViewModel = hiltViewModel<AddUpdateViewModel>()
@@ -113,11 +138,12 @@ fun AddStickNoteScreen(
 
 
     MyScreen(
-        onSave =  if(idStikcNote != 0) addUpdateViewModel::updateStickNote
-                  else addUpdateViewModel::insertStickNote ,
+        onSave = if (idStikcNote != 0) addUpdateViewModel::updateStickNote
+        else addUpdateViewModel::insertStickNote,
         viewModel = addUpdateViewModel,
+        activity=  activity,
         modifier = modifier,
-        onClosed = onClosed
+        onClosed = onClosed,
     )
 }
 
@@ -127,6 +153,7 @@ fun AddStickNoteScreen(
 fun MyScreen(
     onSave: (StickyNoteDomain) -> Unit,
     viewModel: AddUpdateViewModel = viewModel(),
+    activity: Activity,
     modifier: Modifier = Modifier,
     onClosed: () -> Unit
 ) {
@@ -145,13 +172,45 @@ fun MyScreen(
         var isRemember by rememberSaveable { mutableStateOf(false) }
         val tags = remember { mutableStateListOf<String>() }
         var tag by remember { mutableStateOf("") }
+        var showRationale by remember {
+            mutableStateOf(false)
+        }
+        val lauche = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            permissions.map {
+                if (!it.value){
+                    ContextCompat.checkSelfPermission(activity, it.key)
+                    Log.i("INFO", "onCreate: ${it.key}:${it.value} ")
+                }
+            }
+        }
+
+        if (showRationale){
+            ShowAndCheckShouldRationale(
+                modifier = modifier,
+                activity =activity ,
+                permission = Manifest.permission.POST_NOTIFICATIONS,
+                messagem = "Para garantir que você receba lembretes importantes," +
+                "este aplicativo precisa da permissão de notificações." +
+                        "Isso nos permite exibir alertas sobre suas tarefas e " +
+                        "compromissos no momento certo." +
+                        "Conceder permissão?",
+                onCancel = {showRationale = false},
+                onAccept = {
+                    showRationale = false
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        lauche.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                    }
+                }
+            )
+        }
 
         var selectedDate: Long? by rememberSaveable {
             mutableStateOf(
                 ui.stickyNoteDomain.dateTime
             )
         }
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -182,7 +241,6 @@ fun MyScreen(
                 isError = ui.erros.containsKey("title"),
                 onChange = { value ->
                     lembreteName = value
-
                 },
                 singleLine = true,
                 icon = {},
@@ -195,7 +253,7 @@ fun MyScreen(
                     }
                 },
                 supportTexting = {
-                    Text(ui.erros["title"] ?:"")
+                    Text(ui.erros["title"] ?: "")
                 }
             )
 
@@ -216,7 +274,6 @@ fun MyScreen(
                     Text(ui.erros["description"] ?: "")
                 }
             )
-
 
             Spacer(modifier.height(15.dp))
 
@@ -256,22 +313,23 @@ fun MyScreen(
             Spacer(modifier.height(20.dp))
 
             StickyNoteCalendar(
-                date = if(ui.stickyNoteDomain.dateTime == 0L) "Escolha uma data"
-                   else Instant.fromEpochMilliseconds(ui.stickyNoteDomain.dateTime).toLocalDateTime(
-                        TimeZone.UTC
-                    ).date.format(kotlinx.datetime.LocalDate.Format {
-                        byUnicodePattern("dd/MM/yyyy")
-                    })
-                ,
+                date = if (ui.stickyNoteDomain.dateTime == 0L) "Escolha uma data"
+                else Instant.fromEpochMilliseconds(ui.stickyNoteDomain.dateTime).toLocalDateTime(
+                    TimeZone.UTC
+                ).date.format(kotlinx.datetime.LocalDate.Format {
+                    byUnicodePattern("dd/MM/yyyy")
+                }),
                 isError = ui.erros.containsKey("date") to ui.erros["date"],
                 onSelectedDate = { date ->
                     date?.let {
                         ui.stickyNoteDomain.copy(dateTime = date)
-                        viewModel.validateFieldStickNote(stickyNoteDomain = ui.stickyNoteDomain.copy(
-                            dateTime = date,
-                            name = lembreteName,
-                            description = lembreteDescription
-                            ))
+                        viewModel.validateFieldStickNote(
+                            stickyNoteDomain = ui.stickyNoteDomain.copy(
+                                dateTime = date,
+                                name = lembreteName,
+                                description = lembreteDescription
+                            )
+                        )
                         selectedDate = date
                     }
                 }
@@ -292,7 +350,64 @@ fun MyScreen(
             ) {
                 ElevatedButton(
                     onClick = {
-                        createUpdateStickNote(
+                        if(!isRemember){
+                            createUpdateStickNote(
+                                ui.stickyNoteDomain,
+                                lembreteName,
+                                lembreteDescription,
+                                selectedDate,
+                                isRemember,
+                                tags,
+                                onSave,
+                                {
+                                    if (ui.isSuccess) {
+                                        onClosed()
+                                    }
+                                }
+                            )
+                            return@ElevatedButton
+                        }
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (ContextCompat.checkSelfPermission(activity,Manifest.permission.POST_NOTIFICATIONS) !=
+                                PackageManager.PERMISSION_GRANTED) {
+                                showRationale = true
+                            }else{
+                                createUpdateStickNote(
+                                    ui.stickyNoteDomain,
+                                    lembreteName,
+                                    lembreteDescription,
+                                    selectedDate,
+                                    isRemember,
+                                    tags,
+                                    onSave,
+                                    {
+                                        if (ui.isSuccess) {
+                                            onClosed()
+                                        }
+                                    }
+                                )
+                            }
+                        }else{
+                            createUpdateStickNote(
+                                ui.stickyNoteDomain,
+                                lembreteName,
+                                lembreteDescription,
+                                selectedDate,
+                                isRemember,
+                                tags,
+                                onSave,
+                                {
+                                    if (ui.isSuccess) {
+                                        onClosed()
+                                    }
+                                }
+                            )
+                        }
+                        //TODO criar lógica para salvar o lembrete.verificar
+                        // se necessaário notificação,lógica buscar lembretes que serão
+                        // notificado,Alterar nome  do canal,Melhorar design da DescriptionActivity
+                        /*createUpdateStickNote(
                             ui.stickyNoteDomain,
                             lembreteName,
                             lembreteDescription,
@@ -305,13 +420,89 @@ fun MyScreen(
                                      onClosed()
                                 }
                             }
-                        )
+                        )*/
                     }) {
                     Text(stringResource(R.string.salvar))
                 }
             }
         }
     }
+}
+
+@Composable
+private fun verificationWhenPermissionDenied(
+    modifier: Modifier,
+    hasNotPermission: Boolean,
+    onAccept : ()->Unit,
+    onDenied : ()->Unit,
+): Boolean {
+    var hasNotPermission1 = hasNotPermission
+    if (!hasNotPermission1) {
+        StickNoteDialogPerfil(
+            modifier = modifier,
+            onDissmisRequest = onDenied,
+            content = {
+                Surface(
+                    modifier = modifier
+                        .padding(8.dp)
+                        .clip(RoundedCornerShape(size = 20.dp))
+                        .background(
+                            MaterialTheme.colorScheme.background,
+                        ),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .padding(32.dp)
+                            .clip(shape = RoundedCornerShape(30.dp)),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Permissão Necessária",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(R.string.permission_explication),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(onClick =onDenied) {
+                                Text(
+                                    text = stringResource(R.string.negar),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                            TextButton(onClick = onAccept) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.ok),
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        )
+    }
+    return hasNotPermission1
+}
+
+
+fun createAlarm(activity: Context) {
+    val stickNoteAlarmManeger = StickNoteAlarmManeger()
+    stickNoteAlarmManeger.criateAlarm(context = activity)
 }
 
 private fun createUpdateStickNote(
@@ -336,12 +527,30 @@ private fun createUpdateStickNote(
     onClosed()
 }
 
+fun verifyIfPermissionHasDenied(
+    activity: Activity,
+    permission: String,
+    gerenciarPermissoes: ActivityResultLauncher<Array<String>>,
+    listPemissions: Set<String>,
+    context: Context
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    val hasPermission  = if (ActivityCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            )
+            != PackageManager.PERMISSION_DENIED
+        )  false else true
+     if (!hasPermission){
+         
+     }
+    }
+}
 
 @Preview
 @Composable
 private fun MyScreenPreview() {
     LembretesTheme {
-        MyScreen({}, viewModel(), onClosed = {})
+        MyScreen(activity = Activity() , onSave = {}, viewModel = viewModel(), onClosed = {})
     }
 }
 

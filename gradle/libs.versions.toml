@@ -72,6 +72,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
+androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 
 
 [plugins]

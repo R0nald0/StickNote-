@@ -5,4 +5,11 @@
     <string name="adicionar_lembrete">Adicionar Lembrete</string>
     <string name="descri_o">Descrição</string>
     <string name="salvar">Salvar</string>
+    <string name="title_activity_description">DescriptionActivity</string>
+    <string name="permission_explication">Para garantir que você receba lembretes importantes,
+        este aplicativo precisa da permissão de notificações.Isso nos permite exibir
+        alertas sobre suas tarefas e compromissos no momento certo.Conceda a
+        permissão para manter seus lembretes sempre à vista!</string>
+    <string name="negar">Negar</string>
+    <string name="ok">Ok</string>
 </resources>

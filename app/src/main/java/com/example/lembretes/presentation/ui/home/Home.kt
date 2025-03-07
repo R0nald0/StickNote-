@@ -1,6 +1,13 @@
 package com.example.lembretes.presentation.ui.home
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +26,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,9 +37,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.model.User
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
@@ -57,7 +67,7 @@ data class HomeState(
 
 @Composable
  fun HomeScreen(
-    context : Context,
+    context : Activity,
     stickNoteViewModel : StickNoteViewmodel = viewModel(),
     modifier: Modifier = Modifier,
     onUpdate:(StickyNoteDomain)->Unit,
@@ -69,10 +79,39 @@ data class HomeState(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
-
+    var showRationale by remember {
+        mutableStateOf(false)
+    }
+    val lauche = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        permissions.map {
+            if (!it.value){
+                ContextCompat.checkSelfPermission(context, it.key)
+                Log.i("INFO", "onCreate: ${it.key}:${it.value} ")
+            }
+        }
+    }
 
     var showPerfilDialog by remember{
         mutableStateOf(false)
+    }
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            lauche.launch(arrayOf(
+                Manifest.permission.POST_NOTIFICATIONS,
+                ))
+        }
+    }
+    if (showRationale){
+        ShowAndCheckShouldRationale(
+            modifier = modifier,
+            activity =context ,
+            permission = Manifest.permission.POST_NOTIFICATIONS,
+            messagem = "",
+            onCancel = {showRationale = false},
+            onAccept = {}
+        )
     }
 
     if (showPerfilDialog){
@@ -143,7 +182,18 @@ data class HomeState(
                   onUpdate = onUpdate,
                   context =  context,
                   onDelete = stickNoteViewModel::deleteStickNote,
-                  onUpdateStateNotificaion= stickNoteViewModel::updateNotificatioStickNote
+                  onUpdateStateNotificaion= { id,isUpdate->
+                       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                           if (ContextCompat.checkSelfPermission(context,Manifest.permission.POST_NOTIFICATIONS) !=
+                                  PackageManager.PERMISSION_GRANTED) {
+                               showRationale = true
+                           }else{
+                               lauche.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                           }
+                       }else{
+                           stickNoteViewModel.updateNotificatioStickNote(idStickNote = id, isRemember = isUpdate)
+                       }
+                  }
               )
           }
 

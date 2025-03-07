@@ -39,7 +39,7 @@ fun StickNoteCardView(
 
     Card(
         onClick = {
-            context.showNotification(stickyNoteDomain.name,stickyNoteDomain.description)
+            //context.showNotification(stickyNoteDomain.name,stickyNoteDomain.description)
         },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary

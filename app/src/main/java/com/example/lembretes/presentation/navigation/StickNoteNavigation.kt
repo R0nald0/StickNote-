@@ -33,8 +33,6 @@ object SearchNavigation :StickNoteNavigation{
     override var route: String ="search"
 }
 
-
-
 fun NavHostController.navigateToAddStiCkNote(idStickNote : String?){
      this.navigate("${AddStickNoteNavigation.route}?${AddStickNoteNavigation.idStickNote}=$idStickNote")
 }

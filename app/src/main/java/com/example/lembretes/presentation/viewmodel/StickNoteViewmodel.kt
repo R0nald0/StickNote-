@@ -3,6 +3,7 @@ package com.example.lembretes.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.usecase.sticknote.DeleteStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,7 +48,7 @@ class StickNoteViewmodel @Inject constructor(
 
                when(_uiState.value.filterType){
                   StickNoteEnumFilterType.Today ->{
-                       val todayNotes =getStickyNoteUseCaseImpl.getStickNotesToday()
+                       val todayNotes = getStickyNoteUseCaseImpl.getStickNotesToday()
                        getStickNotes(todayNotes)
                    }
                    StickNoteEnumFilterType.TOMORROW->{
