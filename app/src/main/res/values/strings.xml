@@ -11,5 +11,6 @@
         alertas sobre suas tarefas e compromissos no momento certo.Conceda a
         permissão para manter seus lembretes sempre à vista!</string>
     <string name="negar">Negar</string>
-    <string name="ok">Ok</string>
+    <string name="ok">Conceder</string>
+    <string name="falha_ao_criar_notifica_o">Falha ao criar notificação</string>
 </resources>

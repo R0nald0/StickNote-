@@ -9,14 +9,17 @@ data class StickyNote(
     val description :String ="",
     val dateTime: Long = 0,
     var isRemember : Boolean =false,
+    val noticafitionId: Long,
     val tags:MutableList<String> = mutableListOf()
 )
+
 
 fun StickyNote.toLembrete() = LembreteEntity(
     id = this.id,
     name = this.name,
     description = this.description,
     dateTime = this.dateTime,
+    noticationId = this.noticafitionId,
     isRemember = this.isRemember,
     tags = this.tags
 

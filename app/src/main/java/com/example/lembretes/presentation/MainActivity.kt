@@ -1,13 +1,9 @@
 package com.example.lembretes.presentation
 
-import android.Manifest
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,7 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(){
     private  val prefViewModel by  viewModels<PreferencesViewModel>()
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -115,7 +109,12 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier,
                                 onClose = {navController.popBackStack()},
                                 context= this@MainActivity,
-                                onUpadteNotification = stickNoteViewModel::updateNotificatioStickNote,
+                                onUpadteNotification = {stickNote->
+                                    if (stickNote?.id == null) return@SearchScreen
+                                       stickNoteViewModel.updateNotificatioStickNote(stickNote){
+
+                                    }
+                                },
                             )
                         }
 

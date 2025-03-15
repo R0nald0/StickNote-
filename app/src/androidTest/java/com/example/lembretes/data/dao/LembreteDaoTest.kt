@@ -7,7 +7,7 @@ import com.example.lembretes.data.LembreteDatabase
 import com.example.lembretes.data.entity.LembreteEntity
 import com.example.lembretes.utils.TestDispatcherRule
 import com.example.lembretes.utils.convertDateStringToLong
-import com.google.common.truth.Truth.assertThat
+import  com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before

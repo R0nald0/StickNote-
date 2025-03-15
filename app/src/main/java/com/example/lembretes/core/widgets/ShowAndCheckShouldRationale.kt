@@ -2,14 +2,11 @@ package com.example.lembretes.core.widgets
 
 import android.app.Activity
 import android.content.pm.PackageManager
-import android.provider.CalendarContract.Colors
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,10 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.example.lembretes.R
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
-import java.security.Permission
 
 @Composable
 fun ShowAndCheckShouldRationale(
@@ -85,7 +83,7 @@ fun ShowAndCheckShouldRationale(
                                     containerColor = Color.Transparent
                                 ),
                             ) {
-                                Text("Negar",
+                                Text(stringResource(R.string.negar),
                                     style =MaterialTheme.typography.labelMedium
                                     )
                             }
@@ -96,7 +94,7 @@ fun ShowAndCheckShouldRationale(
                                     containerColor = Color.Transparent
                                 ),
                             ) {
-                                Text("Conceder",
+                                Text(stringResource(R.string.ok),
                                     style =MaterialTheme.typography.labelLarge
                                 )
                             }

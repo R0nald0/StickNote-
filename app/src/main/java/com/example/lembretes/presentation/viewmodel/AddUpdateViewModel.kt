@@ -20,9 +20,9 @@ import javax.inject.Inject
 
 
 data class UiAddScreen(
-   val stickyNoteDomain: StickyNoteDomain,
-   val erros : Map<String,String>,
-   val isSuccess :Boolean
+    val stickyNoteDomain: StickyNoteDomain,
+    val erros : Map<String,String>,
+    val isSuccess :Boolean
 )
 
 @HiltViewModel
@@ -33,7 +33,7 @@ class AddUpdateViewModel @Inject constructor(
     private val validateStickNoteUseCase: ValidateStickNoteUseCase
 ) : ViewModel() {
 
-    private val _addScreeUi = MutableStateFlow(UiAddScreen(StickyNote(id = null), erros = emptyMap(),false))
+    private val _addScreeUi = MutableStateFlow(UiAddScreen(StickyNote(id = null, noticafitionId = 0), erros = emptyMap(),false))
     var addScreenUi : StateFlow<UiAddScreen> = _addScreeUi.asStateFlow()
 
     fun findById(id:Int){
@@ -63,18 +63,19 @@ class AddUpdateViewModel @Inject constructor(
          }
 
     }
-    fun updateStickNote(stickyNoteDomain: StickyNoteDomain){
+    fun updateStickNote(stickyNoteDomain: StickyNoteDomain,onAction:()->Unit){
 
         viewModelScope.launch{
             runCatching {
                 validateFieldStickNote(stickyNoteDomain)
-                if (_addScreeUi.value.erros.isNotEmpty())return@launch
+                if (_addScreeUi.value.erros.isNotEmpty() == true)return@launch
                 updateStickNoteUseCase.updateStickNote(stickNote = stickyNoteDomain)
             }.fold(
                 onSuccess = {linesAfected->
                     if (linesAfected != 0){
                        // _stickNoteState.value = StickNoteState.Success("lembrete atualizado")
                     }
+                    onAction()
                     Log.i("_INFO", "updateStiickNote: $linesAfected")
                 },
                 onFailure = {error->
@@ -83,22 +84,23 @@ class AddUpdateViewModel @Inject constructor(
             )
         }
     }
-    fun insertStickNote(stickyNoteDomain: StickyNoteDomain){
+    fun insertStickNote(stickyNoteDomain: StickyNoteDomain,onAction:() -> Unit){
          //Loading
         viewModelScope.launch {
             runCatching {
                 validateFieldStickNote(stickyNoteDomain)
-                if (_addScreeUi.value.erros.isNotEmpty())return@launch
+                if (_addScreeUi.value.erros?.isNotEmpty() == true)return@launch
                 insertStickNoteUseCase.insert(stickyNoteDomain)
             }.fold(
-                onSuccess = {insertValue->
+                    onSuccess = {insertValue->
                     if (insertValue != 0L){
                         Log.i("INFO_", "insertStickNote: Inserido com sucesso $insertValue")
                     }
+                    onAction()
                 },
                 onFailure = {erro->
 
-                    Log.i("INFO_", "insertStickNote: Erro ao inserir ${erro}")
+                    Log.i("INFO_", "insertStickNote: Erro ao inserir $erro")
                 }
             )
         }

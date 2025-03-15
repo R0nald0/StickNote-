@@ -74,8 +74,6 @@ dependencies {
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-
-
     implementation(libs.androidx.appcompat)
     // hiltViewModel
     implementation(libs.androidx.hilt.navigation.compose)
@@ -87,7 +85,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
-    testImplementation("org.testng:testng:6.9.6")
+
 
     //Coil
     implementation(libs.coil.compose)
@@ -128,14 +126,14 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     //Dependências biblioteca Truth
-    testImplementation ("com.google.truth:truth:1.2.0")
-
+    testImplementation (libs.truth)
+    androidTestImplementation(libs.truth)
     //Kotlin-coroutineTeste
     testImplementation("app.cash.turbine:turbine:1.1.0")
     androidTestImplementation("app.cash.turbine:turbine:1.1.0")
 
     testImplementation (libs.kotlinx.coroutines.test)
-
+    testImplementation("org.testng:testng:6.9.6")
     //Dependência da Biblioteca Mockito
     testImplementation (libs.mockito.core)
 

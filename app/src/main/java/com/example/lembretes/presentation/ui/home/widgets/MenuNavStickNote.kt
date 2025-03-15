@@ -11,9 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
-import com.example.lembretes.presentation.ui.home.HomeState
 import com.example.lembretes.presentation.ui.shared.widgets.StickChips
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
+import com.example.lembretes.presentation.viewmodel.HomeState
 
 @Composable
  fun MenuNavStickNote(

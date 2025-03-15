@@ -16,6 +16,7 @@ data class Lembrete(
     val description :String,
     val dateTime: Long,
     val isRemember : Boolean,
+    val noticationId: Long = 0,
     val tags : List<String>
 )
 
@@ -25,6 +26,7 @@ fun LembreteEntity.toStickNote() = StickyNoteDomain(
     description = this.description,
     dateTime = this.dateTime,
     isRemember =this.isRemember,
+    noticafitionId = this.noticationId,
     tags = this.tags.toMutableList()
 )
 

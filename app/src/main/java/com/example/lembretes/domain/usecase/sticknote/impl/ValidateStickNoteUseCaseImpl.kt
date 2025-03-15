@@ -34,4 +34,11 @@ class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
 
      return  erros
     }
+    override fun validateUpdateNotifcation(date: Long): Boolean{
+        val actualDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
+        val dateChosedByUser =Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC)
+
+        return actualDate < dateChosedByUser
+
+    }
 }

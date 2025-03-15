@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.ui.shared.widgets.LoadingScreen
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteCardView
 import com.example.lembretes.presentation.viewmodel.SerachViewModel
@@ -38,9 +39,8 @@ import com.example.lembretes.presentation.viewmodel.SerachViewModel
 fun SearchScreen(
     modifier: Modifier = Modifier,
     onClose :()->Unit,
-
     context: Context,
-    onUpadteNotification:(Int,Boolean) ->Unit
+    onUpadteNotification:(StickyNoteDomain?) ->Unit
     ) {
 
     val searchViewModel = hiltViewModel<SerachViewModel>()
@@ -121,7 +121,6 @@ fun SearchScreen(
                           StickNoteCardView(
                               stickyNoteDomain =stickNote ,
                               onUpdateStateNotificaion = onUpadteNotification,
-                              context =context  ,
                               modifier =modifier
                           )
                       }

@@ -22,19 +22,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.lembretes.R
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.presentation.ui.home.HomeState
 import com.example.lembretes.presentation.ui.home.StickNoteNoContent
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteCardView
+import com.example.lembretes.presentation.viewmodel.HomeState
 
 @Composable
 internal fun StateListStickNote(
     uiState: HomeState,
     modifier: Modifier,
     onNavigateToAddStickNote: () -> Unit,
-    onUpdate: (StickyNoteDomain) -> Unit, //vefificar aqui
+    onUpdate: (StickyNoteDomain) -> Unit,
     context: Context,
     onDelete: (StickyNoteDomain) -> Unit,
-    onUpdateStateNotificaion: (Int, Boolean) -> Unit
+    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit
 ) {
     when {
         uiState.listData != null -> {
@@ -71,7 +71,7 @@ fun StickNoteStateLazyList(
     stickNotes: List<StickyNoteDomain>,
     onNavigateToAddStickNote: (StickyNoteDomain) -> Unit,
     onDelete: (StickyNoteDomain) -> Unit,
-    onUpdateStateNotificaion: (Int, Boolean) -> Unit,
+    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -107,7 +107,7 @@ fun StickNoteStateLazyList(
 @Composable
 fun MySwippe(
     modifier: Modifier = Modifier,
-    onUpdateStateNotificaion: (Int, Boolean) -> Unit,
+    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
     dismissState: SwipeToDismissBoxState,
     stickNote: StickyNoteDomain,
     context: Context,
@@ -152,7 +152,6 @@ fun MySwippe(
             stickyNoteDomain = stickNote,
             onUpdateStateNotificaion = onUpdateStateNotificaion,
             modifier = modifier,
-            context = context
         )
     }
 }
