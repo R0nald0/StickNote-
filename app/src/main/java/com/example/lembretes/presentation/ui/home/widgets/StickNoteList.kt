@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -52,10 +53,6 @@ internal fun StateListStickNote(
                 )
             }
         }
-
-        /*  uiState.isLoading -> {
-              LoadingScreen(isLoading = { uiState.isLoading }, loading = uiState.isLoading )
-          }*/
 
         uiState.erro != null -> {
             Toast.makeText(context, uiState.erro, Toast.LENGTH_SHORT).show()
@@ -119,7 +116,7 @@ fun MySwippe(
 
     when (dismissState.dismissDirection) {
         SwipeToDismissBoxValue.EndToStart -> {
-            color = Color.Red
+            color = MaterialTheme.colorScheme.error
             align = Arrangement.End
             textTitle = "Deletar"
         }

@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -260,7 +261,6 @@ fun MyScreen(
                 isError = ui.erros.containsKey("description"),
                 onChange = { value ->
                     lembreteDescription = value
-
                 },
                 singleLine = false,
                 icon = { },
@@ -344,6 +344,9 @@ fun MyScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 ElevatedButton(
+                    colors = ButtonDefaults.elevatedButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    ),
                     onClick = {
                         if(!isRemember){
                             createUpdateStickNote(
@@ -385,7 +388,9 @@ fun MyScreen(
                             )
                         }
                     }) {
-                    Text(stringResource(R.string.salvar))
+                    Text(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                       text =  stringResource(R.string.salvar))
                 }
             }
         }

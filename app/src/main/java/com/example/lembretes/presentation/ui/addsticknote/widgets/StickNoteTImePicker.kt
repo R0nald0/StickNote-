@@ -13,12 +13,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
+import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.lembretes.R
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -45,7 +48,12 @@ fun StickNoteTimePicker(
             Column(
                 modifier = Modifier.padding(22.dp)
             ) {
-                TimePicker(timePickerState)
+                TimePicker(
+                    colors = TimePickerDefaults.colors(
+                        selectorColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+                    state  = timePickerState
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Absolute.Right
@@ -54,7 +62,7 @@ fun StickNoteTimePicker(
                         onClick = onCancel
                     ) {
                         Text(
-                            "Cancelar",
+                            stringResource(R.string.cancelar),
                             style = MaterialTheme.typography.labelMedium.copy(
                                 color = MaterialTheme.colorScheme.error
                             )
@@ -69,9 +77,9 @@ fun StickNoteTimePicker(
                         }
                     ) {
                         Text(
-                            "Aceitar",
+                            stringResource(R.string.aceitar),
                             style = MaterialTheme.typography.labelMedium.copy(
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
                         )
                     }

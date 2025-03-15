@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedButton
@@ -125,7 +126,6 @@ fun HomeScreen(
         )
     }
 
-    //TODO verifcar Reativar Alarme Quando App For Reiniciado
     //TODO verificar hora vindo errao  em app fisico
 
     if (showPerfilDialog) {
@@ -176,10 +176,10 @@ fun HomeScreen(
                 ) } ,
                 floatingActionButton = {
                     FloatingActionButton(
-                        containerColor = MaterialTheme.colorScheme.inversePrimary,
+                        containerColor = MaterialTheme.colorScheme.primary,
                         onClick = onNavigateToAddStickNote
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "button add new stick Note")
+                        Icon(Icons.Default.Add, contentDescription = "button add new stick Note", tint = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 },
             ) { paddingValues ->
@@ -301,7 +301,7 @@ internal fun StickNoteNoContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp, bottom = 0.dp),
+            .padding(16.dp, bottom = 0.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -311,10 +311,15 @@ internal fun StickNoteNoContent(
             style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
         )
         Spacer(modifier = Modifier.height(20.dp))
-        ElevatedButton(onClick = {
+        ElevatedButton(
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+            ),
+            onClick = {
             onNavigateToAddStickNote()
         }) {
             Text(
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 text = "Criar lembrete",
                 style = MaterialTheme.typography.bodyMedium
             )

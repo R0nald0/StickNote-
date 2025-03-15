@@ -68,9 +68,9 @@ fun StickNoteToolBar(
             RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
         ),
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            scrolledContainerColor = MaterialTheme.colorScheme.inversePrimary,
-            titleContentColor = MaterialTheme.colorScheme.primary
+            containerColor = MaterialTheme.colorScheme.primary,
+            scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
 
         ),
         scrollBehavior = scroolBehavior,
@@ -85,7 +85,7 @@ fun StickNoteToolBar(
                     .background(color = Color.Gray)
                     .border(
                         border = BorderStroke(
-                            color = MaterialTheme.colorScheme.primary, width = 2.dp
+                            color = MaterialTheme.colorScheme.onPrimaryContainer, width = 2.dp
                         ), shape = CircleShape
                     )
                     .clickable { onOpenProfile() },

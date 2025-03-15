@@ -38,7 +38,7 @@ import com.example.lembretes.R
 import com.example.lembretes.core.notification.cancelNotification
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.MainActivity
-import com.example.lembretes.presentation.ui.ui.theme.LembretesTheme
+import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
 import com.example.lembretes.utils.convertDateLongToString

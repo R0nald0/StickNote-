@@ -30,8 +30,8 @@ import com.example.lembretes.presentation.viewmodel.HomeState
             StickChips(
                 label = stickNoteEnumFilterType.value,
                 isSelected = uiState.filterType == stickNoteEnumFilterType,
-                colorBackGround = MaterialTheme.colorScheme.onPrimary,
-                colorText = MaterialTheme.colorScheme.primary,
+                colorBackGround = MaterialTheme.colorScheme.primary,
+                colorText = MaterialTheme.colorScheme.onPrimaryContainer,
                 onClick = {
                    onFilterType(stickNoteEnumFilterType)
                 },

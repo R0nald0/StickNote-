@@ -13,4 +13,6 @@
     <string name="negar">Negar</string>
     <string name="ok">Conceder</string>
     <string name="falha_ao_criar_notifica_o">Falha ao criar notificação</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="aceitar">Aceitar</string>
 </resources>

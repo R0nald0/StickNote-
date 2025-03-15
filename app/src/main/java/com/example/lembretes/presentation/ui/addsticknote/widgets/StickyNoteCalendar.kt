@@ -53,7 +53,7 @@ fun StickyNoteCalendar(
         }) {
         Text(
             text = dataResult,
-            color = if (!isError.first) MaterialTheme.colorScheme.primary
+            color = if (!isError.first) MaterialTheme.colorScheme.onPrimaryContainer
             else MaterialTheme.colorScheme.error,
         )
     }

@@ -1,8 +1,10 @@
 package com.example.lembretes.presentation.ui.addsticknote.widgets
 
 import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,7 +38,9 @@ fun CalendarWidget(
 
     DatePickerDialog(
         modifier = modifier,
-
+        colors = DatePickerDefaults.colors(
+            dayContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
         onDismissRequest = onDissmis,
         confirmButton = {
             TextButton(
@@ -44,12 +48,20 @@ fun CalendarWidget(
                     onClick(datePickerState.selectedDateMillis)
                 }
             ){
-                Text(text = "ok")
+                Text(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    text = "ok"
+                )
             }
 
         }
     ) {
         DatePicker(
+            colors = DatePickerDefaults.colors(
+                todayDateBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                selectedDayContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
+
+            ),
             state = datePickerState,
         )
     }

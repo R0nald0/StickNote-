@@ -68,15 +68,15 @@ fun StickNoteTagArea(
             )
             IconButton(
                 modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.inversePrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     shape = CircleShape
                 ),
                 onClick = onAdd
             ) {
                 Icon(
                     Icons.Filled.Add,
-                    contentDescription = "",
-                    tint = MaterialTheme.colorScheme.primary
+                    contentDescription = "Adicionar tag",
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         }

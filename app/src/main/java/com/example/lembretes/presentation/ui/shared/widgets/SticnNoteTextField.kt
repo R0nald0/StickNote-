@@ -24,7 +24,7 @@ fun StickNoteTextField(
     modifier: Modifier = Modifier,
     value: String,
     label: String,
-    enable : Boolean = true,
+    enable: Boolean = true,
     isError: Boolean,
     onChange: (String) -> Unit,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
@@ -32,11 +32,11 @@ fun StickNoteTextField(
     singleLine: Boolean,
     icon: @Composable() (() -> Unit)?,
     trailingIcon: @Composable() (() -> Unit)?,
-    supportTexting :@Composable() (() -> Unit)?  ,
+    supportTexting: @Composable() (() -> Unit)?,
 ) {
-     var erroText by remember {
-         mutableStateOf(supportTexting)
-     }
+    var erroText by remember {
+        mutableStateOf(supportTexting)
+    }
 
     OutlinedTextField(
         maxLines = maxLines,
@@ -50,13 +50,16 @@ fun StickNoteTextField(
         prefix = icon,
         supportingText = if (value.isEmpty()) erroText else null,
         trailingIcon = {
-            if(isError){ trailingIcon }
+            if (isError) {
+                trailingIcon
+            }
         },
         label = {
             Text(
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 text = label,
                 style = textStyle
-                )
+            )
         },
         onValueChange = onChange
 
@@ -67,22 +70,22 @@ fun StickNoteTextField(
 @Preview
 @Composable
 private fun StickNoteTextFieldPreview() {
-     LembretesTheme {
-         StickNoteTextField(
-             value = "Teste",
-             label ="Teste",
-             isError = false,
-             onChange = {},
-             maxLines = 1,
-             singleLine = true,
-             icon = {
-                 Icon(Icons.Default.Person, contentDescription = "")
-             },
-             trailingIcon = {
-                 Icon(Icons.Default.Info, contentDescription = "", tint = Color.Red)
-             },
-             supportTexting ={}
+    LembretesTheme {
+        StickNoteTextField(
+            value = "Teste",
+            label = "Teste",
+            isError = false,
+            onChange = {},
+            maxLines = 1,
+            singleLine = true,
+            icon = {
+                Icon(Icons.Default.Person, contentDescription = "")
+            },
+            trailingIcon = {
+                Icon(Icons.Default.Info, contentDescription = "", tint = Color.Red)
+            },
+            supportTexting = {}
 
-         )
-     }
+        )
+    }
 }

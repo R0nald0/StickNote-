@@ -72,7 +72,7 @@ fun StickNoteCardView(
                 text = stickyNoteDomain.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
                     Locale.getDefault()) else it.toString() },
                 style = MaterialTheme.typography.titleLarge.copy(
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold
                 ),
             )
@@ -101,7 +101,7 @@ fun StickNoteCardView(
                         Icon(
                             Icons.Filled.Check
                             ,contentDescription = "notification icon",
-                            tint =   MaterialTheme.colorScheme.inversePrimary
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 })
@@ -112,7 +112,7 @@ fun StickNoteCardView(
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-                color = MaterialTheme.colorScheme.secondaryContainer,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             maxLines = 2,
             modifier = Modifier
@@ -124,12 +124,11 @@ fun StickNoteCardView(
             modifier = Modifier
                 .padding(10.dp)
                 .fillMaxWidth()
-
         ) {
             StickChips(
                 label =  Date().convertDateLongToString(stickyNoteDomain.dateTime?: Date().time)?:"00/00/0000",
                 isSelected = true,
-                colorBackGround = MaterialTheme.colorScheme.onPrimary,
+                colorBackGround = MaterialTheme.colorScheme.onPrimaryContainer,
                 colorText = MaterialTheme.colorScheme.primary
             )
 
@@ -137,8 +136,8 @@ fun StickNoteCardView(
                 StickChips(
                     label = label,
                     isSelected = true,
-                    colorBackGround = MaterialTheme.colorScheme.onPrimary,
-                    colorText = MaterialTheme.colorScheme.error,
+                    colorBackGround = MaterialTheme.colorScheme.onPrimaryContainer,
+                    colorText = MaterialTheme.colorScheme.primary,
                     )
             }
         }
