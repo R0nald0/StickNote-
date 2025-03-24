@@ -1,5 +1,6 @@
 package com.example.lembretes.presentation.ui.shared.widgets
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -26,24 +27,28 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.lembretes.core.Constants.STICK_NOTE_TIME_ZONE
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.utils.convertDateLongToString
+import com.example.lembretes.utils.dateFormatToString
+import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.util.Date
 import java.util.Locale
 
 @Composable
 fun StickNoteCardView(
     stickyNoteDomain: StickyNoteDomain,
-    onUpdateStateNotificaion : (StickyNoteDomain?)->Unit,
+    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
     modifier: Modifier
 ) {
     val dateIsNotOnPass by remember {
-        val actualDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-        val dateChosedByUser =Instant.fromEpochMilliseconds(stickyNoteDomain.dateTime).toLocalDateTime(TimeZone.UTC)
+
+        val actualDate = Clock.System.now().toLocalDateTime(STICK_NOTE_TIME_ZONE)
+        val dateChosedByUser = Clock.System.getDateFronLongOfCurrentSystemDate(stickyNoteDomain.dateTime)
+
+        Log.i("INFO_", "actualDate: $actualDate")
+        Log.i("INFO_", "dateChosedByUser: $dateChosedByUser")
+
         mutableStateOf(
             actualDate < dateChosedByUser
         )
@@ -61,7 +66,7 @@ fun StickNoteCardView(
         modifier = modifier.padding(4.dp)
     ) {
 
-        Row (
+        Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
@@ -69,8 +74,11 @@ fun StickNoteCardView(
                 .fillMaxWidth()
         ) {
             Text(
-                text = stickyNoteDomain.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
-                    Locale.getDefault()) else it.toString() },
+                text = stickyNoteDomain.name.replaceFirstChar {
+                    if (it.isLowerCase()) it.titlecase(
+                        Locale.getDefault()
+                    ) else it.toString()
+                },
                 style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold
@@ -82,33 +90,34 @@ fun StickNoteCardView(
                     .background(MaterialTheme.colorScheme.tertiary)
                     .size(35.dp),
                 onClick = {
-                        if (!dateIsNotOnPass){
-                            onUpdateStateNotificaion(null)
-                             return@IconButton
-                        }
+                    if (!dateIsNotOnPass) {
+                        onUpdateStateNotificaion(null)
+                        return@IconButton
+                    }
                     stickyNoteDomain.isRemember = !stickyNoteDomain.isRemember
                     onUpdateStateNotificaion(stickyNoteDomain)
 
                 }, content = {
-                    if (dateIsNotOnPass){
+                    if (dateIsNotOnPass) {
                         Icon(
-                            Icons.Filled.Notifications
-                            ,contentDescription = "notification icon",
-                            tint =  if(stickyNoteDomain.isRemember) MaterialTheme.colorScheme.inversePrimary
+                            Icons.Filled.Notifications, contentDescription = "notification icon",
+                            tint = if (stickyNoteDomain.isRemember) MaterialTheme.colorScheme.inversePrimary
                             else MaterialTheme.colorScheme.outline
                         )
-                    }else{
+                    } else {
                         Icon(
-                            Icons.Filled.Check
-                            ,contentDescription = "notification icon",
+                            Icons.Filled.Check, contentDescription = "notification icon",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 })
         }
         Text(
-            text = stickyNoteDomain.description.replaceFirstChar { if (it.isLowerCase()) it.titlecase(
-                Locale.getDefault()) else it.toString()},
+            text = stickyNoteDomain.description.replaceFirstChar {
+                if (it.isLowerCase()) it.titlecase(
+                    Locale.getDefault()
+                ) else it.toString()
+            },
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontSize = MaterialTheme.typography.bodyMedium.fontSize,
@@ -116,7 +125,7 @@ fun StickNoteCardView(
             ),
             maxLines = 2,
             modifier = Modifier
-                .padding(start =  12.dp, bottom = 8.dp)
+                .padding(start = 12.dp, bottom = 8.dp)
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -125,20 +134,21 @@ fun StickNoteCardView(
                 .padding(10.dp)
                 .fillMaxWidth()
         ) {
+
             StickChips(
-                label =  Date().convertDateLongToString(stickyNoteDomain.dateTime?: Date().time)?:"00/00/0000",
+                label = stickyNoteDomain.dateTime.dateFormatToString(),
                 isSelected = true,
                 colorBackGround = MaterialTheme.colorScheme.onPrimaryContainer,
                 colorText = MaterialTheme.colorScheme.primary
             )
 
-            stickyNoteDomain.tags.forEach {label->
+            stickyNoteDomain.tags.forEach { label ->
                 StickChips(
                     label = label,
                     isSelected = true,
                     colorBackGround = MaterialTheme.colorScheme.onPrimaryContainer,
                     colorText = MaterialTheme.colorScheme.primary,
-                    )
+                )
             }
         }
     }

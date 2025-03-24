@@ -4,8 +4,16 @@ package com.example.lembretes.utils
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import com.example.lembretes.core.Constants
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -39,8 +47,6 @@ fun Date.geetDayOfWeek(day : Int):String{
         else -> ""
     }
 }
-
-
 fun Date.dateTimeTomorow(date:Long ?,dayAfter:Int):String{
     val actualDate =  if(date != null) Date(date) else Date()
     val calendar = Calendar.getInstance()
@@ -66,6 +72,25 @@ fun Date.dateTimeTomorowLong(dayAfter:Int):Long{
     calendar.add(Calendar.DAY_OF_MONTH,dayAfter)
 
     return  calendar.timeInMillis
+}
+
+fun Long.dateFormatToString(): String{
+     return  Instant.fromEpochMilliseconds(this)
+            .toLocalDateTime(Constants.STICK_NOTE_TIME_ZONE)
+            .format(LocalDateTime.Format {
+                byUnicodePattern("dd/MM/yyyy 'às' HH:mm")
+            })
+}
+
+fun Clock.getDateNowInLocalDateTime(): LocalDateTime {
+    return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+}
+fun Clock.getDateInLocalDateFronTimeUTC(myDate : Long): LocalDateTime {
+    return Instant.fromEpochMilliseconds(myDate).toLocalDateTime(TimeZone.UTC)
+}
+
+fun Clock.getDateFronLongOfCurrentSystemDate(date: Long): LocalDateTime{
+    return Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
 }
 
 fun Date.convertDateLongToString(dataLong: Long):String?{

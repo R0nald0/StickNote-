@@ -3,7 +3,6 @@ package com.example.lembretes.core.recivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.res.Resources
 import android.content.res.Resources.NotFoundException
 import android.util.Log
 import android.widget.Toast
@@ -13,12 +12,9 @@ import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import okhttp3.Dispatcher
 import javax.inject.Inject
 
 

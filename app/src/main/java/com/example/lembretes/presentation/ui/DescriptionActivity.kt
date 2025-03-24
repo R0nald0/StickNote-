@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,7 +42,7 @@ import com.example.lembretes.presentation.MainActivity
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
-import com.example.lembretes.utils.convertDateLongToString
+import com.example.lembretes.utils.dateFormatToString
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Date
@@ -55,39 +56,52 @@ class DescriptionActivity : ComponentActivity() {
 
         setContent {
             LembretesTheme {
-                    Box (
-                     modifier = Modifier.fillMaxSize()
-                    ){
-                       val extra  = intent.getStringExtra("st")
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val extra = intent.getStringExtra("st")
 
-                        if (extra == null) return@Box
-                        val stickNote = Gson().fromJson<StickyNoteDomain>(extra, StickyNoteDomain::class.java)
+                    if (extra == null) return@Box
+                    val stickNote =
+                        Gson().fromJson<StickyNoteDomain>(extra, StickyNoteDomain::class.java)
 
-                        Image(modifier = Modifier.fillMaxSize(),
-                            painter = painterResource(R.drawable.postit4), contentDescription = "",
-                            contentScale = ContentScale.FillBounds
-                            )
-                        DescriptionPage(
-                            activity = this@DescriptionActivity,
-                            modifier = Modifier,
-                            stickyNoteDomain =  stickNote
-                        )
-                    }
+                    Image(
+                        modifier = Modifier.fillMaxSize(),
+                        painter = painterResource(R.drawable.postit4), contentDescription = "",
+                        contentScale = ContentScale.FillBounds
+                    )
+                    DescriptionPage(
+                        activity = this@DescriptionActivity,
+                        modifier = Modifier,
+                        stickyNoteDomain = stickNote
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
+fun DescriptioRoute(
+    activity: Activity,
+    stickyNoteDomain: StickyNoteDomain,
+    modifier: Modifier = Modifier
+) {
+
+
+}
+
+@Composable
 fun DescriptionPage(
-   activity: Activity,
-   stickyNoteDomain: StickyNoteDomain ,
-   modifier: Modifier = Modifier) {
+    activity: Activity,
+    stickyNoteDomain: StickyNoteDomain,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val userViewModel = hiltViewModel<UserViewModel>()
-    val stickNoteViewModel  = hiltViewModel<StickNoteViewmodel>()
+    val stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
 
-     val (_,name)  =  userViewModel.user.collectAsStateWithLifecycle().value
+    val (_, name) = userViewModel.user.collectAsStateWithLifecycle().value
     SideEffect {
         userViewModel.findFirstUser()
     }
@@ -97,28 +111,29 @@ fun DescriptionPage(
             .fillMaxSize()
             .padding(38.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Spacer(modifier = modifier
-            .height(100.dp)
-            .weight(0.5f))
+        Spacer(
+            modifier = modifier
+                .height(80.dp)
+                .weight(0.1f)
+        )
         Text(
-             modifier = Modifier
-                 .padding(20.dp)
-                 .weight(0.3f),
-             text = "Olá ${name},você tem um Lembrete agendado para o dia",
-             style = MaterialTheme.typography.titleMedium.copy(
-                 fontSize = 25.sp,
-                 color = MaterialTheme.colorScheme.primary,
-                 letterSpacing = 2.sp
-             ),
-             textAlign = TextAlign.Center
-            )
+            modifier = Modifier
+                .padding(20.dp),
+            text = "Olá $name,você tem um Lembrete agendado para o dia",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = 25.sp,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                letterSpacing = 2.sp
+            ),
+            textAlign = TextAlign.Center
+        )
         Text(
-            text =  Date().convertDateLongToString(stickyNoteDomain.dateTime)?:"00/00/0000",
+            text = stickyNoteDomain.dateTime.dateFormatToString(),
             style = MaterialTheme.typography.labelLarge.copy(
                 fontSize = 28.sp,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         )
         Text(
@@ -128,7 +143,7 @@ fun DescriptionPage(
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontSize = 28.sp,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 letterSpacing = 2.sp
             ),
             textAlign = TextAlign.Center
@@ -141,7 +156,7 @@ fun DescriptionPage(
 
             style = MaterialTheme.typography.titleMedium.copy(
                 fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
                 letterSpacing = 2.sp
             ),
             textAlign = TextAlign.Center
@@ -149,23 +164,29 @@ fun DescriptionPage(
 
         Row(
             modifier = modifier
-                .fillMaxWidth(0.7f)
-                .weight(0.5f)
-                .padding(5.dp),
+                .padding(5.dp)
+                .fillMaxWidth(0.7f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
             Button(
+                colors = ButtonDefaults.elevatedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ),
                 modifier = modifier.fillMaxWidth(),
                 onClick = {
-                    stickNoteViewModel.updateNotificatioStickNote(stickyNoteDomain){
-                        if (stickyNoteDomain.id == null ) {
-                            Toast.makeText(context, "Erro ao cancelar a notificação", Toast.LENGTH_SHORT).show()
+                    stickNoteViewModel.updateNotificatioStickNote(stickyNoteDomain) {
+                        if (stickyNoteDomain.id == null) {
+                            Toast.makeText(
+                                context,
+                                "Erro ao cancelar a notificação",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             return@updateNotificatioStickNote
                         }
                         context.cancelNotification(stickyNoteDomain.noticafitionId.toInt())
                     }
-                    val intent = Intent(activity.applicationContext,MainActivity::class.java)
+                    val intent = Intent(activity.applicationContext, MainActivity::class.java)
                     activity.startActivity(intent)
                     activity.finish()
                 }
@@ -181,14 +202,17 @@ fun DescriptionPage(
 @Composable
 fun DescriptionPagePreview() {
     LembretesTheme {
-        DescriptionPage( activity = Activity(), stickyNoteDomain = StickyNoteDomain(
-            id = 1,
-            name = "Teste",
-            description = "descricao teste" ,
-            dateTime =  Date().time,
-            noticafitionId = 22L,
-            isRemember =  true,
-            tags = mutableListOf()
-        ))
+        DescriptionPage(
+            activity = Activity(),
+            stickyNoteDomain = StickyNoteDomain(
+                id = 1,
+                name = "Teste",
+                description = "descricao teste",
+                dateTime = Date().time,
+                noticafitionId = 22L,
+                isRemember = true,
+                tags = mutableListOf()
+            )
+        )
     }
 }

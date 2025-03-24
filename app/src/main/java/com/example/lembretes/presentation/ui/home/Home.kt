@@ -53,6 +53,7 @@ import com.example.lembretes.R
 import com.example.lembretes.core.notification.StickNoteAlarmManeger
 import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
 import com.example.lembretes.core.widgets.StickNoteSnackBar
+import com.example.lembretes.core.widgets.StickNoteSnackBarInfo
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.home.widgets.MenuNavStickNote
@@ -78,6 +79,7 @@ fun HomeScreen(
 ) {
     val userViewModel = hiltViewModel<UserViewModel>()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    var showMessage by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackBarHots = remember {
         SnackbarHostState()
@@ -111,7 +113,10 @@ fun HomeScreen(
             )
         }
     }
-
+    if (showMessage){
+        StickNoteSnackBarInfo(message = "Data invalida para Ativar alarme"){}
+        showMessage =false
+    }
     if (showRationale) {
         ShowAndCheckShouldRationale(
             modifier = modifier,
@@ -125,8 +130,6 @@ fun HomeScreen(
             }
         )
     }
-
-    //TODO verificar hora vindo errao  em app fisico
 
     if (showPerfilDialog) {
         StickNoteDialogPerfil(
@@ -240,16 +243,16 @@ fun HomeScreen(
                                 ) {
                                     showRationale = true
                                 } else {
-                                    stickNoteViewModel.updateNotificatioStickNote(
-                                        stickNote
-                                    ) {
+                                    stickNoteViewModel.updateNotificatioStickNote(stickNote) {
                                         checkCreateCancelNotification(isRemember,context, stickNote)
                                     }
                                 }
                             } else {
-                                stickNoteViewModel.updateNotificatioStickNote(
-                                    stickNote
-                                ) {
+                                stickNoteViewModel.updateNotificatioStickNote(stickNote) { messager->
+                                    if (messager !=null){
+                                        Toast.makeText(context, messager, Toast.LENGTH_LONG).show()
+                                        return@updateNotificatioStickNote
+                                    }
                                     checkCreateCancelNotification(
                                         isRemember,
                                         context,

@@ -30,8 +30,8 @@ fun CalendarWidget(
         selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
                 val selectedDate = Instant.fromEpochMilliseconds(utcTimeMillis)
-                    .toLocalDateTime(TimeZone.UTC).date
-                return  selectedDate >= Clock.System.now().toLocalDateTime(TimeZone.UTC).date
+                    .toLocalDateTime(timeZone = TimeZone.UTC).date
+                return  selectedDate >= Clock.System.now().toLocalDateTime(timeZone = TimeZone.currentSystemDefault()).date
             }
         }
     )
@@ -60,7 +60,6 @@ fun CalendarWidget(
             colors = DatePickerDefaults.colors(
                 todayDateBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 selectedDayContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
-
             ),
             state = datePickerState,
         )

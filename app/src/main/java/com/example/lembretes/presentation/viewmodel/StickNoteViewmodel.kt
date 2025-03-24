@@ -12,7 +12,6 @@ import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import com.example.lembretes.domain.usecase.user.FindUser
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +31,6 @@ data class HomeState(
     val scheduledReminders : Int= 0,
     val isLoading : Boolean = false,
     val erro :String? =null,
-
 )
 
 @HiltViewModel
@@ -53,6 +51,7 @@ class StickNoteViewmodel @Inject constructor(
         alterFilterType(uiState.value.filterType)
         findStickNoteToRemeber()
     }
+
     fun findStickNoteToRemeber(){
         viewModelScope.launch {
             val allNotes =getStickyNoteUseCaseImpl.getStickyNotes().map {
@@ -70,7 +69,6 @@ class StickNoteViewmodel @Inject constructor(
                     Log.i(TAG, "findStickNoteToRemeber:Title ${stickNote.name} - remember: ${stickNote.isRemember}")
                 }
             }
-
         }
     }
 
@@ -103,7 +101,6 @@ class StickNoteViewmodel @Inject constructor(
        _uiState.update {
            it.copy(isLoading = true, listData = null)
        }
-
        onFind
             .catch { error ->
                 _uiState.update {
@@ -127,24 +124,30 @@ class StickNoteViewmodel @Inject constructor(
            }
      }
   }
-    fun updateNotificatioStickNote(stickyNoteDomain: StickyNoteDomain,createAlarm:()-> Unit){
+    fun updateNotificatioStickNote(stickyNoteDomain: StickyNoteDomain,createAlarm:(String?)-> Unit){
         viewModelScope.launch {
             _uiState.update { ui->
                 ui.copy(isLoading = true)
             }
          runCatching {
-            val isValidDate= validateStickNoteUseCase.validateUpdateNotifcation(stickyNoteDomain.dateTime)
-             if (!isValidDate) return@launch
+             val isValidDate= validateStickNoteUseCase.validateUpdateNotifcation(stickyNoteDomain.dateTime)
+            if (!isValidDate) {
+               createAlarm("Data Inavalida Para Atualizar")
+                _uiState.update { ui->
+                    ui.copy(isLoading = false)
+                }
+                return@launch
+            }
 
              updateStickNoteUseCase.updateNotificatioStickNote(stickyNoteDomain.id!!,stickyNoteDomain.isRemember)
-             delay(2000)
+
          }.fold(
              onSuccess = {
-                 alterFilterType(_uiState.value.filterType)
+                  alterFilterType(_uiState.value.filterType)
                  _uiState.update { ui->
                      ui.copy(isLoading = false)
                  }
-                 createAlarm()
+                 createAlarm(null)
              },
              onFailure = {erro->
                  _uiState.update { ui->

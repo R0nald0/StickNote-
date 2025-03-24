@@ -61,15 +61,16 @@ class AddUpdateViewModel @Inject constructor(
         _addScreeUi.update {state ->
             state.copy(erros = result, isSuccess = true)
          }
-
     }
     fun updateStickNote(stickyNoteDomain: StickyNoteDomain,onAction:()->Unit){
 
         viewModelScope.launch{
             runCatching {
                 validateFieldStickNote(stickyNoteDomain)
+
                 if (_addScreeUi.value.erros.isNotEmpty() == true)return@launch
                 updateStickNoteUseCase.updateStickNote(stickNote = stickyNoteDomain)
+
             }.fold(
                 onSuccess = {linesAfected->
                     if (linesAfected != 0){
@@ -89,7 +90,7 @@ class AddUpdateViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 validateFieldStickNote(stickyNoteDomain)
-                if (_addScreeUi.value.erros?.isNotEmpty() == true)return@launch
+                if (_addScreeUi.value.erros.isNotEmpty() == true)return@launch
                 insertStickNoteUseCase.insert(stickyNoteDomain)
             }.fold(
                     onSuccess = {insertValue->
@@ -99,7 +100,6 @@ class AddUpdateViewModel @Inject constructor(
                     onAction()
                 },
                 onFailure = {erro->
-
                     Log.i("INFO_", "insertStickNote: Erro ao inserir $erro")
                 }
             )

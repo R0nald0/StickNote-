@@ -1,14 +1,19 @@
 package com.example.lembretes.domain.usecase.sticknote.impl
 
-import android.util.Log
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
-import com.example.lembretes.utils.dateTimeTomorow
+import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
+import com.example.lembretes.utils.getDateInLocalDateFronTimeUTC
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import java.util.Calendar
-import java.util.Date
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 
@@ -23,32 +28,18 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
 
     override suspend fun getStickNotesToday(): Flow<List<StickyNoteDomain>> {
 
-        val currenDate = Calendar.getInstance().apply {
-            set(
-                get(Calendar.YEAR),
-                get(Calendar.MONTH),
-                get(Calendar.DAY_OF_MONTH),
-                0, 0, 0)
-        }
+        val currenLocalDate = Clock.System.getDateInLocalDateFronTimeUTC(System.currentTimeMillis()).date
+        val currenDate = createLocalDateTime(currenLocalDate, LocalTime(0,0,0))
 
-        val finalDate = Calendar.getInstance().apply {
-            set(
-               get(Calendar.YEAR),
-               get(Calendar.MONTH),
-               get(Calendar.DAY_OF_MONTH),
-            23, 59, 59)
-        }
+        val localDate = Clock.System.getDateFronLongOfCurrentSystemDate(System.currentTimeMillis()).date
+         val finalDate   = createLocalDateTime(localDate,LocalTime(23,59,59))
 
-
-        val firsEPock =  Date().dateTimeTomorow(currenDate.timeInMillis,0)
-        val secondEPock =   Date().dateTimeTomorow(finalDate.timeInMillis,0)
-
-        Log.i("_INFO", "getStickNotesToday:First $firsEPock ")
-        Log.i("_INFO", "getStickNotesToday:Second $secondEPock ")
+        val firsEPock =   currenDate.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
+        val secondEPock = finalDate.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
         return  stickyNoteRepository.getStickByPeriodicDate(
-            firstDate = currenDate.timeInMillis,
-            secondDate =  finalDate.timeInMillis
+            firstDate = firsEPock,
+            secondDate =  secondEPock
         )
     }
 
@@ -89,4 +80,9 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
             stickyNoteRepository.getStickNoteByText(value)
         }
     }
+
+   private  fun createLocalDateTime(localDate: LocalDate,localTime: LocalTime): LocalDateTime{
+       return LocalDateTime(localDate, localTime)
+    }
+
 }

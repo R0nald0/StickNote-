@@ -20,7 +20,7 @@ fun Context.cancelNotification(idNotification: Int){
 fun Context.showNotification(
     title: String,
     content: String,
-   stickyNoteDomain: StickyNoteDomain
+    stickyNoteDomain: StickyNoteDomain
 ) {
     val notification = getNotification(title, content,stickyNoteDomain)
     val notificationManage =

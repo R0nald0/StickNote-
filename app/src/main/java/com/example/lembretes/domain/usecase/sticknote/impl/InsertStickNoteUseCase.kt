@@ -8,7 +8,8 @@ class InsertStickNoteUseCase @Inject constructor(
     private val stickyNoteRepository: StickyNoteRepository
 ) {
 
-    suspend fun insert(stickyNoteDomain: StickyNoteDomain) : Long{
-         return stickyNoteRepository.insert(stickyNoteDomain)
+    suspend fun insert(stickyNoteDomain: StickyNoteDomain): Long {
+
+        return stickyNoteRepository.insert(stickyNoteDomain)
     }
 }

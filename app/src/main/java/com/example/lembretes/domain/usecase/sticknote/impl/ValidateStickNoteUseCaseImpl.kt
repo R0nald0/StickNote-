@@ -1,10 +1,10 @@
 package com.example.lembretes.domain.usecase.sticknote.impl
 
 import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
+import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
+import com.example.lembretes.utils.getDateInLocalDateFronTimeUTC
+import com.example.lembretes.utils.getDateNowInLocalDateTime
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
     override fun validateFieldsStickNote(
@@ -25,8 +25,8 @@ class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
             return erros
         }
 
-        val actualDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-        val dateChosedByUser =Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC)
+        val actualDate = Clock.System.getDateNowInLocalDateTime()
+        val dateChosedByUser = Clock.System.getDateInLocalDateFronTimeUTC(date)
 
         if (   dateChosedByUser  < actualDate ) {
             erros.putAll( mapOf("date" to "Data inválida"))
@@ -35,10 +35,8 @@ class ValidateStickNoteUseCaseImpl :ValidateStickNoteUseCase {
      return  erros
     }
     override fun validateUpdateNotifcation(date: Long): Boolean{
-        val actualDate = Clock.System.now().toLocalDateTime(TimeZone.UTC)
-        val dateChosedByUser =Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC)
-
+        val actualDate = Clock.System.getDateNowInLocalDateTime()
+        val dateChosedByUser = Clock.System.getDateFronLongOfCurrentSystemDate(date)
         return actualDate < dateChosedByUser
-
     }
 }

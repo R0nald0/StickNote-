@@ -1,6 +1,5 @@
 package com.example.lembretes.presentation.ui.addsticknote.widgets
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +9,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,17 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.lembretes.core.Constants
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
@@ -42,7 +41,7 @@ fun StickyNoteCalendar(
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimerPicker by remember { mutableStateOf(false) }
     var dataResult by remember { mutableStateOf(date ?: "Escolha uma Data") }
-    var dateChosed by remember { mutableLongStateOf(0L) }
+    var dateChosed by remember { mutableStateOf<LocalDate?>(null) }
 
     OutlinedButton(
         modifier = modifier.fillMaxWidth(),
@@ -65,7 +64,7 @@ fun StickyNoteCalendar(
                 onClick = { date ->
                     showDatePicker = false
                     dataResult = date?.let {
-                        dateChosed = date
+                        dateChosed = Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC).date
                         ""
                     } ?: "Escolha uma Data"
 
@@ -78,28 +77,23 @@ fun StickyNoteCalendar(
             )
         }
     }
-    if (!showDatePicker && showTimerPicker && dateChosed != 0L) {
+    if (!showDatePicker && showTimerPicker && dateChosed != null) {
 
         AnimatedVisibility(!showDatePicker && showTimerPicker) {
             StickNoteTimePicker(
                 onSucces = { hour, minute ->
-                   val localDate = Instant.fromEpochMilliseconds(dateChosed)
-                       .plus(hour.hours).plus(minute.minutes)
-                        .toLocalDateTime(TimeZone.UTC)
+                    val localDateTime =
+                        LocalDateTime(dateChosed!!, LocalTime(hour = hour, minute = minute))
 
-                  dataResult  = localDate.date.format(LocalDate.Format {
-                      byUnicodePattern("dd/MM/yyyy")
-                  })
+                    dataResult = localDateTime.format(LocalDateTime.Format {
+                        byUnicodePattern("dd/MM/yyyy 'às' HH:mm")
+                    })
 
-                    Log.i("INFO", " data resulkt  ${localDate.dayOfMonth}/${localDate.monthNumber}/${localDate.year} $hour:$minute ")
-                    Log.i("INFO", " data LocalDate  $localDate")
-
-                    dataResult += " às $hour:$minute"
-                   dateChosed = localDate.toInstant(TimeZone.UTC).toEpochMilliseconds()
-
+                    val finalDate =
+                        localDateTime.toInstant(Constants.STICK_NOTE_TIME_ZONE)
+                            .toEpochMilliseconds()
                     showTimerPicker = false
-
-                     onSelectedDate(dateChosed)
+                    onSelectedDate(finalDate)
                 },
                 onCancel = {
                     showTimerPicker = false

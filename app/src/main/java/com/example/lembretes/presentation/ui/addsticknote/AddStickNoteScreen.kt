@@ -130,13 +130,14 @@ fun AddStickNoteScreen(
         onSave = {stickNote ->
             if (idStikcNote != 0) {
                 addUpdateViewModel.updateStickNote(stickyNoteDomain = stickNote){
-                    onActionAfterCreate(context = context, stickNote = stickNote)
+                   onActionAfterCreate(context = context, stickNote = stickNote)
                     onClosed()
                 }
             }
             else {
                 addUpdateViewModel.insertStickNote(stickyNoteDomain = stickNote){
-                    onActionAfterCreate  (context = context, stickNote = stickNote)
+                    Log.i("INFO_", "insertStickNote: $stickNote")
+                   onActionAfterCreate  (context = context, stickNote = stickNote)
                     onClosed()
                 }
             }
@@ -314,6 +315,7 @@ fun MyScreen(
                 ).date.format(kotlinx.datetime.LocalDate.Format {
                     byUnicodePattern("dd/MM/yyyy")
                 }),
+
                 isError = ui.erros.containsKey("date") to ui.erros["date"],
                 onSelectedDate = { date ->
                     date?.let {
@@ -415,7 +417,6 @@ private fun createUpdateStickNote(
         noticafitionId = System.currentTimeMillis(),
         tags = tags
     )
-
     onSave(stickNote)
 }
 
