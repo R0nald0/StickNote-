@@ -51,9 +51,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lembretes.R
 import com.example.lembretes.core.notification.StickNoteAlarmManeger
+import com.example.lembretes.core.notification.StickNoteSnackBar
+import com.example.lembretes.core.notification.StickNoteSnackBarInfo
 import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
-import com.example.lembretes.core.widgets.StickNoteSnackBar
-import com.example.lembretes.core.widgets.StickNoteSnackBarInfo
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.home.widgets.MenuNavStickNote
@@ -179,10 +179,12 @@ fun HomeScreen(
                 ) } ,
                 floatingActionButton = {
                     FloatingActionButton(
-                        containerColor = MaterialTheme.colorScheme.primary,
+                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         onClick = onNavigateToAddStickNote
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "button add new stick Note", tint = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Icon(Icons.Default.Add, contentDescription = "button add new stick Note",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 },
             ) { paddingValues ->
@@ -218,7 +220,7 @@ fun HomeScreen(
                             if (stickNote == null){
                                 scope.launch {
                                     snackBarHots.showSnackbar(
-                                        message = "Lembrete esta com a data no passado",
+                                        message = "Lembrete esta com a data no passado"
                                     )
                                 }
                                 return@StateListStickNote

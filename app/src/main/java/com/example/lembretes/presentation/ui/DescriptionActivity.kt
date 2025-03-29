@@ -3,7 +3,6 @@ package com.example.lembretes.presentation.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -25,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -97,6 +97,7 @@ fun DescriptionPage(
     stickyNoteDomain: StickyNoteDomain,
     modifier: Modifier = Modifier
 ) {
+    val textColor = Color(0xFF133665)
     val context = LocalContext.current
     val userViewModel = hiltViewModel<UserViewModel>()
     val stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
@@ -124,7 +125,7 @@ fun DescriptionPage(
             text = "Olá $name,você tem um Lembrete agendado para o dia",
             style = MaterialTheme.typography.titleMedium.copy(
                 fontSize = 25.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = textColor,
                 letterSpacing = 2.sp
             ),
             textAlign = TextAlign.Center
@@ -133,7 +134,7 @@ fun DescriptionPage(
             text = stickyNoteDomain.dateTime.dateFormatToString(),
             style = MaterialTheme.typography.labelLarge.copy(
                 fontSize = 28.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
+                color = textColor
             )
         )
         Text(
@@ -143,7 +144,7 @@ fun DescriptionPage(
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.titleMedium.copy(
                 fontSize = 28.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = textColor,
                 letterSpacing = 2.sp
             ),
             textAlign = TextAlign.Center
@@ -156,7 +157,7 @@ fun DescriptionPage(
 
             style = MaterialTheme.typography.titleMedium.copy(
                 fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = textColor,
                 letterSpacing = 2.sp
             ),
             textAlign = TextAlign.Center
@@ -176,14 +177,6 @@ fun DescriptionPage(
                 modifier = modifier.fillMaxWidth(),
                 onClick = {
                     stickNoteViewModel.updateNotificatioStickNote(stickyNoteDomain) {
-                        if (stickyNoteDomain.id == null) {
-                            Toast.makeText(
-                                context,
-                                "Erro ao cancelar a notificação",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@updateNotificatioStickNote
-                        }
                         context.cancelNotification(stickyNoteDomain.noticafitionId.toInt())
                     }
                     val intent = Intent(activity.applicationContext, MainActivity::class.java)

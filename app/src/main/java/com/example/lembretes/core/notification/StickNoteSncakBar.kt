@@ -1,4 +1,4 @@
-package com.example.lembretes.core.widgets
+package com.example.lembretes.core.notification
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Color
 fun StickNoteSnackBar(
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    colorContainer : Color =  MaterialTheme.colorScheme.primary
+    colorContainer : Color =  MaterialTheme.colorScheme.onPrimaryContainer
 ) {
 
     SnackbarHost(hostState = snackbarHostState){data ->
@@ -28,7 +28,7 @@ fun StickNoteSnackBar(
 @Composable
 fun StickNoteSnackBarInfo(
     message : String,
-    colorContainer : Color =  MaterialTheme.colorScheme.primary,
+    colorContainer : Color =  MaterialTheme.colorScheme.onPrimaryContainer,
     onAction: ()-> Unit
 ) {
 

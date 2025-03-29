@@ -117,6 +117,11 @@ fun AddStickNoteScreen(
             }
 
         }*/
+    //TODO adicionar loading ao clicar em salvar
+    //TODO verificar quando so esccolhido data e cancelar data fica em branco
+    //TODO verificar quando ao receber os dados para editar
+
+    
     if (idStikcNote != 0) {
         SideEffect {
             addUpdateViewModel.findById(idStikcNote)
@@ -136,7 +141,6 @@ fun AddStickNoteScreen(
             }
             else {
                 addUpdateViewModel.insertStickNote(stickyNoteDomain = stickNote){
-                    Log.i("INFO_", "insertStickNote: $stickNote")
                    onActionAfterCreate  (context = context, stickNote = stickNote)
                     onClosed()
                 }
