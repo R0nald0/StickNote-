@@ -30,6 +30,7 @@ import com.example.lembretes.presentation.ui.settings.SettingScreen
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -71,7 +72,8 @@ class MainActivity : ComponentActivity(){
                                 stickNoteViewModel = stickNoteViewModel,
                                 context = this@MainActivity,
                                 onUpdate = {stickyNote ->
-                                    navController.navigateToAddStiCkNote(stickyNote.id.toString())
+                                 val stickNoteJson   = Gson().toJson(stickyNote)
+                                    navController.navigateToAddStiCkNote(stickNoteJson)
                                 },
                                 onNavigateToAddStickNote = {
                                     navController.navigate(AddStickNoteNavigation.route)
@@ -86,9 +88,10 @@ class MainActivity : ComponentActivity(){
                             route = AddStickNoteNavigation.routeWithArgs,
                             arguments = AddStickNoteNavigation.arguments,
                         ){ backStackEntry->
-                            val id = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)?.toInt()
+                            val stickNoteJson = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)
+
                             AddStickNoteScreen(
-                                idStikcNote = id ?: 0,
+                                stickNoteJson = stickNoteJson,
                                 modifier = Modifier,
                                 activity = this@MainActivity,
                                 onClosed = navController::popBackStack,

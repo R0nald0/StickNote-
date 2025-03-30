@@ -4,7 +4,6 @@ package com.example.lembretes.utils
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.example.lembretes.core.Constants
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.datetime.Clock
@@ -76,10 +75,13 @@ fun Date.dateTimeTomorowLong(dayAfter:Int):Long{
 
 fun Long.dateFormatToString(): String{
      return  Instant.fromEpochMilliseconds(this)
-            .toLocalDateTime(Constants.STICK_NOTE_TIME_ZONE)
+            .toLocalDateTime(TimeZone.of("America/Sao_Paulo"))
             .format(LocalDateTime.Format {
                 byUnicodePattern("dd/MM/yyyy 'às' HH:mm")
             })
+}
+fun Clock.getDateFronTimeZoneOf(timeZoneOf: String): LocalDateTime{
+    return Clock.System.now().toLocalDateTime(TimeZone.of(timeZoneOf))
 }
 
 fun Clock.getDateNowInLocalDateTime(): LocalDateTime {
@@ -92,6 +94,7 @@ fun Clock.getDateInLocalDateFronTimeUTC(myDate : Long): LocalDateTime {
 fun Clock.getDateFronLongOfCurrentSystemDate(date: Long): LocalDateTime{
     return Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
 }
+
 
 fun Date.convertDateLongToString(dataLong: Long):String?{
     try {

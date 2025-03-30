@@ -4,7 +4,7 @@ import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
-import com.example.lembretes.utils.getDateInLocalDateFronTimeUTC
+import com.example.lembretes.utils.getDateFronTimeZoneOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -27,7 +27,7 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
 
     override suspend fun getStickNotesToday(): Flow<List<StickyNoteDomain>> {
 
-        val currenLocalDate = Clock.System.getDateInLocalDateFronTimeUTC(System.currentTimeMillis()).date
+        val currenLocalDate = Clock.System.getDateFronTimeZoneOf("America/Sao_Paulo").date
         val currenDate = createLocalDateTime(currenLocalDate, LocalTime(0,0,0))
 
         val localDate = Clock.System.getDateFronLongOfCurrentSystemDate(System.currentTimeMillis()).date
@@ -44,14 +44,7 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
 
     override suspend fun getStickNotesTomorrow(): Flow<List<StickyNoteDomain>> {
 
-      /*  val newCurrenDate = Calendar.getInstance().apply {
-            set(
-                get(Calendar.YEAR),
-                get(Calendar.MONTH),
-                get(Calendar.DAY_OF_MONTH),
-                0, 0, 0)
-        }*/
-        val currenLocalDate = Clock.System.getDateInLocalDateFronTimeUTC(System.currentTimeMillis()).date.plus(1,
+        val currenLocalDate = Clock.System.getDateFronTimeZoneOf("America/Sao_Paulo").date.plus(1,
             DateTimeUnit.DAY)
         val newCurrenDate = createLocalDateTime(currenLocalDate, LocalTime(0,0,0))
 
@@ -59,17 +52,7 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
             DateTimeUnit.DAY)
         val finalDate   = createLocalDateTime(localDate,LocalTime(23,59,59))
 
-       /* val finalDate = Calendar.getInstance().apply {
-            set(
-                 get(Calendar.YEAR),
-                 get(Calendar.MONTH),
-                 get(Calendar.DAY_OF_MONTH),
-                23,
-                59,
-                59)
-        }*/
        val firsEPock = newCurrenDate.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
-
         val secondEPock =  finalDate.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
 
 
