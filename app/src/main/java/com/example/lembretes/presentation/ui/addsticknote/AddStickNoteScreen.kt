@@ -78,10 +78,17 @@ fun AddStickNoteScreen(
 ) {
 
     val addUpdateViewModel = hiltViewModel<AddUpdateViewModel>()
+    var stickNote by remember {
+        mutableStateOf<StickyNoteDomain?>(null)
+    }
 
     //TODO verificar quando so esccolhido data e cancelar data fica em branco
+    //TODO verificar quando ao receber os dados para editar
 
    val context = LocalContext.current
+  if (stickNoteJson != null && stickNoteJson.isNotEmpty()){
+      stickNote =  Gson().fromJson<StickyNoteDomain>(stickNoteJson, StickyNoteDomain::class.java)
+  }
 
     MyScreen(
         onSave = {stickNote ->
@@ -101,7 +108,7 @@ fun AddStickNoteScreen(
         viewModel = addUpdateViewModel,
         activity=  activity,
         modifier = modifier,
-        stickyNoteDomain = Gson().fromJson<StickyNoteDomain>(stickNoteJson, StickyNoteDomain::class.java) ,
+        stickyNoteDomain = stickNote,
         onClosed = onClosed,
     )
 }

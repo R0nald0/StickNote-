@@ -2,6 +2,7 @@ package com.example.lembretes.presentation
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -90,6 +91,7 @@ class MainActivity : ComponentActivity(){
                         ){ backStackEntry->
                             val stickNoteJson = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)
 
+                            Log.i("INFO_", "onCreate: $stickNoteJson")
                             AddStickNoteScreen(
                                 stickNoteJson = stickNoteJson,
                                 modifier = Modifier,

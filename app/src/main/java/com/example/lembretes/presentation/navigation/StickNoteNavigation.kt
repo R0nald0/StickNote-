@@ -20,7 +20,7 @@ object AddStickNoteNavigation :StickNoteNavigation{
            idStickNote,
         ){
             nullable = true
-            defaultValue="0"
+            defaultValue=""
             type = NavType.StringType
         }
     )
