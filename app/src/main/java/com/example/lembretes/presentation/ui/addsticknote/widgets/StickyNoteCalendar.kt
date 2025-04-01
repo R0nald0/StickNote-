@@ -35,12 +35,12 @@ fun StickyNoteCalendar(
     isError: Pair<Boolean, String?>,
     modifier: Modifier = Modifier,
     onSelectedDate: (Long?) -> Unit,
-    date: String?
+    date: String
 ) {
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimerPicker by remember { mutableStateOf(false) }
-    var dataResult by remember { mutableStateOf(date ?: "Escolha uma Data") }
+    var dataResult by remember { mutableStateOf(date)}
     var dateChosed by remember { mutableStateOf<LocalDate?>(null) }
 
     OutlinedButton(
@@ -63,12 +63,9 @@ fun StickyNoteCalendar(
                 modifier = modifier,
                 onClick = { date ->
                     showDatePicker = false
-                    dataResult = date?.let {
-                        dateChosed = Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC).date
-                        ""
-                    } ?: "Escolha uma Data"
 
                     if (date != null) {
+                        dateChosed = Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.UTC).date
                         showTimerPicker = true
                     }
 
@@ -88,7 +85,6 @@ fun StickyNoteCalendar(
                     dataResult = localDateTime.format(LocalDateTime.Format {
                         byUnicodePattern("dd/MM/yyyy 'às' HH:mm")
                     })
-
                     val finalDate =
                         localDateTime.toInstant(Constants.STICK_NOTE_TIME_ZONE)
                             .toEpochMilliseconds()

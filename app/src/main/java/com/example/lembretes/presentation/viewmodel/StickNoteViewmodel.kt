@@ -4,12 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.domain.model.User
 import com.example.lembretes.domain.usecase.sticknote.DeleteStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
-import com.example.lembretes.domain.usecase.user.FindUser
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +15,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -26,7 +23,6 @@ import javax.inject.Inject
 data class HomeState(
     val listData :List<StickyNoteDomain>? =null,
     var stickNoteToRemember :List<StickyNoteDomain> = emptyList(),
-    val user : User = User(),
     val filterType: StickNoteEnumFilterType =StickNoteEnumFilterType.Today,
     val scheduledReminders : Int= 0,
     val isLoading : Boolean = false,
@@ -38,8 +34,7 @@ class StickNoteViewmodel @Inject constructor(
     private val getStickyNoteUseCaseImpl: GetStickyNoteUseCase,
     private val updateStickNoteUseCase: UpdateStickNoteUseCase,
     private val deleteStickNoteUseCase: DeleteStickNoteUseCase,
-    private val findUser: FindUser,
-    private val validateStickNoteUseCase: ValidateStickNoteUseCase
+    private val validateStickNoteUseCase: ValidateStickNoteUseCase,
     ):ViewModel() {
 
     val TAG = "_INFO"
@@ -47,10 +42,10 @@ class StickNoteViewmodel @Inject constructor(
     var uiState :StateFlow<HomeState> = _uiState.asStateFlow()
 
     init {
-        findFirstUser()
         alterFilterType(uiState.value.filterType)
         findStickNoteToRemeber()
     }
+
 
     fun findStickNoteToRemeber(){
         viewModelScope.launch {
@@ -174,23 +169,5 @@ class StickNoteViewmodel @Inject constructor(
              )
         }
     }
-
-    fun findFirstUser(){
-        viewModelScope.launch {
-           kotlin.runCatching {
-                findUser.findFistUser().first()
-           } .fold(
-               onSuccess = {user ->
-                   _uiState.update {
-                       it.copy(user = user)
-                   }
-               },
-               onFailure ={erro ->
-                   Log.i(TAG, "deleteStickNote: erro ao deletetar ${erro.message }")
-               },
-           )
-        }
-    }
-
 
 }

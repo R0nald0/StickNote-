@@ -78,14 +78,14 @@ fun HomeScreen(
     openSearch: () -> Unit
 ) {
     val userViewModel = hiltViewModel<UserViewModel>()
+    val user by userViewModel.user.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     var showMessage by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val snackBarHots = remember {
-        SnackbarHostState()
-    }
-    val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
+    val snackBarHots = remember { SnackbarHostState() }
 
+    val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
+    Log.i("INFO_", "HomeScreen: u${user} ")
 
     var showRationale by remember {
         mutableStateOf(false)
@@ -113,9 +113,9 @@ fun HomeScreen(
             )
         }
     }
-    if (showMessage){
-        StickNoteSnackBarInfo(message = "Data invalida para Ativar alarme"){}
-        showMessage =false
+    if (showMessage) {
+        StickNoteSnackBarInfo(message = "Data invalida para Ativar alarme") {}
+        showMessage = false
     }
     if (showRationale) {
         ShowAndCheckShouldRationale(
@@ -135,9 +135,17 @@ fun HomeScreen(
         StickNoteDialogPerfil(
             content = {
                 ContentDialog(
-                    user = uiState.user,
+                    user = user,
                     onDismissRequest = { showPerfilDialog = !showPerfilDialog },
-                    onSave = userViewModel::crateUser
+                    onSave = { name, photoPath ->
+                        userViewModel.crateUser(
+                            name = name,
+                            urlPerfilPhoto = photoPath
+                        ) { message ->
+                            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
                 )
             },
             onDissmisRequest = { showPerfilDialog = !showPerfilDialog },
@@ -146,7 +154,7 @@ fun HomeScreen(
 
     StickNoteDrawer(
         modifier = modifier,
-        user = uiState.user,
+        user = user,
         drawerState = drawerState,
         onClickMenu = {},
         onNavigateToSettingsScreen = onNavigateToSettingsScreen,
@@ -167,22 +175,25 @@ fun HomeScreen(
                                 }
                             }
                         },
-                        user = uiState.user,
+                        user = user,
                         modifier = modifier,
                         numberOfStickNotes = uiState.scheduledReminders,
                         onOpenProfile = { showPerfilDialog = !showPerfilDialog },
                         openSearch = openSearch
                     )
                 },
-                snackbarHost ={ StickNoteSnackBar(
-                    snackBarHots,
-                ) } ,
+                snackbarHost = {
+                    StickNoteSnackBar(
+                        snackBarHots,
+                    )
+                },
                 floatingActionButton = {
                     FloatingActionButton(
                         containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         onClick = onNavigateToAddStickNote
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "button add new stick Note",
+                        Icon(
+                            Icons.Default.Add, contentDescription = "button add new stick Note",
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
@@ -210,14 +221,14 @@ fun HomeScreen(
                         onUpdate = onUpdate,
                         context = context,
                         onDelete = { stickNote ->
-                            stickNoteViewModel.deleteStickNote(stickyNoteDomain = stickNote){
-                                if (stickNote.isRemember){
-                                    StickNoteAlarmManeger.cancelNotification(context,stickNote)
+                            stickNoteViewModel.deleteStickNote(stickyNoteDomain = stickNote) {
+                                if (stickNote.isRemember) {
+                                    StickNoteAlarmManeger.cancelNotification(context, stickNote)
                                 }
                             }
                         },
                         onUpdateStateNotificaion = { stickNote ->
-                            if (stickNote == null){
+                            if (stickNote == null) {
                                 scope.launch {
                                     snackBarHots.showSnackbar(
                                         message = "Lembrete esta com a data no passado"
@@ -246,12 +257,16 @@ fun HomeScreen(
                                     showRationale = true
                                 } else {
                                     stickNoteViewModel.updateNotificatioStickNote(stickNote) {
-                                        checkCreateCancelNotification(isRemember,context, stickNote)
+                                        checkCreateCancelNotification(
+                                            isRemember,
+                                            context,
+                                            stickNote
+                                        )
                                     }
                                 }
                             } else {
-                                stickNoteViewModel.updateNotificatioStickNote(stickNote) { messager->
-                                    if (messager !=null){
+                                stickNoteViewModel.updateNotificatioStickNote(stickNote) { messager ->
+                                    if (messager != null) {
                                         Toast.makeText(context, messager, Toast.LENGTH_LONG).show()
                                         return@updateNotificatioStickNote
                                     }
@@ -321,8 +336,8 @@ internal fun StickNoteNoContent(
                 containerColor = MaterialTheme.colorScheme.primary,
             ),
             onClick = {
-            onNavigateToAddStickNote()
-        }) {
+                onNavigateToAddStickNote()
+            }) {
             Text(
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 text = "Criar lembrete",

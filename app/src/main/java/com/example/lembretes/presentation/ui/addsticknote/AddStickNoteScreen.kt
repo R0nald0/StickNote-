@@ -82,9 +82,6 @@ fun AddStickNoteScreen(
         mutableStateOf<StickyNoteDomain?>(null)
     }
 
-    //TODO verificar quando so esccolhido data e cancelar data fica em branco
-    //TODO verificar quando ao receber os dados para editar
-
    val context = LocalContext.current
   if (stickNoteJson != null && stickNoteJson.isNotEmpty()){
       stickNote =  Gson().fromJson<StickyNoteDomain>(stickNoteJson, StickyNoteDomain::class.java)
@@ -290,25 +287,23 @@ fun MyScreen(
             Spacer(modifier.height(20.dp))
 
             StickyNoteCalendar(
-
                 date = if ( stickyNoteDomain == null || stickyNoteDomain.dateTime == 0L) "Escolha uma data"
                 else  stickyNoteDomain.dateTime.dateFormatToString(),
-
                 isError = ui.erros.containsKey("date") to ui.erros["date"],
-                onSelectedDate = { date ->
-                    date?.let {
-                        stickyNoteDomain?.copy(dateTime = date)
+                onSelectedDate = {  dateLong->
+
+                    dateLong?.let {
+                        stickyNoteDomain?.copy(dateTime = dateLong)
                         if (stickyNoteDomain != null){
                             viewModel.validateFieldStickNote(
                                 stickyNoteDomain = stickyNoteDomain.copy(
-                                    dateTime = date,
+                                    dateTime = dateLong,
                                     name = lembreteName,
                                     description = lembreteDescription
                                 )
                             )
                         }
-
-                        selectedDate = date
+                        selectedDate = dateLong
                     }
                 }
             )
@@ -331,6 +326,7 @@ fun MyScreen(
                         containerColor = MaterialTheme.colorScheme.primary,
                     ),
                     onClick = {
+
                         if(!isRemember){
                             createUpdateStickNote(
                                 stickyNoteDomain,
@@ -393,7 +389,7 @@ private fun createUpdateStickNote(
         id = stickyNoteDomain?.id,
         name = lembreteName,
         description = lembreteDescription,
-        dateTime = selectedDate!!,
+        dateTime = selectedDate ?: 0,
         isRemember = isRemeber,
         noticafitionId = System.currentTimeMillis(),
         tags = tags

@@ -82,6 +82,7 @@ fun ContentDialog(
     val laucher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) {uriImage ->
+
          if (uriImage == null) {
              Toast.makeText(context,"Nehuma Imagem Selecionada",  Toast.LENGTH_SHORT).show()
              return@rememberLauncherForActivityResult
@@ -110,7 +111,7 @@ fun ContentDialog(
             Text(
                 text = "Customize seu Perfil",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.inversePrimary
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             Spacer(modifier = Modifier.height(16.dp))
             ImagePerfil(
@@ -175,7 +176,9 @@ fun ContentDialog(
                     }
                 }) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = "Salvar")
+                    Text(text = "Salvar",
+                         color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
                 }
             }
         }
@@ -192,13 +195,13 @@ private fun ImagePerfil(
             .padding(8.dp)
             .clip(CircleShape),
     ){
-        //TODO AO SALVAR PELA PRIMEIRA VEZ PERFIL NÂO ESTA CARREGANDO OS DADOS NA HOME
+
         AsyncImage(
             modifier = Modifier
                 .size(width = 120.dp, height = 120.dp)
                 .background(color = Color.Gray, shape = CircleShape),
             contentScale = ContentScale.Crop,
-            contentDescription = "",
+            contentDescription = "imagem do perfil",
             placeholder = painterResource(R.drawable.ic_person_24),
             model = uriImage
         )
@@ -222,7 +225,7 @@ private fun ImagePerfil(
 @Composable
 private fun ImagePerfilPreview() {
     LembretesTheme {
-        ImagePerfil (uriImage = "",{})
+        ImagePerfil (uriImage = "") {}
     }
 }
 @Preview

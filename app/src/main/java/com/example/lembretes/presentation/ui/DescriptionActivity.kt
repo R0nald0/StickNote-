@@ -21,7 +21,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,11 +70,11 @@ class DescriptionActivity : ComponentActivity() {
                         painter = painterResource(R.drawable.postit4), contentDescription = "",
                         contentScale = ContentScale.FillBounds
                     )
-                    DescriptionPage(
+                   DescriptionRoute(
                         activity = this@DescriptionActivity,
-                        modifier = Modifier,
-                        stickyNoteDomain = stickNote
-                    )
+                         modifier = Modifier,
+                         stickyNoteDomain = stickNote
+                       )
                 }
             }
         }
@@ -82,20 +82,28 @@ class DescriptionActivity : ComponentActivity() {
 }
 
 @Composable
-fun DescriptioRoute(
+fun DescriptionRoute(
     activity: Activity,
     stickyNoteDomain: StickyNoteDomain,
     modifier: Modifier = Modifier
 ) {
 
+    DescriptionPage(
+        modifier = modifier,
+        stickyNoteDomain = stickyNoteDomain
+    ){
+        val intent = Intent(activity.applicationContext, MainActivity::class.java)
+        activity.startActivity(intent)
+        activity.finish()
+    }
 
 }
 
 @Composable
 fun DescriptionPage(
-    activity: Activity,
     stickyNoteDomain: StickyNoteDomain,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFinish :()-> Unit
 ) {
     val textColor = Color(0xFF133665)
     val context = LocalContext.current
@@ -103,7 +111,7 @@ fun DescriptionPage(
     val stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
 
     val (_, name) = userViewModel.user.collectAsStateWithLifecycle().value
-    SideEffect {
+    LaunchedEffect(Unit) {
         userViewModel.findFirstUser()
     }
 
@@ -179,9 +187,7 @@ fun DescriptionPage(
                     stickNoteViewModel.updateNotificatioStickNote(stickyNoteDomain) {
                         context.cancelNotification(stickyNoteDomain.noticafitionId.toInt())
                     }
-                    val intent = Intent(activity.applicationContext, MainActivity::class.java)
-                    activity.startActivity(intent)
-                    activity.finish()
+                    onFinish()
                 }
             ) {
                 Text("Confirmar")
@@ -196,7 +202,6 @@ fun DescriptionPage(
 fun DescriptionPagePreview() {
     LembretesTheme {
         DescriptionPage(
-            activity = Activity(),
             stickyNoteDomain = StickyNoteDomain(
                 id = 1,
                 name = "Teste",
@@ -205,7 +210,8 @@ fun DescriptionPagePreview() {
                 noticafitionId = 22L,
                 isRemember = true,
                 tags = mutableListOf()
-            )
+            ),
+            onFinish = {}
         )
     }
 }
