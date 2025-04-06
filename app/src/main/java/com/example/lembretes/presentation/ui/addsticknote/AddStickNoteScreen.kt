@@ -60,7 +60,7 @@ import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteCheck
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteTagArea
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickyNoteCalendar
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
@@ -174,7 +174,7 @@ fun MyScreen(
             )
         }
         if (ui.isLoading){
-                StickNoteDialogPerfil(
+                StickNoteDialog(
                     modifier
                         .fillMaxSize()
                         .background(color = Color.Gray.copy(alpha = 0.6f)),
@@ -238,9 +238,7 @@ fun MyScreen(
                 value = lembreteDescription,
                 label = stringResource(R.string.descri_o),
                 isError = ui.erros.containsKey("description"),
-                onChange = { value ->
-                    lembreteDescription = value
-                },
+                onChange = { lembreteDescription = it },
                 singleLine = false,
                 icon = { },
                 trailingIcon = {},

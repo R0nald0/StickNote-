@@ -61,7 +61,7 @@ import com.example.lembretes.presentation.ui.home.widgets.StateListStickNote
 import com.example.lembretes.presentation.ui.home.widgets.StickNoteDrawer
 import com.example.lembretes.presentation.ui.home.widgets.StickNoteToolBar
 import com.example.lembretes.presentation.ui.shared.widgets.ContentDialog
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -85,7 +85,6 @@ fun HomeScreen(
     val snackBarHots = remember { SnackbarHostState() }
 
     val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
-    Log.i("INFO_", "HomeScreen: u${user} ")
 
     var showRationale by remember {
         mutableStateOf(false)
@@ -114,7 +113,7 @@ fun HomeScreen(
         }
     }
     if (showMessage) {
-        StickNoteSnackBarInfo(message = "Data invalida para Ativar alarme") {}
+        StickNoteSnackBarInfo(message = context.getString(R.string.lembrete_com_a_data_inv_lida)) {}
         showMessage = false
     }
     if (showRationale) {
@@ -132,7 +131,7 @@ fun HomeScreen(
     }
 
     if (showPerfilDialog) {
-        StickNoteDialogPerfil(
+        StickNoteDialog(
             content = {
                 ContentDialog(
                     user = user,
@@ -189,12 +188,12 @@ fun HomeScreen(
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        containerColor = MaterialTheme.colorScheme.primary,
                         onClick = onNavigateToAddStickNote
                     ) {
                         Icon(
                             Icons.Default.Add, contentDescription = "button add new stick Note",
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
                 },
@@ -231,7 +230,7 @@ fun HomeScreen(
                             if (stickNote == null) {
                                 scope.launch {
                                     snackBarHots.showSnackbar(
-                                        message = "Lembrete esta com a data no passado"
+                                        message = context.getString(R.string.lembrete_com_a_data_inv_lida)
                                     )
                                 }
                                 return@StateListStickNote
@@ -282,7 +281,7 @@ fun HomeScreen(
                 }
 
                 if (uiState.isLoading) {
-                    StickNoteDialogPerfil(
+                    StickNoteDialog(
                         modifier
                             .fillMaxSize()
                             .background(color = Color.Gray.copy(alpha = 0.6f)),
@@ -307,6 +306,7 @@ private fun checkCreateCancelNotification(
     if (isRemember) {
         StickNoteAlarmManeger.criateAlarm(context, stickNote)
     } else {
+        //TODO verificar dando erro de não registrado
         StickNoteAlarmManeger.cancelNotification(context, stickNote)
     }
 }

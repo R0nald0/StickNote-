@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity(){
             val userPef  by  prefViewModel.userPreference.collectAsStateWithLifecycle()
 
             LembretesTheme(
-                darkTheme = userPef.isDakrMode
+                darkTheme = if (userPef.isDarkMode == 1 ) false else if(userPef.isDarkMode == 2)  true else isSystemInDarkTheme()
             )   {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -102,9 +103,8 @@ class MainActivity : ComponentActivity(){
 
                         composable(route = SettingNavigation.route){
                             SettingScreen(
-                                modifier = Modifier,
-                                userPreference = userPef,
                                 preferencesViewModel = prefViewModel,
+                                modifier = Modifier,
                                 onClosed = {navController.popBackStack()}
                             )
                         }
@@ -129,6 +129,7 @@ class MainActivity : ComponentActivity(){
             }
         }
     }
+
 
 }
 

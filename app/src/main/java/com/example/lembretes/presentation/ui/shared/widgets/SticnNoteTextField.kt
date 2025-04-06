@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +40,11 @@ fun StickNoteTextField(
     }
 
     OutlinedTextField(
+        colors = OutlinedTextFieldDefaults.colors(
+            cursorColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            focusedBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            unfocusedBorderColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+        ),
         maxLines = maxLines,
         value = value,
         enabled = enable,
@@ -58,12 +64,11 @@ fun StickNoteTextField(
             Text(
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 text = label,
-                style = textStyle
+                style = textStyle,
+
             )
         },
         onValueChange = onChange
-
-
     )
 }
 

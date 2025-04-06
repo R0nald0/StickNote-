@@ -11,7 +11,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.lembretes.R
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -50,7 +52,7 @@ fun CalendarWidget(
             ){
                 Text(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    text = "ok"
+                    text = stringResource(R.string.confirmar)
                 )
             }
 
@@ -59,6 +61,8 @@ fun CalendarWidget(
         DatePicker(
             colors = DatePickerDefaults.colors(
                 todayDateBorderColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                todayContentColor =  MaterialTheme.colorScheme.onPrimaryContainer,
+                selectedDayContentColor = MaterialTheme.colorScheme.primary ,
                 selectedDayContainerColor = MaterialTheme.colorScheme.onPrimaryContainer
             ),
             state = datePickerState,

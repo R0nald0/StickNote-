@@ -51,6 +51,10 @@ fun StickNoteTimePicker(
                 TimePicker(
                     colors = TimePickerDefaults.colors(
                         selectorColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        timeSelectorUnselectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        clockDialColor = MaterialTheme.colorScheme.primary,
+                        clockDialSelectedContentColor = MaterialTheme.colorScheme.primary,
+                        clockDialUnselectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     state  = timePickerState
                 )
@@ -64,7 +68,7 @@ fun StickNoteTimePicker(
                         Text(
                             stringResource(R.string.cancelar),
                             style = MaterialTheme.typography.labelMedium.copy(
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
                             )
                         )
                     }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.lembretes.core.Constants
 import com.example.lembretes.data.repository.PreferenceRepositorie
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,47 +16,55 @@ import javax.inject.Inject
 
 
 data class UserPreference(
-    var isDakrMode :Boolean = false,
-){
-    constructor():this(
-        isDakrMode = false
-    )
-}
+    var isDarkMode :Int?=null,
+    var loading : Boolean =false
+)
+
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    private val preferencesRepositorie: PreferenceRepositorie
+    private val preferencesRepository: PreferenceRepositorie
 ) :ViewModel(){
-
-    private val _isDarkMode = MutableStateFlow(false)
-    var isDarkMode : StateFlow<Boolean> = _isDarkMode.asStateFlow()
-
 
     private val _userPreference = MutableStateFlow(UserPreference())
     var userPreference : StateFlow<UserPreference> = _userPreference.asStateFlow()
-    fun readUniquePreference(){
-        viewModelScope.launch {
-             preferencesRepositorie.readKey(Constants.ID_KEY_UI_MODE).collect{
-                 _isDarkMode.value = it[Constants.ID_KEY_UI_MODE] ?: false
-             }
-        }
-    }
 
     init {
         readAllPreferences()
     }
-    fun readAllPreferences(){
+
+    fun readUniquePreference(){
+        _userPreference.update {
+            it.copy(loading = true)
+        }
         viewModelScope.launch {
-            preferencesRepositorie.readAllPreference().collect{preference->
+             preferencesRepository.readKey(Constants.ID_KEY_UI_MODE).collect{ preference ->
                  _userPreference.update {
-                     it.copy(isDakrMode = preference.isDakrMode)
+                     it.copy(
+                         isDarkMode = preference[Constants.ID_KEY_UI_MODE] ?: 3,
+                         loading = false
+                         )
                  }
+             }
+        }
+    }
+    fun readAllPreferences(){
+        _userPreference.update {
+            it.copy(loading = true)
+        }
+        viewModelScope.launch {
+            delay(2000)
+            preferencesRepository.readAllPreference().collect{ preference->
+                 _userPreference.update {userPref->
+                     userPref.copy(isDarkMode = preference.isDarkMode, loading = false)
+                 }
+                Log.i("INFO_)", "readAllPreferences: ${_userPreference.value}")
             }
         }
     }
-    fun updateDarkMode(isDarkMode :Boolean){
+    fun updateDarkMode(isDarkMode :Int){
         viewModelScope.launch {
            runCatching {
-               preferencesRepositorie.savePreference(isDarkMode,Constants.ID_KEY_UI_MODE)
+               preferencesRepository.savePreference(isDarkMode,Constants.ID_KEY_UI_MODE)
            }.fold(
                onSuccess = {
                    Log.i("INFO_", "updateDarkMode:  Mode ui atualizado com sucesso")

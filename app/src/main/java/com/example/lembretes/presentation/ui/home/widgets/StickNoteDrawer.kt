@@ -35,8 +35,8 @@ import java.util.Date
 @Composable
 fun StickNoteDrawer(
     modifier: Modifier = Modifier,
-    user: User,
     drawerState: DrawerState,
+    user: User,
     onNavigateToSettingsScreen: () -> Unit,
     onClickMenu: () -> Unit,
     content: @Composable () -> Unit
@@ -124,6 +124,7 @@ private fun StickNoteDrawerContent(
                 badge = { Text(itemNav.badge) }
             )
         }
+
 
     }
 }

@@ -15,4 +15,8 @@
     <string name="falha_ao_criar_notifica_o">Falha ao criar notificação</string>
     <string name="cancelar">Cancelar</string>
     <string name="aceitar">Aceitar</string>
+    <string name="confirmar">Confirmar</string>
+    <string name="tema_do_app">Tema do App</string>
+    <string name="vers_o_1_0_0">Versão 1.0.0</string>
+    <string name="lembrete_com_a_data_inv_lida">Data inválida para Ativar alarme</string>
 </resources>

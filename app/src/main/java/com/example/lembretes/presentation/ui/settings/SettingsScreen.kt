@@ -2,53 +2,58 @@ package com.example.lembretes.presentation.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.lembretes.R
+import com.example.lembretes.presentation.ui.settings.models.ItemMenu
+import com.example.lembretes.presentation.ui.settings.models.RadioButtonClass
+import com.example.lembretes.presentation.ui.settings.widgets.StickNoteItemMenu
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
-import com.example.lembretes.presentation.viewmodel.UserPreference
 
 @Composable
 fun SettingScreen(
+    preferencesViewModel : PreferencesViewModel = viewModel(),
     modifier: Modifier = Modifier,
-    onClosed:()->Unit,
-    preferencesViewModel: PreferencesViewModel,
-    userPreference: UserPreference
-    ) {
-    Scaffold (
+    onClosed: () -> Unit,
+) {
+
+    Scaffold(
         modifier = modifier.background(MaterialTheme.colorScheme.background),
         topBar = {
             StickNoteAppBar(
@@ -56,101 +61,146 @@ fun SettingScreen(
                 onClosed = onClosed
             )
         }
-    ){paddingValues->
-        Column(
-            modifier = modifier
-                .padding(paddingValues)
-                .padding(16.dp)
+    ) { paddingValues ->
 
-        ) {
-            Row(
-                modifier= Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+        val userPrefe by preferencesViewModel.userPreference.collectAsStateWithLifecycle()
+
+
+        var mode by remember {
+             when(userPrefe.isDarkMode){
+                 1 -> mutableStateOf("Light")
+                 2 ->mutableStateOf("Dark")
+                 else -> mutableStateOf("Mesmo que o sistema")
+             }
+
+        }
+        var openDialog by remember {
+            mutableStateOf(false)
+        }
+        if (userPrefe.loading){
+            Box(
+                modifier
+                    .fillMaxSize()
+                    .background(color = Color.Gray)
+                    .alpha(0.7f),
+                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "DarkMode",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-                Switch(
-                    modifier = Modifier.padding(8.dp),
-                    checked = userPreference.isDakrMode,
-                    onCheckedChange ={ value->
-                       preferencesViewModel.updateDarkMode(value)
-                    },
-                    thumbContent = {
-                        if (userPreference.isDakrMode){
-                            Icon(
-                                Icons.Filled.CheckCircle,
-                                contentDescription = "Is Dark Mode true",
-                                tint = Color.Green
-                                )
-                        }else{
-                            Icon(
-                                Icons.Rounded.Close,
-                                contentDescription = "Is Dark Mode false")
+                CircularProgressIndicator()
+            }
+        }
+        if (openDialog) {
+            StickNoteDialog(
+
+                onDissmisRequest ={openDialog = false}  ,
+                content = {
+                    DialogDarkMode(
+                        idSelected = userPrefe.isDarkMode ?:3,
+                        onSelected = {
+                            radioSelected -> mode = radioSelected.title
+                            openDialog = false
+                            preferencesViewModel.updateDarkMode(radioSelected.id)
                         }
+                    ) { }
+                }
+            )
+        }
+
+        val  context = LocalContext.current
+        val menus = remember {
+            mutableStateListOf(
+                ItemMenu(
+                    title = ContextCompat.getString(context,R.string.tema_do_app),
+                   textOptionSelected =  mode,
+                    action = {openDialog = !openDialog}
+                ),
+                ItemMenu(
+                    title = "Zona",
+                    textOptionSelected = "America/Sao Paulo",
+                    action = {
+                        //TODO criar acão
+                    }
+                ),
+                ItemMenu(
+                    title = "Tamanho titulo lembrete",
+                    textOptionSelected = "Médio",
+                    action = {
+                        //TODO criar acão
                     }
                 )
-            }
-            HorizontalDivider(
-                color = MaterialTheme.colorScheme.primary,
             )
-            Spacer(modifier = Modifier.height(18.dp))
         }
+        Box(
+            modifier = Modifier.padding(16.dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column(
+                modifier
+                    .padding(paddingValues = paddingValues)
+                    .fillMaxSize()
+                    ,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                menus.forEach { menu ->
+                    StickNoteItemMenu(
+                        title = menu.title,
+                        mode = menu.textOptionSelected,
+                        onClickMenu = menu.action
+                    )
+                }
+            }
+            Text(
+                stringResource(R.string.vers_o_1_0_0),
+                style = MaterialTheme.typography.bodySmall.copy(
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            ))
+        }
+
     }
 
 }
-data class radioBottonClass(
-    val isSelected : Boolean,
-    val title :String
-)
 
 @Composable
 fun DialogDarkMode(
-    modifier: Modifier = Modifier,
-    onDissmiss:()->Unit
+    idSelected : Int,
+    onSelected: (RadioButtonClass) -> Unit,
+    onDissmiss: () -> Unit
 ) {
     val radioGroup = remember {
         mutableStateListOf(
-            radioBottonClass(
+            RadioButtonClass(
+                id = 1,
                 isSelected = false,
                 title = "Light"
             ),
-            radioBottonClass(
+            RadioButtonClass(
+                id = 2,
                 isSelected = false,
                 title = "Dark"
             ),
-            radioBottonClass(
+            RadioButtonClass(
+                id = 3,
                 isSelected = false,
                 title = "Mesmo que o sistema"
             )
         )
     }
-     var selectedOption  by remember {
-        mutableStateOf("")
+
+    var selectedOption by remember {
+        mutableIntStateOf(idSelected)
     }
 
-    Box(
-        modifier = modifier
-            .padding(16.dp)
-            .background(Color.White, shape = RoundedCornerShape(size = 20.dp))
-        ,
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
+    Column(
             modifier = Modifier
                 .padding(16.dp)
                 .clip(shape = RoundedCornerShape(30.dp)),
-            horizontalAlignment = Alignment.CenterHorizontally,
-
-        ) {
+              horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
             Text(
-                text = " Dark mode",
-                style = MaterialTheme.typography.titleLarge
+                text =stringResource( R.string.tema_do_app),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -160,60 +210,55 @@ fun DialogDarkMode(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            selectedOption = radioBottonClass.title
+                            selectedOption = radioBottonClass.id
+                            onSelected(radioBottonClass)
+                            onDissmiss()
                         },
 
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = radioBottonClass.title == selectedOption,
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            unselectedColor = MaterialTheme.colorScheme.primary
+                        ),
+                        selected = radioBottonClass.id == selectedOption,
                         onClick = {
-                            selectedOption = radioBottonClass.title
+                            selectedOption = radioBottonClass.id
+                            onSelected(radioBottonClass)
+                            onDissmiss()
                         })
-                    Text(text = radioBottonClass.title)
-                }
-            }
-            Spacer(modifier = modifier.height(16.dp))
-            Row(
-                modifier =Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextButton(onClick = { onDissmiss() }) {
-                    Text(text = "Cancelar")
-                }
-                TextButton(onClick = {
-                    onDissmiss()
-                }) {
-                    Text(text = "Salvar")
+                     Text(
+                         text = radioBottonClass.title,
+                         color = MaterialTheme.colorScheme.onPrimaryContainer
+                         )
                 }
             }
 
         }
 
-        }
+
 
 }
 
 
-@Preview
+/*@Preview
 @Composable
 private fun DialogDarkModePrev() {
     LembretesTheme {
         DialogDarkMode(
+            onSelected = {},
             onDissmiss = {}
         )
     }
-}
+}*/
 
-@PreviewLightDark()
+
 @Preview
 @Composable
 private fun SettingScreenPrev() {
     LembretesTheme {
         SettingScreen(
-            preferencesViewModel = (PreferencesViewModel::class) as PreferencesViewModel,
-            userPreference = UserPreference(),
             onClosed = {}
         )
     }

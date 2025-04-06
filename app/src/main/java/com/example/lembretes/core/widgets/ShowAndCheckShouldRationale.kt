@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.lembretes.R
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialogPerfil
+import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 
 @Composable
 fun ShowAndCheckShouldRationale(
@@ -44,7 +44,7 @@ fun ShowAndCheckShouldRationale(
     }
 
     if (isRationale){
-        StickNoteDialogPerfil(
+        StickNoteDialog(
             modifier = modifier,
             onDissmisRequest ={},
             content = {

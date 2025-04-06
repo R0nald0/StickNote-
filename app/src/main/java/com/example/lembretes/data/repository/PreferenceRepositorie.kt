@@ -33,7 +33,7 @@ class PreferenceRepositorie @Inject constructor(
         try {
               return  dataStore.data.map {pref ->
                   UserPreference(
-                      isDakrMode = pref[Constants.ID_KEY_UI_MODE] ?: false
+                      isDarkMode = pref[Constants.ID_KEY_UI_MODE] ?: 3
                   )
               }
 

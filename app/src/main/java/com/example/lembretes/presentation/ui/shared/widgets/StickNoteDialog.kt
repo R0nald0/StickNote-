@@ -49,7 +49,7 @@ import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.utils.createJpgImageFromInputStream
 
 @Composable
-fun StickNoteDialogPerfil(
+fun StickNoteDialog(
     modifier: Modifier = Modifier,
     content : @Composable() ((onDissminn: ()->Unit) -> Unit),
     onDissmisRequest : ()->Unit,
@@ -57,7 +57,15 @@ fun StickNoteDialogPerfil(
     Dialog(
         onDismissRequest = { onDissmisRequest() },
     ) {
-        content(onDissmisRequest)
+        Box(
+            modifier = modifier
+                .padding(16.dp)
+                .background(color = MaterialTheme.colorScheme.primaryContainer
+                    , shape = RoundedCornerShape(size = 20.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            content(onDissmisRequest)
+        }
     }
 }
 
@@ -93,15 +101,6 @@ fun ContentDialog(
 
     isError = name.length > 10
 
-    Box(
-        modifier = modifier
-            .padding(8.dp)
-            .background(
-                MaterialTheme.colorScheme.background,
-                shape = RoundedCornerShape(size = 20.dp)
-            ),
-        contentAlignment = Alignment.Center
-    ) {
         Column(
             modifier = Modifier
                 .padding(32.dp)
@@ -182,7 +181,7 @@ fun ContentDialog(
                 }
             }
         }
-    }
+
 }
 @Composable
 private fun ImagePerfil(
@@ -232,7 +231,7 @@ private fun ImagePerfilPreview() {
 @Composable
 private fun StickNoteDialogPerfilPreview() {
     LembretesTheme {
-        StickNoteDialogPerfil (
+        StickNoteDialog (
             onDissmisRequest = {},
             content = {
                 ContentDialog(
@@ -249,7 +248,7 @@ private fun StickNoteDialogPerfilPreview() {
 @Composable
 private fun StickNoteDialogPerfilDarkPreview() {
     LembretesTheme {
-        StickNoteDialogPerfil (
+        StickNoteDialog (
             onDissmisRequest = {},
             content = {
                 ContentDialog(
