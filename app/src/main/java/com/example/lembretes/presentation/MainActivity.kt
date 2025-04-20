@@ -16,7 +16,6 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AddCircle
@@ -44,7 +43,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.lembretes.core.notification.StickNoteSnackBar
 import com.example.lembretes.presentation.navigation.AddStickNoteNavigation
 import com.example.lembretes.presentation.navigation.HomeNavigation
-import com.example.lembretes.presentation.navigation.ProfilePageNavigation
 import com.example.lembretes.presentation.navigation.SearchNavigation
 import com.example.lembretes.presentation.navigation.SettingNavigation
 import com.example.lembretes.presentation.navigation.navigateToAddStiCkNote
@@ -97,13 +95,6 @@ class MainActivity : ComponentActivity() {
             icon = Icons.Default.Settings,
             selected = false,
             onClick = {}),
-        StickNoteNavItem(
-            index = ProfilePageNavigation.route,
-            title = "Perfil",
-            enabled = true,
-            icon = Icons.Filled.AccountCircle,
-            selected = false,
-            onClick = {}),
     )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -125,7 +116,7 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(HomeNavigation.route)
                 }
                 val snackBarHots = remember { SnackbarHostState() }
-                val scope = rememberCoroutineScope()
+               // val scope = rememberCoroutineScope()
                 val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
                 val route = currentBackStackEntryAsState?.destination?.route
 
@@ -259,10 +250,7 @@ class MainActivity : ComponentActivity() {
         }
 
         return route
-
     }
-
-
 }
 
 
