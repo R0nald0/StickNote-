@@ -86,7 +86,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
 
-
+    implementation(libs.androidx.material)
     //Coil
     implementation(libs.coil.compose)
 

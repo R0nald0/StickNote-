@@ -36,15 +36,21 @@ fun StickNoteCheckBox(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(checked = isRemember,
-         
+        Checkbox(
+            checked = isRemember,
             colors = CheckboxDefaults.colors(
-                checkedColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                checkedColor = MaterialTheme.colorScheme.primary,
+                checkmarkColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                uncheckedColor = MaterialTheme.colorScheme.onPrimaryContainer
             ),
             onCheckedChange = { isChecek ->
                 isRemember = isChecek
                 isChecked(isRemember)
             })
-        Text(text = "Relembrar?")
+        Text(text = "Relembrar?",
+            style = MaterialTheme.typography.labelSmall.copy(
+                color = MaterialTheme.colorScheme.onPrimaryContainer
+            )
+            )
     }
 }

@@ -2,26 +2,49 @@ package com.example.lembretes.presentation
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.lembretes.core.notification.StickNoteSnackBar
 import com.example.lembretes.presentation.navigation.AddStickNoteNavigation
 import com.example.lembretes.presentation.navigation.HomeNavigation
+import com.example.lembretes.presentation.navigation.ProfilePageNavigation
 import com.example.lembretes.presentation.navigation.SearchNavigation
 import com.example.lembretes.presentation.navigation.SettingNavigation
 import com.example.lembretes.presentation.navigation.navigateToAddStiCkNote
@@ -32,106 +55,217 @@ import com.example.lembretes.presentation.ui.settings.SettingScreen
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
+import com.example.lembretes.presentation.viewmodel.UserViewModel
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 
+data class StickNoteNavItem(
+    val index: String,
+    val icon: ImageVector,
+    val title: String,
+    val enabled: Boolean,
+    val selected: Boolean,
+    val onClick: () -> Unit,
+
+    )
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity(){
-    private  val prefViewModel by  viewModels<PreferencesViewModel>()
+class MainActivity : ComponentActivity() {
+
+    private val prefViewModel by viewModels<PreferencesViewModel>()
+    private val userViewModel by viewModels<UserViewModel>()
+
+    val navMenuItems = listOf(
+        StickNoteNavItem(
+            index = HomeNavigation.route,
+            title = "Home",
+            enabled = true,
+            icon = Icons.Filled.Home,
+            selected = true,
+            onClick = {}),
+        StickNoteNavItem(
+            index = AddStickNoteNavigation.route,
+            title = "Adicionar",
+            enabled = true,
+            icon = Icons.Outlined.AddCircle,
+            selected = false,
+            onClick = {}),
+        StickNoteNavItem(
+            index = SettingNavigation.route,
+            title = "Configurações",
+            enabled = true,
+            icon = Icons.Default.Settings,
+            selected = false,
+            onClick = {}),
+        StickNoteNavItem(
+            index = ProfilePageNavigation.route,
+            title = "Perfil",
+            enabled = true,
+            icon = Icons.Filled.AccountCircle,
+            selected = false,
+            onClick = {}),
+    )
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         val splashScreen = installSplashScreen()
-         splashScreen.setKeepOnScreenCondition{
-             false
-         }
+        splashScreen.setKeepOnScreenCondition {
+            false
+        }
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
-            val userPef  by  prefViewModel.userPreference.collectAsStateWithLifecycle()
+            val navController = rememberNavController( )
+            val userPef by prefViewModel.userPreference.collectAsStateWithLifecycle()
 
             LembretesTheme(
-                darkTheme = if (userPef.isDarkMode == 1 ) false else if(userPef.isDarkMode == 2)  true else isSystemInDarkTheme()
-            )   {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                darkTheme = if (userPef.isDarkMode == 1) false else if (userPef.isDarkMode == 2) true else isSystemInDarkTheme()
+            ) {
+                var selectedPage by remember {
+                    mutableStateOf(HomeNavigation.route)
+                }
+                val snackBarHots = remember { SnackbarHostState() }
+                val scope = rememberCoroutineScope()
+                val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
+                val route = currentBackStackEntryAsState?.destination?.route
 
+                val goToHomeRoute = route == HomeNavigation.route
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    snackbarHost = {
+                        StickNoteSnackBar(
+                            snackBarHots,
+                        )
+                    },
+                    bottomBar = {
+                        BottomNavigation(
+                            modifier = Modifier.navigationBarsPadding(),
+                            backgroundColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        ) {
+                            navMenuItems.forEach { item ->
+                                BottomNavigationItem(
+                                    icon = { Icon(item.icon, contentDescription = item.title) },
+                                    label = {
+                                        Text(
+                                            item.title,
+                                            overflow = TextOverflow.Ellipsis,
+                                            maxLines = 1,
+                                            style = MaterialTheme.typography.labelSmall
+                                        )
+                                    },
+                                    enabled = item.enabled,
+                                    alwaysShowLabel = true,
+                                    onClick = {
+                                        navigatoToAndClearBackStack(navController,item.index)
+                                        selectedPage = item.index
+                                    },
+                                    selected = item.index == selectedPage,
+                                )
+                            }
+                        }
+
+                    }
+                    // color = MaterialTheme.colorScheme.background
+                ) { paddingValues ->
                     NavHost(
-                        navController =navController ,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                        navController = navController,
                         startDestination = HomeNavigation.route,
                     ) {
-                        composable(route = HomeNavigation.route){
-                          val stickNoteViewModel  = hiltViewModel<StickNoteViewmodel>()
-                            LaunchedEffect( Unit) {
+                        composable(
+                            route = HomeNavigation.route
+                        ) {
+                            val stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
+                            LaunchedEffect(Unit) {
                                 stickNoteViewModel.alterFilterType(stickNoteViewModel.uiState.value.filterType)
                             }
 
                             HomeScreen(
                                 modifier = Modifier,
                                 stickNoteViewModel = stickNoteViewModel,
+                                userViewModel = userViewModel,
                                 context = this@MainActivity,
-                                onUpdate = {stickyNote ->
-                                 val stickNoteJson   = Gson().toJson(stickyNote)
+                                onUpdate = { stickyNote ->
+                                    val stickNoteJson = Gson().toJson(stickyNote)
                                     navController.navigateToAddStiCkNote(stickNoteJson)
                                 },
                                 onNavigateToAddStickNote = {
-                                    navController.navigate(AddStickNoteNavigation.route)
+                                    selectedPage = navigatoToAndClearBackStack(navController,
+                                        AddStickNoteNavigation.route)
                                 },
-                                onNavigateToSettingsScreen = {
-                                    navController.navigate(SettingNavigation.route)
-                                },
-                                openSearch = {navController.navigate(SearchNavigation.route)}
+
+                                openSearch = { navController.navigate(SearchNavigation.route) }
                             )
                         }
                         composable(
                             route = AddStickNoteNavigation.routeWithArgs,
                             arguments = AddStickNoteNavigation.arguments,
-                        ){ backStackEntry->
-                            val stickNoteJson = backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)
+                        ) { backStackEntry ->
+                            val stickNoteJson =
+                                backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)
 
-                            Log.i("INFO_", "onCreate: $stickNoteJson")
                             AddStickNoteScreen(
                                 stickNoteJson = stickNoteJson,
                                 modifier = Modifier,
                                 activity = this@MainActivity,
                                 onClosed = navController::popBackStack,
                             )
+                            BackHandler(enabled = goToHomeRoute.not()){selectedPage = navigatoToAndClearBackStack(navController, HomeNavigation.route) }
                         }
-
-                        composable(route = SettingNavigation.route){
+                        composable(route = SettingNavigation.route) {
                             SettingScreen(
                                 preferencesViewModel = prefViewModel,
                                 modifier = Modifier,
-                                onClosed = {navController.popBackStack()}
+                                onClosed = { navController.popBackStack() }
                             )
+                            BackHandler(enabled = goToHomeRoute.not()){
+                                selectedPage = navigatoToAndClearBackStack(navController, HomeNavigation.route)
+                            }
                         }
-                        composable(route = SearchNavigation.route){
-                            val  stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
+                        composable(route = SearchNavigation.route) {
+                            val stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
                             SearchScreen(
                                 modifier = Modifier,
-                                onClose = {navController.popBackStack()},
-                                context= this@MainActivity,
-                                onUpadteNotification = {stickNote->
+                                onClose = { navController.popBackStack() },
+                                context = this@MainActivity,
+                                onUpadteNotification = { stickNote ->
                                     if (stickNote?.id == null) return@SearchScreen
-                                       stickNoteViewModel.updateNotificatioStickNote(stickNote){
+                                    stickNoteViewModel.updateNotificatioStickNote(stickNote) {
 
                                     }
                                 },
                             )
+
                         }
 
                     }
                 }
-
             }
+
         }
+    }
+    private fun navigatoToAndClearBackStack(
+        navController: NavHostController,
+        route : String
+    ): String {
+        navController.navigate(route) {
+            popUpTo(route) {
+                inclusive = true
+            }
+            launchSingleTop = true
+        }
+
+        return route
+
     }
 
 
 }
+
+
 
 
 

@@ -8,16 +8,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -50,7 +52,6 @@ fun StickNoteToolBar(
     modifier: Modifier = Modifier,
     user: User,
     numberOfStickNotes: Int = 0,
-    isOpenDrawer: () -> Unit,
     onOpenProfile: () -> Unit,
     openSearch: () -> Unit,
 ) {
@@ -62,19 +63,24 @@ fun StickNoteToolBar(
             scroolBehavior.state.collapsedFraction <= 0.5f
         }
     }
+    Column(
+        modifier = Modifier
+            .background(color = MaterialTheme.colorScheme.primary, shape =  RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp))
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(2.dp)
+            ,
+            verticalAlignment = Alignment.CenterVertically,
+        ){
+            Text(
+                modifier =  modifier.weight(0.5f),
+                text = "Lembrete", style = MaterialTheme.typography.titleLarge,
+                )
 
-    LargeTopAppBar(
-        modifier = modifier.clip(
-            RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
-        ),
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            scrolledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-
-        ),
-        scrollBehavior = scroolBehavior,
-        actions = {
             IconButton(onClick = openSearch) {
                 Icon(Icons.Default.Search, contentDescription = "User avatar")
             }
@@ -95,49 +101,33 @@ fun StickNoteToolBar(
                 error = painterResource(R.drawable.ic_person_24),
                 model = Uri.parse(user.photoProfile)
             )
-
-
-        },
-        navigationIcon = {
-            IconButton(onClick = isOpenDrawer) {
-                Icon(Icons.Default.Menu, contentDescription = "User menu")
-            }
-        },
-
-        title = {
-            if (isColapsed) {
-                Column(
-                ) {
-                    Text(
-                        text = "Olá ${user.name.capitalize(Locale.current)},${daySection()}!!",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-                    )
-
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        val agendadosText =
-                            if (numberOfStickNotes <= 1) "lembrete agendado" else "lembretes agendados"
-                        Text(
-                            text = "Você tem",
-                            fontSize = 13.sp,
-                        )
-                        Text(
-                            text = " $numberOfStickNotes ",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
-                        )
-                        Text(
-                            text = agendadosText,
-                            fontSize = 13.sp,
-                        )
-                    }
-                }
-            } else {
-                Text(text = "Lembrete", style = MaterialTheme.typography.titleLarge)
-            }
         }
-    )
+        Spacer(modifier.height(15.dp))
+        Text(
+            text = "Olá ${user.name.capitalize(Locale.current)},${daySection()}!!",
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val agendadosText =
+                if (numberOfStickNotes <= 1) "lembrete agendado" else "lembretes agendados"
+            Text(
+                text = "Você tem",
+                fontSize = 13.sp,
+            )
+            Text(
+                text = " $numberOfStickNotes ",
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+            )
+            Text(
+                text = agendadosText,
+                fontSize = 13.sp,
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,7 +136,6 @@ fun StickNoteToolBar(
 private fun SticnkNoteToolBarPreview() {
     LembretesTheme {
         StickNoteToolBar(
-            isOpenDrawer = {  },
             onOpenProfile = {  },
             user = User(1, "Test", ""),
             openSearch = {}

@@ -7,7 +7,10 @@ import androidx.navigation.navArgument
 interface StickNoteNavigation {
     var route :String
 }
+object ProfilePageNavigation : StickNoteNavigation{
+    override var route: String ="profile_page"
 
+}
 object HomeNavigation :StickNoteNavigation {
     override var route: String = "home"
 }

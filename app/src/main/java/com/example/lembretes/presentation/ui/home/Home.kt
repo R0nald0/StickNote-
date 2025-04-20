@@ -15,21 +15,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,43 +37,36 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getString
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.lembretes.R
 import com.example.lembretes.core.notification.StickNoteAlarmManeger
-import com.example.lembretes.core.notification.StickNoteSnackBar
-import com.example.lembretes.core.notification.StickNoteSnackBarInfo
 import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.home.widgets.MenuNavStickNote
 import com.example.lembretes.presentation.ui.home.widgets.StateListStickNote
-import com.example.lembretes.presentation.ui.home.widgets.StickNoteDrawer
 import com.example.lembretes.presentation.ui.home.widgets.StickNoteToolBar
 import com.example.lembretes.presentation.ui.shared.widgets.ContentDialog
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
 
 
 @Composable
 fun HomeScreen(
     context: Activity,
     stickNoteViewModel: StickNoteViewmodel = viewModel(),
+    userViewModel : UserViewModel = viewModel<UserViewModel>(),
     modifier: Modifier = Modifier,
     onUpdate: (StickyNoteDomain) -> Unit,
     onNavigateToAddStickNote: () -> Unit,
-    onNavigateToSettingsScreen: () -> Unit,
     openSearch: () -> Unit
 ) {
-    val userViewModel = hiltViewModel<UserViewModel>()
+
     val user by userViewModel.user.collectAsStateWithLifecycle()
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    var showMessage by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val snackBarHots = remember { SnackbarHostState() }
+
 
     val uiState by stickNoteViewModel.uiState.collectAsStateWithLifecycle()
 
@@ -112,10 +96,7 @@ fun HomeScreen(
             )
         }
     }
-    if (showMessage) {
-        StickNoteSnackBarInfo(message = context.getString(R.string.lembrete_com_a_data_inv_lida)) {}
-        showMessage = false
-    }
+
     if (showRationale) {
         ShowAndCheckShouldRationale(
             modifier = modifier,
@@ -151,60 +132,24 @@ fun HomeScreen(
         )
     }
 
-    StickNoteDrawer(
-        modifier = modifier,
-        user = user,
-        drawerState = drawerState,
-        onClickMenu = {},
-        onNavigateToSettingsScreen = onNavigateToSettingsScreen,
-    ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = Color.Gray.copy(alpha = 0.6f)),
-            contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center,
         ) {
-            Scaffold(
-                topBar = {
+                Column(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.background)
+                        .fillMaxSize()
+                ) {
                     StickNoteToolBar(
-                        isOpenDrawer = {
-                            scope.launch {
-                                drawerState.apply {
-                                    if (isClosed) open() else close()
-                                }
-                            }
-                        },
                         user = user,
                         modifier = modifier,
                         numberOfStickNotes = uiState.scheduledReminders,
                         onOpenProfile = { showPerfilDialog = !showPerfilDialog },
                         openSearch = openSearch
                     )
-                },
-                snackbarHost = {
-                    StickNoteSnackBar(
-                        snackBarHots,
-                    )
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        onClick = onNavigateToAddStickNote
-                    ) {
-                        Icon(
-                            Icons.Default.Add, contentDescription = "button add new stick Note",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                },
-            ) { paddingValues ->
-                Column(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .navigationBarsPadding()
-                        .padding(paddingValues)
-                ) {
-
                     MenuNavStickNote(
                         modifier = modifier,
                         uiState = uiState,
@@ -215,7 +160,7 @@ fun HomeScreen(
 
                     StateListStickNote(
                         uiState = uiState,
-                        modifier = modifier,
+                        modifier = Modifier,
                         onNavigateToAddStickNote = onNavigateToAddStickNote,
                         onUpdate = onUpdate,
                         context = context,
@@ -227,12 +172,9 @@ fun HomeScreen(
                             }
                         },
                         onUpdateStateNotificaion = { stickNote ->
-                            if (stickNote == null) {
-                                scope.launch {
-                                    snackBarHots.showSnackbar(
-                                        message = context.getString(R.string.lembrete_com_a_data_inv_lida)
-                                    )
-                                }
+                            //TODO Verficar onde coloar verificao
+                             if(stickNote == null) {
+                                 Toast.makeText(context, context.getString(R.string.lembrete_com_a_data_inv_lida), Toast.LENGTH_SHORT).show()
                                 return@StateListStickNote
                             }
                             val (id, _, _, _, isRemember) = stickNote
@@ -292,9 +234,8 @@ fun HomeScreen(
                     )
 
                 }
-            }
         }
-    }
+
 
 }
 

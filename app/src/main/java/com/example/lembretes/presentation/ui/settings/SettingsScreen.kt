@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,7 +40,6 @@ import com.example.lembretes.R
 import com.example.lembretes.presentation.ui.settings.models.ItemMenu
 import com.example.lembretes.presentation.ui.settings.models.RadioButtonClass
 import com.example.lembretes.presentation.ui.settings.widgets.StickNoteItemMenu
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
@@ -53,20 +51,9 @@ fun SettingScreen(
     onClosed: () -> Unit,
 ) {
 
-    Scaffold(
-        modifier = modifier.background(MaterialTheme.colorScheme.background),
-        topBar = {
-            StickNoteAppBar(
-                title = "Configurações",
-                onClosed = onClosed
-            )
-        }
-    ) { paddingValues ->
-
         val userPrefe by preferencesViewModel.userPreference.collectAsStateWithLifecycle()
 
-
-        var mode by remember {
+         var mode by remember {
              when(userPrefe.isDarkMode){
                  1 -> mutableStateOf("Light")
                  2 ->mutableStateOf("Dark")
@@ -135,11 +122,14 @@ fun SettingScreen(
         ) {
             Column(
                 modifier
-                    .padding(paddingValues = paddingValues)
-                    .fillMaxSize()
-                    ,
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
+
                 ) {
+
+                Text(text = stringResource(R.string.configura_es))
+                Spacer(Modifier.height(15.dp))
+
                 menus.forEach { menu ->
                     StickNoteItemMenu(
                         title = menu.title,
@@ -154,8 +144,6 @@ fun SettingScreen(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             ))
         }
-
-    }
 
 }
 

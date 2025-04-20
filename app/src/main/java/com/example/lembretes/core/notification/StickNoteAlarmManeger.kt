@@ -33,7 +33,7 @@ object StickNoteAlarmManeger {
         stickNoteAlarm =
             ContextCompat.getSystemService(context, AlarmManager::class.java) as AlarmManager
 
-        stickNoteAlarm.setAndAllowWhileIdle(
+        stickNoteAlarm.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
          //  System.currentTimeMillis() + 10000,
              stickyNoteDomain.dateTime,

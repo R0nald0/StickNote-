@@ -5,9 +5,9 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +43,6 @@ internal fun StateListStickNote(
             if (listStickNote.isEmpty()) {
                 StickNoteNoContent(modifier, uiState.filterType, onNavigateToAddStickNote)
             } else {
-
                 StickNoteStateLazyList(
                     stickNotes = listStickNote,
                     context = context,
@@ -70,14 +69,16 @@ fun StickNoteStateLazyList(
     onDelete: (StickyNoteDomain) -> Unit,
     onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
 ) {
+
     LazyColumn(
+        contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .fillMaxWidth()
-            .padding(16.dp)
     ) {
-        items(stickNotes, key = { it.id!! }) { stickNote ->
+        items(
+            stickNotes, key = { it.id!! }) { stickNote ->
 
             val switToDismessState = rememberSwipeToDismissBoxState()
 

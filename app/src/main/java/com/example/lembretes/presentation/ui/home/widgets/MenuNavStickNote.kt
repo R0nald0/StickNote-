@@ -25,8 +25,7 @@ import com.example.lembretes.presentation.viewmodel.HomeState
         modifier = modifier.padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-        StickNoteEnumFilterType.values().forEachIndexed { index, stickNoteEnumFilterType ->
+        StickNoteEnumFilterType.entries.forEachIndexed { index, stickNoteEnumFilterType ->
             StickChips(
                 label = stickNoteEnumFilterType.value,
                 isSelected = uiState.filterType == stickNoteEnumFilterType,

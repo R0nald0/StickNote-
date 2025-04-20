@@ -43,8 +43,6 @@ fun StickNoteDrawer(
 ) {
 
     val scope = rememberCoroutineScope()
-
-
     val menus = listOf(
         NavigationItemDataClass(
             icon = Icons.Filled.Settings,
@@ -79,7 +77,6 @@ private fun StickNoteDrawerContent(
     onClickMenu: () -> Unit,
     optionsMenus: List<NavigationItemDataClass>
 ) {
-
     ModalDrawerSheet(
         modifier = modifier.fillMaxWidth(fraction = 0.7f)
     )

@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +30,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,8 +59,6 @@ import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteCheckBox
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickNoteTagArea
 import com.example.lembretes.presentation.ui.addsticknote.widgets.StickyNoteCalendar
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteAppBar
-import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
@@ -123,17 +121,6 @@ fun MyScreen(
 ) {
     val ui by viewModel.addScreenUi.collectAsStateWithLifecycle()
 
-    Log.i("INFO_", "MyScreen: $stickyNoteDomain")
-
-    Scaffold(
-        topBar = {
-            StickNoteAppBar(
-                onClosed = onClosed,
-                title = if (stickyNoteDomain?.id != null) stringResource(R.string.editar_lembrete)
-                else stringResource(R.string.adicionar_lembrete)
-            )
-        }
-    ) { paddingValues ->
         var isRemember by rememberSaveable { mutableStateOf(false) }
         val tags = remember { mutableStateListOf<String>() }
         var tag by remember { mutableStateOf("") }
@@ -174,11 +161,11 @@ fun MyScreen(
             )
         }
         if (ui.isLoading){
-                StickNoteDialog(
+                Box(
                     modifier
                         .fillMaxSize()
                         .background(color = Color.Gray.copy(alpha = 0.6f)),
-                    onDissmisRequest = {},
+                     contentAlignment = Alignment.Center,
                     content = {
                         CircularProgressIndicator()
                     }
@@ -188,7 +175,6 @@ fun MyScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .verticalScroll(state = rememberScrollState())
-                .padding(paddingValues)
                 .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
@@ -200,7 +186,14 @@ fun MyScreen(
             var lembreteDescription by rememberSaveable {
                 mutableStateOf(stickyNoteDomain?.description ?: "")
             }
-
+           /* StickNoteAppBar(
+                onClosed = onClosed,
+                title = if (stickyNoteDomain?.id != null) stringResource(R.string.editar_lembrete)
+                else stringResource(R.string.adicionar_lembrete)
+            )*/
+            Text( text =  if (stickyNoteDomain?.id != null) stringResource(R.string.editar_lembrete)
+            else stringResource(R.string.adicionar_lembrete))
+            Spacer(modifier = Modifier.height(10.dp))
             Image(
                 modifier = modifier.size(120.dp),
                 painter = painterResource(id = R.drawable.agenda),
@@ -371,7 +364,7 @@ fun MyScreen(
                 }
             }
         }
-    }
+
 }
 
 private fun createUpdateStickNote(
