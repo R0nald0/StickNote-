@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 data class UserPreference(
     var isDarkMode :Int?=null,
-    var loading : Boolean =false
+    val loading: Boolean = false,
+    val erroMessage : String? = null
 )
 
 @HiltViewModel
@@ -33,16 +35,15 @@ class PreferencesViewModel @Inject constructor(
     }
 
     fun readUniquePreference(){
-        _userPreference.update {
-            it.copy(loading = true)
-        }
         viewModelScope.launch {
-             preferencesRepository.readKey(Constants.ID_KEY_UI_MODE).collect{ preference ->
+             preferencesRepository.readKey(Constants.ID_KEY_UI_MODE)
+                 .catch { error->
+
+                 }
+                 .collect{ preference ->
                  _userPreference.update {
                      it.copy(
-                         isDarkMode = preference[Constants.ID_KEY_UI_MODE] ?: 3,
-                         loading = false
-                         )
+                         isDarkMode = preference[Constants.ID_KEY_UI_MODE] ?: 3,)
                  }
              }
         }
@@ -51,26 +52,40 @@ class PreferencesViewModel @Inject constructor(
         _userPreference.update {
             it.copy(loading = true)
         }
+
         viewModelScope.launch {
-            delay(2000)
-            preferencesRepository.readAllPreference().collect{ preference->
+            preferencesRepository.readAllPreference()
+                .catch {error->
+                    Log.e("Error", "readAllPreferences: Erro",error )
+                    _userPreference.update {
+                        it.copy(loading = false, erroMessage = "Não conseguimos buscar as preferências")
+                    }
+                }
+                .collect{ preference->
                  _userPreference.update {userPref->
-                     userPref.copy(isDarkMode = preference.isDarkMode, loading = false)
+                     userPref.copy(isDarkMode = preference.isDarkMode,loading = false)
                  }
-                Log.i("INFO_)", "readAllPreferences: ${_userPreference.value}")
             }
         }
     }
     fun updateDarkMode(isDarkMode :Int){
+        _userPreference.update {
+            it.copy(loading = true)
+        }
         viewModelScope.launch {
            runCatching {
                preferencesRepository.savePreference(isDarkMode,Constants.ID_KEY_UI_MODE)
            }.fold(
                onSuccess = {
+                   _userPreference.update {
+                       it.copy(loading = false)
+                   }
                    Log.i("INFO_", "updateDarkMode:  Mode ui atualizado com sucesso")
                },
                onFailure = {erro->
-                   Log.i("INFO_", "updateDarkMode:  erro ao atualizar DarkMode")
+                   _userPreference.update {
+                       it.copy(loading = false, erroMessage = "Erro ao atualizar preferência")
+                   }
                    Log.e("erro","${erro.message} , ${erro.stackTrace} ",erro)
                }
            )

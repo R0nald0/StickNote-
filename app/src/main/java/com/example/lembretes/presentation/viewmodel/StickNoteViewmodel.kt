@@ -10,6 +10,7 @@ import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,11 +23,11 @@ import javax.inject.Inject
 
 data class HomeState(
     val listData :List<StickyNoteDomain>? =null,
+    val isLoading : Boolean = false,
     var stickNoteToRemember :List<StickyNoteDomain> = emptyList(),
     val filterType: StickNoteEnumFilterType =StickNoteEnumFilterType.Today,
     val scheduledReminders : Int= 0,
-    val isLoading : Boolean = false,
-    val erro :String? =null,
+    val error :String? =null,
 )
 
 @HiltViewModel
@@ -35,7 +36,7 @@ class StickNoteViewmodel @Inject constructor(
     private val updateStickNoteUseCase: UpdateStickNoteUseCase,
     private val deleteStickNoteUseCase: DeleteStickNoteUseCase,
     private val validateStickNoteUseCase: ValidateStickNoteUseCase,
-    ):ViewModel() {
+    ): ViewModel(){
 
     val TAG = "_INFO"
     private val _uiState = MutableStateFlow(HomeState())
@@ -45,7 +46,6 @@ class StickNoteViewmodel @Inject constructor(
         alterFilterType(uiState.value.filterType)
         findStickNoteToRemeber()
     }
-
 
     fun findStickNoteToRemeber(){
         viewModelScope.launch {
@@ -67,7 +67,7 @@ class StickNoteViewmodel @Inject constructor(
         }
     }
 
-     fun alterFilterType(typeFilter : StickNoteEnumFilterType){
+    fun alterFilterType(typeFilter : StickNoteEnumFilterType){
            viewModelScope.launch {
                _uiState.update {
                   it.copy(filterType = typeFilter)
@@ -92,15 +92,12 @@ class StickNoteViewmodel @Inject constructor(
 
     private  fun getStickNotes(onFind: Flow<List<StickyNoteDomain>>){
    viewModelScope.launch {
-
-       _uiState.update {
-           it.copy(isLoading = true, listData = null)
-       }
+       clearErroMessage()
        onFind
             .catch { error ->
                 _uiState.update {
                     it.copy(
-                        erro = error.message ?: "Erro ao buscar os lembretes"
+                        error = error.message ?: "Erro ao buscar lembretes"
                     )
                 }
             }
@@ -113,7 +110,6 @@ class StickNoteViewmodel @Inject constructor(
                     listData = stickNotes,
                     scheduledReminders = scheduledReminders,
                     filterType = _uiState.value.filterType,
-                    isLoading = false
                 )
                }
            }
@@ -121,38 +117,38 @@ class StickNoteViewmodel @Inject constructor(
   }
     fun updateNotificatioStickNote(stickyNoteDomain: StickyNoteDomain,createAlarm:(String?)-> Unit){
         viewModelScope.launch {
-            _uiState.update { ui->
-                ui.copy(isLoading = true)
-            }
+             delay(2000)
          runCatching {
              val isValidDate= validateStickNoteUseCase.validateUpdateNotifcation(stickyNoteDomain.dateTime)
             if (!isValidDate) {
-               createAlarm("Data Inavalida Para Atualizar")
-                _uiState.update { ui->
-                    ui.copy(isLoading = false)
+                _uiState.update {
+                    it.copy(error = "Data Inavalida Para Atualizar")
                 }
+                createAlarm("Data Inavalida Para Atualizar")
                 return@launch
             }
 
              updateStickNoteUseCase.updateNotificatioStickNote(stickyNoteDomain.id!!,stickyNoteDomain.isRemember)
-
          }.fold(
              onSuccess = {
                   alterFilterType(_uiState.value.filterType)
-                 _uiState.update { ui->
-                     ui.copy(isLoading = false)
-                 }
-                 createAlarm(null)
+                  createAlarm(null)
              },
-             onFailure = {erro->
-                 _uiState.update { ui->
-                     ui.copy(isLoading = false)
+             onFailure = {error->
+                  createAlarm("Erro ao atualizar Lembrete")
+                 _uiState.update {
+                     it.copy(error = "Erro ao atualizar Lembrete")
                  }
-                 Log.i("_INFO", "update:erro ao atualizar lembrete : ${erro.message}")
+                 Log.e("_INFO", "update:erro ao atualizar lembrete : ${error.message}")
              }
          )
         }
     }
+
+     fun clearErroMessage() {
+        _uiState.update { it.copy(error = null) }
+    }
+
     fun deleteStickNote(stickyNoteDomain: StickyNoteDomain,onCallCaback:()-> Unit){
         viewModelScope.launch {
              runCatching {
@@ -162,9 +158,11 @@ class StickNoteViewmodel @Inject constructor(
                      if (it > 0) alterFilterType(_uiState.value.filterType)
                      onCallCaback()
                  },
-
-                 onFailure = {erro->
-                     Log.i(TAG, "deleteStickNote: erro ao deletetar ${erro.message }")
+                 onFailure = { error->
+                     _uiState.update {
+                         it.copy(error = "Não conseguimos deletar o lembrete")
+                     }
+                     Log.i(TAG, "deleteStickNote: erro ao deletetar ${error.message}")
                  },
              )
         }

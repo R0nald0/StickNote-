@@ -22,9 +22,9 @@ import javax.inject.Inject
 
 data class UiAddScreen(
     val stickyNoteDomain: StickyNoteDomain,
-    val erros: Map<String, String>,
+    val error : String? = null,
+    val validateFields: Map<String, String>,
     val isSuccess: Boolean,
-    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -38,105 +38,106 @@ class AddUpdateViewModel @Inject constructor(
     private val _addScreeUi = MutableStateFlow(
         UiAddScreen(
             StickyNote(id = null, noticafitionId = 0),
-            erros = emptyMap(),
-            false
+            validateFields = emptyMap(),
+            error = null,
+            isSuccess =false
         )
     )
     var addScreenUi: StateFlow<UiAddScreen> = _addScreeUi.asStateFlow()
 
     fun findById(id: Int) {
-        _addScreeUi.update {
+       /* _addScreeUi.update {
             it.copy(isLoading = true)
-        }
+        }*/
         viewModelScope.launch {
             getStickyNoteUseCase.getStickNoteById(id)
                 .catch {
-                    _addScreeUi.update {
+                    /*_addScreeUi.update {
                         it.copy(isLoading = false)
-                    }
+                    }*/
                 }
                 .collect { stickNote ->
                     _addScreeUi.update {
-                        delay(2000)
+
                         it.copy(
-                            stickyNoteDomain = stickNote, isLoading = false
+                            stickyNoteDomain = stickNote,
                         )
                     }
                 }
         }
     }
 
-    fun validateFieldStickNote(stickyNoteDomain: StickyNoteDomain) {
+    fun validateFieldStickNote(name: String,description : String,dateTime: Long) {
+
         val result = validateStickNoteUseCase.validateFieldsStickNote(
-            stickyNoteDomain.name,
-            stickyNoteDomain.description,
-            stickyNoteDomain.dateTime
+            name,
+            description,
+            dateTime
         )
         if (result.isNotEmpty()) {
             _addScreeUi.update { state ->
-                state.copy(erros = result, isSuccess = false)
+                state.copy(validateFields = result, isSuccess = false)
             }
             return
         }
         _addScreeUi.update { state ->
-            state.copy(erros = result, isSuccess = true)
+            state.copy(validateFields = result, isSuccess = true)
         }
     }
 
-    fun updateStickNote(stickyNoteDomain: StickyNoteDomain, onAction: () -> Unit) {
+    fun updateStickNote(stickyNoteDomain: StickyNoteDomain, onAction: (Boolean) -> Unit) {
         viewModelScope.launch {
             runCatching {
-                validateFieldStickNote(stickyNoteDomain)
-                if (_addScreeUi.value.erros.isNotEmpty() == true){
-                    _addScreeUi.update {
-                        it.copy(isLoading = false)
-                    }
+                val(_,name,description,dateTime) =stickyNoteDomain
+                validateFieldStickNote(name = name, description = description, dateTime = dateTime)
+                if (_addScreeUi.value.validateFields.isNotEmpty() == true){
+                    onAction(false)
                     return@launch
                 }
-
                 updateStickNoteUseCase.updateStickNote(stickNote = stickyNoteDomain)
 
             }.fold(
                 onSuccess = { linesAfected ->
-                    onAction()
-                    Log.i("_INFO", "updateStiickNote: $linesAfected")
+                    onAction(true)
                 },
                 onFailure = { error ->
+                    _addScreeUi.update {
+                        it.copy(error = error.message ?: "Erro ao atualizar lembrete")
+                    }
+                    Log.e("_INFO", "updateStiickNote: $error")
                     // _stickNoteState.value =StickNoteState.Error(message =  error.message ?: "Erro ao Atualizar Lembrete")
                 }
             )
         }
     }
 
-    fun insertStickNote(stickyNoteDomain: StickyNoteDomain, onAction: () -> Unit) {
-
-        _addScreeUi.update {
-            it.copy(isLoading = true)
-        }
+    fun insertStickNote(stickyNoteDomain: StickyNoteDomain, onAction: (Boolean) -> Unit) {
         viewModelScope.launch {
             runCatching {
-                validateFieldStickNote(stickyNoteDomain)
-                if (_addScreeUi.value.erros.isNotEmpty() == true){
-                    _addScreeUi.update {
-                        it.copy(isLoading = false)
-                    }
+                val(_,name,description,dateTime) =stickyNoteDomain
+                validateFieldStickNote(name = name, description = description, dateTime = dateTime)
+
+                if (_addScreeUi.value.validateFields.isNotEmpty() == true){
+                    onAction(false)
                     return@launch
                 }
                 insertStickNoteUseCase.insert(stickyNoteDomain)
             }.fold(
                 onSuccess = { insertValue ->
-                    _addScreeUi.update {
-                        it.copy(isLoading = false)
-                    }
-                    onAction()
+                    onAction(true)
                 },
-                onFailure = { erro ->
+                onFailure = { error ->
+                    onAction(false)
                     _addScreeUi.update {
-                        it.copy(isLoading = false)
+                        it.copy(error = error.message ?: "Algo deu errado,lembrete não criado,tente novamente")
                     }
-                    Log.i("INFO_", "insertStickNote: Erro ao inserir $erro")
+                    Log.e("INFO_", "insertStickNote: Erro ao inserir $error")
                 }
             )
         }
     }
+    fun clearErroMessage() {
+        _addScreeUi.update { it.copy(error = null) }
+    }
+
 }

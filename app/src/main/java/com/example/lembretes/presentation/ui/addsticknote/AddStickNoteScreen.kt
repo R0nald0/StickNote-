@@ -8,11 +8,8 @@ import android.os.Build
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -52,6 +47,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.example.lembretes.R
 import com.example.lembretes.core.notification.StickNoteAlarmManeger
 import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
@@ -62,20 +58,26 @@ import com.example.lembretes.presentation.ui.addsticknote.widgets.StickyNoteCale
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
+import com.example.lembretes.presentation.viewmodel.GlobalState
+import com.example.lembretes.presentation.viewmodel.GlobalVIewModel
 import com.example.lembretes.utils.dateFormatToString
 import com.google.gson.Gson
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun AddStickNoteScreen(
+    globalVIewModel: GlobalVIewModel = viewModel(),
     modifier: Modifier = Modifier,
     stickNoteJson: String?,
     onClosed: () -> Unit,
-    activity:  Activity
-) {
+    activity:  Activity,
+    onError: (String)-> Unit,
+    onInfo: (String)-> Unit
+    ) {
 
     val addUpdateViewModel = hiltViewModel<AddUpdateViewModel>()
+    val state by addUpdateViewModel.addScreenUi.collectAsStateWithLifecycle()
     var stickNote by remember {
         mutableStateOf<StickyNoteDomain?>(null)
     }
@@ -84,27 +86,44 @@ fun AddStickNoteScreen(
   if (stickNoteJson != null && stickNoteJson.isNotEmpty()){
       stickNote =  Gson().fromJson<StickyNoteDomain>(stickNoteJson, StickyNoteDomain::class.java)
   }
+     if (state.error !=null){
+         onError(state.error!!)
+         addUpdateViewModel.clearErroMessage()
+     }
 
     MyScreen(
-        onSave = {stickNote ->
-            if (stickNote.id!= null) {
-                addUpdateViewModel.updateStickNote(stickyNoteDomain = stickNote){
-                   onActionAfterCreate(context = context, stickNote = stickNote)
-                    onClosed()
-                }
-            }
-            else {
-                addUpdateViewModel.insertStickNote(stickyNoteDomain = stickNote){
-                   onActionAfterCreate  (context = context, stickNote = stickNote)
-                    onClosed()
-                }
-            }
-        },
         viewModel = addUpdateViewModel,
         activity=  activity,
         modifier = modifier,
         stickyNoteDomain = stickNote,
-        onClosed = onClosed,
+        onSave = {stickNote ->
+            globalVIewModel.showLoader()
+            if (stickNote.id != null) {
+                addUpdateViewModel.updateStickNote(stickyNoteDomain = stickNote){isSucceFull->
+                    globalVIewModel.hideLoader()
+                    if (!isSucceFull){
+                        return@updateStickNote
+                    }
+                    onActionAfterCreate(context = context, stickNote = stickNote)
+                    onInfo("Lembrete Atualizado")
+                    onClosed()
+                }
+                return@MyScreen
+            }
+
+                addUpdateViewModel.insertStickNote(stickyNoteDomain = stickNote){isSucceFull->
+                    globalVIewModel.hideLoader()
+                    if (!isSucceFull){
+                        return@insertStickNote
+                    }
+                    onActionAfterCreate  (context = context, stickNote = stickNote)
+
+                    onInfo("Lembrete Criado")
+                    onClosed()
+                }
+
+        }
+
     )
 }
 
@@ -113,11 +132,10 @@ fun AddStickNoteScreen(
 @Composable
 fun MyScreen(
     onSave: (StickyNoteDomain) -> Unit,
-    viewModel: AddUpdateViewModel = viewModel(),
+    viewModel: AddUpdateViewModel,
     activity: Activity,
     stickyNoteDomain: StickyNoteDomain?,
     modifier: Modifier = Modifier,
-    onClosed: () -> Unit,
 ) {
     val ui by viewModel.addScreenUi.collectAsStateWithLifecycle()
 
@@ -155,21 +173,9 @@ fun MyScreen(
         }
 
         var selectedDate: Long? by rememberSaveable {
-
             mutableStateOf(
                 stickyNoteDomain?.dateTime
             )
-        }
-        if (ui.isLoading){
-                Box(
-                    modifier
-                        .fillMaxSize()
-                        .background(color = Color.Gray.copy(alpha = 0.6f)),
-                     contentAlignment = Alignment.Center,
-                    content = {
-                        CircularProgressIndicator()
-                    }
-                )
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -186,11 +192,7 @@ fun MyScreen(
             var lembreteDescription by rememberSaveable {
                 mutableStateOf(stickyNoteDomain?.description ?: "")
             }
-           /* StickNoteAppBar(
-                onClosed = onClosed,
-                title = if (stickyNoteDomain?.id != null) stringResource(R.string.editar_lembrete)
-                else stringResource(R.string.adicionar_lembrete)
-            )*/
+
             Text( text =  if (stickyNoteDomain?.id != null) stringResource(R.string.editar_lembrete)
             else stringResource(R.string.adicionar_lembrete))
             Spacer(modifier = Modifier.height(10.dp))
@@ -206,14 +208,14 @@ fun MyScreen(
                 maxLines = 1,
                 value = lembreteName,
                 label = "Título",
-                isError = ui.erros.containsKey("title"),
+                isError = ui.validateFields.containsKey("title"),
                 onChange = { value ->
                     lembreteName = value
                 },
                 singleLine = true,
                 icon = {},
                 trailingIcon = {
-                    if (ui.erros.containsKey("title")) {
+                    if (ui.validateFields.containsKey("title")) {
                         Icon(
                             Icons.Outlined.Info, contentDescription = "Info icon",
                             tint = MaterialTheme.colorScheme.onError
@@ -221,22 +223,21 @@ fun MyScreen(
                     }
                 },
                 supportTexting = {
-                    Text(ui.erros["title"] ?: "")
+                    Text(ui.validateFields["title"] ?: "")
                 }
             )
-
 
             StickNoteTextField(
                 maxLines = 5,
                 value = lembreteDescription,
                 label = stringResource(R.string.descri_o),
-                isError = ui.erros.containsKey("description"),
+                isError = ui.validateFields.containsKey("description"),
                 onChange = { lembreteDescription = it },
                 singleLine = false,
                 icon = { },
                 trailingIcon = {},
                 supportTexting = {
-                    Text(ui.erros["description"] ?: "")
+                    Text(ui.validateFields["description"] ?: "")
                 }
             )
 
@@ -280,20 +281,14 @@ fun MyScreen(
             StickyNoteCalendar(
                 date = if ( stickyNoteDomain == null || stickyNoteDomain.dateTime == 0L) "Escolha uma data"
                 else  stickyNoteDomain.dateTime.dateFormatToString(),
-                isError = ui.erros.containsKey("date") to ui.erros["date"],
+                isError = ui.validateFields.containsKey("date") to ui.validateFields["date"],
                 onSelectedDate = {  dateLong->
-
                     dateLong?.let {
-                        stickyNoteDomain?.copy(dateTime = dateLong)
-                        if (stickyNoteDomain != null){
+                        stickyNoteDomain?.copy(dateTime = dateLong, name = lembreteName, description = lembreteDescription)
+                          //TODO rever data não esta atualizandon se vir erro
                             viewModel.validateFieldStickNote(
-                                stickyNoteDomain = stickyNoteDomain.copy(
-                                    dateTime = dateLong,
-                                    name = lembreteName,
-                                    description = lembreteDescription
-                                )
+                                dateTime = dateLong, description = lembreteDescription, name = lembreteName
                             )
-                        }
                         selectedDate = dateLong
                     }
                 }
@@ -306,18 +301,19 @@ fun MyScreen(
                     isRemember = isChecked
                 }
             )
+
             Row(
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(20.dp),
                 horizontalArrangement = Arrangement.End
             ) {
+
                 ElevatedButton(
                     colors = ButtonDefaults.elevatedButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                     ),
                     onClick = {
-
                         if(!isRemember){
                             createUpdateStickNote(
                                 stickyNoteDomain,
@@ -364,7 +360,6 @@ fun MyScreen(
                 }
             }
         }
-
 }
 
 private fun createUpdateStickNote(
@@ -403,9 +398,20 @@ fun onActionAfterCreate(stickNote : StickyNoteDomain,context : Context) {
 @Composable
 private fun MyScreenPreview() {
     LembretesTheme {
-        MyScreen(activity = Activity(), stickyNoteDomain = StickyNoteDomain(
-            id = 1, name = "teste", description = "desccicação", dateTime = 0,false, noticafitionId = 1,listOf<String>().toMutableList()
-        ) , onSave = {}, viewModel = viewModel(), onClosed = {})
+        MyScreen(
+            activity = Activity(), stickyNoteDomain = StickyNoteDomain(
+            id = 1,
+            name = "teste",
+            description = "desccicação",
+            dateTime = 0,
+            false,
+            noticafitionId = 1,
+            listOf<String>().toMutableList()
+        ), onSave = {},
+            viewModel = viewModel(),
+            modifier = TODO()
+        )
+
     }
 }
 

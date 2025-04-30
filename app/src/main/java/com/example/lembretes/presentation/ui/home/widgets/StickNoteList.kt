@@ -53,8 +53,8 @@ internal fun StateListStickNote(
             }
         }
 
-        uiState.erro != null -> {
-            Toast.makeText(context, uiState.erro, Toast.LENGTH_SHORT).show()
+        uiState.error != null -> {
+            Toast.makeText(context, uiState.error, Toast.LENGTH_SHORT).show()
         }
 
     }

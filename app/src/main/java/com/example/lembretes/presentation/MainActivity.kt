@@ -2,12 +2,15 @@ package com.example.lembretes.presentation
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -19,27 +22,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AddCircle
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.lembretes.core.notification.SnackBarEnumType
 import com.example.lembretes.core.notification.StickNoteSnackBar
 import com.example.lembretes.presentation.navigation.AddStickNoteNavigation
 import com.example.lembretes.presentation.navigation.HomeNavigation
@@ -51,11 +60,21 @@ import com.example.lembretes.presentation.ui.addsticknote.AddStickNoteScreen
 import com.example.lembretes.presentation.ui.home.HomeScreen
 import com.example.lembretes.presentation.ui.settings.SettingScreen
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
+import com.example.lembretes.presentation.viewmodel.GlobalState
+import com.example.lembretes.presentation.viewmodel.GlobalVIewModel
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 import com.example.lembretes.presentation.viewmodel.StickNoteViewmodel
 import com.example.lembretes.presentation.viewmodel.UserViewModel
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+
+//TODO bug ao ativar e dasativar alarme
+//TODO alterar cor dos titulos do perfil
+//TODO criar animação com rolagem em exibição no perfil
+//TODO verificar rolagem na tela de criação de lembretes
+//TODO criar metodo para permitir alteração de timezone em setting
+//TODO criar metodo para permitir alteração de tamanho da fonte em setting
 
 data class StickNoteNavItem(
     val index: String,
@@ -64,7 +83,6 @@ data class StickNoteNavItem(
     val enabled: Boolean,
     val selected: Boolean,
     val onClick: () -> Unit,
-
     )
 
 @AndroidEntryPoint
@@ -72,6 +90,7 @@ class MainActivity : ComponentActivity() {
 
     private val prefViewModel by viewModels<PreferencesViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
+    private val globalViewModel by viewModels<GlobalVIewModel>()
 
     val navMenuItems = listOf(
         StickNoteNavItem(
@@ -108,6 +127,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController( )
             val userPef by prefViewModel.userPreference.collectAsStateWithLifecycle()
+            val globalState by globalViewModel.globalState.collectAsStateWithLifecycle(GlobalState())
 
             LembretesTheme(
                 darkTheme = if (userPef.isDarkMode == 1) false else if (userPef.isDarkMode == 2) true else isSystemInDarkTheme()
@@ -115,18 +135,17 @@ class MainActivity : ComponentActivity() {
                 var selectedPage by remember {
                     mutableStateOf(HomeNavigation.route)
                 }
-                val snackBarHots = remember { SnackbarHostState() }
-               // val scope = rememberCoroutineScope()
+                var snackBarEnumType by remember { mutableStateOf(SnackBarEnumType.INFO) }
+                val snackBarHots by remember { mutableStateOf(SnackbarHostState())  }
+                val scope = rememberCoroutineScope()
                 val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
                 val route = currentBackStackEntryAsState?.destination?.route
-
                 val goToHomeRoute = route == HomeNavigation.route
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
-                        StickNoteSnackBar(
-                            snackBarHots,
-                        )
+                        StickNoteSnackBar( snackbarHostState  =snackBarHots,modifier = Modifier, snackBarEnumType = snackBarEnumType)
                     },
                     bottomBar = {
                         BottomNavigation(
@@ -148,16 +167,14 @@ class MainActivity : ComponentActivity() {
                                     enabled = item.enabled,
                                     alwaysShowLabel = true,
                                     onClick = {
-                                        navigatoToAndClearBackStack(navController,item.index)
+                                        navigatoToAndClearBackStack(navController, item.index)
                                         selectedPage = item.index
                                     },
                                     selected = item.index == selectedPage,
                                 )
                             }
                         }
-
                     }
-                    // color = MaterialTheme.colorScheme.background
                 ) { paddingValues ->
                     NavHost(
                         modifier = Modifier
@@ -175,6 +192,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             HomeScreen(
+                                globalVIewModel = globalViewModel,
                                 modifier = Modifier,
                                 stickNoteViewModel = stickNoteViewModel,
                                 userViewModel = userViewModel,
@@ -184,11 +202,28 @@ class MainActivity : ComponentActivity() {
                                     navController.navigateToAddStiCkNote(stickNoteJson)
                                 },
                                 onNavigateToAddStickNote = {
-                                    selectedPage = navigatoToAndClearBackStack(navController,
-                                        AddStickNoteNavigation.route)
+                                    selectedPage = navigatoToAndClearBackStack(
+                                        navController,
+                                        AddStickNoteNavigation.route
+                                    )
                                 },
-
-                                openSearch = { navController.navigate(SearchNavigation.route) }
+                                openSearch = { navController.navigate(SearchNavigation.route) },
+                                onErrorMessage = { error ->
+                                    scope.launch {
+                                        snackBarEnumType = SnackBarEnumType.ERROR
+                                        snackBarHots.showSnackbar(
+                                            message = error
+                                        )
+                                    }
+                                },
+                                onInfoMessage = {infoMessage->
+                                    scope.launch {
+                                        snackBarEnumType = SnackBarEnumType.INFO
+                                        snackBarHots.showSnackbar(
+                                            message = infoMessage
+                                        )
+                                    }
+                                }
                             )
                         }
                         composable(
@@ -197,23 +232,45 @@ class MainActivity : ComponentActivity() {
                         ) { backStackEntry ->
                             val stickNoteJson =
                                 backStackEntry.arguments?.getString(AddStickNoteNavigation.idStickNote)
-
                             AddStickNoteScreen(
+                               globalVIewModel = globalViewModel,
                                 stickNoteJson = stickNoteJson,
                                 modifier = Modifier,
                                 activity = this@MainActivity,
-                                onClosed = navController::popBackStack,
+                                onClosed = {
+                                    navigatoToAndClearBackStack(navController, HomeNavigation.route)
+                                },
+                                onInfo = {infoMessage->
+                                    scope.launch {
+                                        snackBarEnumType = SnackBarEnumType.INFO
+                                        snackBarHots.showSnackbar(
+                                            message = infoMessage
+                                        )
+                                    }
+                                },
+                                onError = { error->
+                                    scope.launch {
+                                        snackBarEnumType = SnackBarEnumType.ERROR
+                                        snackBarHots.showSnackbar(
+                                            message = error
+                                        )
+                                    }
+                                }
                             )
-                            BackHandler(enabled = goToHomeRoute.not()){selectedPage = navigatoToAndClearBackStack(navController, HomeNavigation.route) }
+                            BackHandler(enabled = goToHomeRoute.not()) {
+                                selectedPage =
+                                    navigatoToAndClearBackStack(navController, HomeNavigation.route)
+                            }
                         }
                         composable(route = SettingNavigation.route) {
                             SettingScreen(
+                                globalVIewModel = globalViewModel,
                                 preferencesViewModel = prefViewModel,
                                 modifier = Modifier,
-                                onClosed = { navController.popBackStack() }
                             )
-                            BackHandler(enabled = goToHomeRoute.not()){
-                                selectedPage = navigatoToAndClearBackStack(navController, HomeNavigation.route)
+                            BackHandler(enabled = goToHomeRoute.not()) {
+                                selectedPage =
+                                    navigatoToAndClearBackStack(navController, HomeNavigation.route)
                             }
                         }
                         composable(route = SearchNavigation.route) {
@@ -229,10 +286,19 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
-
                         }
-
                     }
+                }
+                if (globalState.isLoading){
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Gray.copy(alpha = 0.6f)),
+                        contentAlignment = Alignment.Center,
+                        content = {
+                            CircularProgressIndicator()
+                        }
+                    )
                 }
             }
 
@@ -248,9 +314,9 @@ class MainActivity : ComponentActivity() {
             }
             launchSingleTop = true
         }
-
         return route
     }
+
 }
 
 

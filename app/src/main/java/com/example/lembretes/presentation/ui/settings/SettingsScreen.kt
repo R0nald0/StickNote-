@@ -1,6 +1,5 @@
 package com.example.lembretes.presentation.ui.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -25,9 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,13 +38,14 @@ import com.example.lembretes.presentation.ui.settings.models.RadioButtonClass
 import com.example.lembretes.presentation.ui.settings.widgets.StickNoteItemMenu
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
+import com.example.lembretes.presentation.viewmodel.GlobalVIewModel
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
 
 @Composable
 fun SettingScreen(
+    globalVIewModel: GlobalVIewModel = viewModel(),
     preferencesViewModel : PreferencesViewModel = viewModel(),
     modifier: Modifier = Modifier,
-    onClosed: () -> Unit,
 ) {
 
         val userPrefe by preferencesViewModel.userPreference.collectAsStateWithLifecycle()
@@ -64,28 +61,19 @@ fun SettingScreen(
         var openDialog by remember {
             mutableStateOf(false)
         }
-        if (userPrefe.loading){
-            Box(
-                modifier
-                    .fillMaxSize()
-                    .background(color = Color.Gray)
-                    .alpha(0.7f),
-                 contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
+        if (userPrefe.loading)globalVIewModel.showLoader()
+        else globalVIewModel.hideLoader()
+
         if (openDialog) {
             StickNoteDialog(
-
-                onDissmisRequest ={openDialog = false}  ,
+                onDissmisRequest ={openDialog = false} ,
                 content = {
                     DialogDarkMode(
                         idSelected = userPrefe.isDarkMode ?:3,
                         onSelected = {
                             radioSelected -> mode = radioSelected.title
                             openDialog = false
-                            preferencesViewModel.updateDarkMode(radioSelected.id)
+                            preferencesViewModel.updateDarkMode(radioSelected.id,)
                         }
                     ) { }
                 }
@@ -247,7 +235,6 @@ private fun DialogDarkModePrev() {
 private fun SettingScreenPrev() {
     LembretesTheme {
         SettingScreen(
-            onClosed = {}
         )
     }
 }
