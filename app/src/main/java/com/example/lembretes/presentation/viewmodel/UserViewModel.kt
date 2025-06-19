@@ -3,7 +3,7 @@ package com.example.lembretes.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lembretes.core.Constants
-import com.example.lembretes.data.repository.PreferenceRepositorie
+import com.example.lembretes.data.repository.PreferenceRepository
 import com.example.lembretes.domain.model.User
 import com.example.lembretes.domain.model.toJson
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    private val preferencesRepository: PreferenceRepositorie
+    private val preferencesRepository: PreferenceRepository
 ) : ViewModel() {
     private val _user = MutableStateFlow(User())
     var user: StateFlow<User> = _user.asStateFlow()

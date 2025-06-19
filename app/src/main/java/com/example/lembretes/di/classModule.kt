@@ -11,7 +11,7 @@ import com.example.lembretes.core.Constants
 import com.example.lembretes.data.LembreteDatabase
 import com.example.lembretes.data.dao.LembreteDao
 import com.example.lembretes.data.dao.UserDao
-import com.example.lembretes.data.repository.PreferenceRepositorie
+import com.example.lembretes.data.repository.PreferenceRepository
 import com.example.lembretes.data.repository.StickNoteRepositoryImpl
 import com.example.lembretes.data.repository.UserStickNoteRepositoryImpl
 import com.example.lembretes.domain.repository.StickyNoteRepository
@@ -64,7 +64,7 @@ class classModule {
 
     @Singleton
     @Provides
-    fun providePreferenceRepositorie( dataStore: DataStore<Preferences>)  = PreferenceRepositorie(dataStore)
+    fun providePreferenceRepositorie( dataStore: DataStore<Preferences>)  = PreferenceRepository(dataStore)
 
     @Singleton
     @Provides

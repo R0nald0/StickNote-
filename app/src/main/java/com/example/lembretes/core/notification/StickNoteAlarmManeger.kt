@@ -21,7 +21,6 @@ object StickNoteAlarmManeger {
     fun criateAlarm(context: Context, stickyNoteDomain: StickyNoteDomain) {
         val intent = Intent(context, SticknoteAlarmReceiver::class.java).apply {
             val stickNoteString = Gson().toJson(stickyNoteDomain)
-
             putExtra("st",stickNoteString)
         }
         stickNotePendingIntent = PendingIntent.getBroadcast(
@@ -35,11 +34,9 @@ object StickNoteAlarmManeger {
 
         stickNoteAlarm.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-         //  System.currentTimeMillis() + 10000,
              stickyNoteDomain.dateTime,
             stickNotePendingIntent,
         )
-
         Toast.makeText(context, "Alarme definido!", Toast.LENGTH_SHORT).show()
     }
 

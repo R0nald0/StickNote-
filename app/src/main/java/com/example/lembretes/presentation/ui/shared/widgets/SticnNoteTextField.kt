@@ -25,15 +25,16 @@ fun StickNoteTextField(
     modifier: Modifier = Modifier,
     value: String,
     label: String,
+    readOnly: Boolean =false,
     enable: Boolean = true,
-    isError: Boolean,
+    isError: Boolean = false,
     onChange: (String) -> Unit,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     maxLines: Int = 1,
-    singleLine: Boolean,
-    icon: @Composable() (() -> Unit)?,
-    trailingIcon: @Composable() (() -> Unit)?,
-    supportTexting: @Composable() (() -> Unit)?,
+    singleLine: Boolean = false,
+    icon: @Composable() (() -> Unit)?= null,
+    trailingIcon: @Composable() (() -> Unit)? = null,
+    supportTexting: @Composable() (() -> Unit)? = null,
 ) {
     var erroText by remember {
         mutableStateOf(supportTexting)
@@ -47,6 +48,7 @@ fun StickNoteTextField(
         ),
         maxLines = maxLines,
         value = value,
+        readOnly = readOnly,
         enabled = enable,
         singleLine = singleLine,
         isError = if (value.isEmpty()) {

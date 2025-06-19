@@ -4,7 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lembretes.core.Constants
-import com.example.lembretes.data.repository.PreferenceRepositorie
+import com.example.lembretes.core.log.StickNoteLog
+import com.example.lembretes.data.repository.PreferenceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,29 +18,27 @@ import javax.inject.Inject
 
 
 data class UserPreference(
-    var isDarkMode :Int?=null,
+    val isDarkMode :Int?=null,
+    val timeZone : String?=null,
+    val sizeTitleStickNote : Int? =null ,
     val loading: Boolean = false,
-    val erroMessage : String? = null
+    val errorMessage : String? = null
 )
 
 @HiltViewModel
 class PreferencesViewModel @Inject constructor(
-    private val preferencesRepository: PreferenceRepositorie
+    private val preferencesRepository: PreferenceRepository
 ) :ViewModel(){
 
     private val _userPreference = MutableStateFlow(UserPreference())
     var userPreference : StateFlow<UserPreference> = _userPreference.asStateFlow()
 
-    init {
-        readAllPreferences()
-    }
+    init {}
 
     fun readUniquePreference(){
         viewModelScope.launch {
              preferencesRepository.readKey(Constants.ID_KEY_UI_MODE)
-                 .catch { error->
-
-                 }
+                 .catch { error-> }
                  .collect{ preference ->
                  _userPreference.update {
                      it.copy(
@@ -49,23 +48,30 @@ class PreferencesViewModel @Inject constructor(
         }
     }
     fun readAllPreferences(){
-        _userPreference.update {
-            it.copy(loading = true)
-        }
-
+        _userPreference.update { it.copy(loading = true) }
         viewModelScope.launch {
             preferencesRepository.readAllPreference()
-                .catch {error->
-                    Log.e("Error", "readAllPreferences: Erro",error )
+                .catch {
+                    error->
+                    StickNoteLog.error("Erro ao buscar Preferências",error)
                     _userPreference.update {
-                        it.copy(loading = false, erroMessage = "Não conseguimos buscar as preferências")
+                        it.copy(loading = false, errorMessage = "Não conseguimos buscar as preferências")
                     }
                 }
-                .collect{ preference->
-                 _userPreference.update {userPref->
-                     userPref.copy(isDarkMode = preference.isDarkMode,loading = false)
-                 }
-            }
+                .collect{
+                    preference->
+                    _userPreference.update {userPref->
+                        StickNoteLog.info("State atualizado $preference")
+                        userPref.copy(
+                            isDarkMode = preference.isDarkMode,
+                            loading =false,
+                            timeZone = preference.timeZone,
+                            sizeTitleStickNote = preference.sizeTitleStickNote
+                            )
+                    }
+                    delay(timeMillis = 1000L)
+                    userPreference
+                }
         }
     }
     fun updateDarkMode(isDarkMode :Int){
@@ -80,16 +86,64 @@ class PreferencesViewModel @Inject constructor(
                    _userPreference.update {
                        it.copy(loading = false)
                    }
-                   Log.i("INFO_", "updateDarkMode:  Mode ui atualizado com sucesso")
+                   StickNoteLog.info("updateDarkMode:  Mode ui atualizado com sucesso")
                },
-               onFailure = {erro->
+               onFailure = {
+                   error->
                    _userPreference.update {
-                       it.copy(loading = false, erroMessage = "Erro ao atualizar preferência")
+                       it.copy(loading = false, errorMessage = "Erro ao atualizar preferência")
                    }
-                   Log.e("erro","${erro.message} , ${erro.stackTrace} ",erro)
+                   StickNoteLog.error("Error ao atualizar Preferências",error)
                }
            )
         }
+    }
+    fun  updateSizeTitle(size : Int){
+        _userPreference.update {
+            it.copy(loading = true)
+        }
+        viewModelScope.launch {
+             runCatching {
+                 preferencesRepository.savePreference(size, Constants.SIZE_TITLE_STICKNOTE)
+             }.fold(
+                 onSuccess = { pref ->
+                     if (pref == null) return@launch
+                     _userPreference.update{it.copy(
+                         loading = false,
+                         sizeTitleStickNote = pref[Constants.SIZE_TITLE_STICKNOTE] ?: 17
+                     ) }
+                 },
+                 onFailure = {error->
+                     Log.e("ERROR", "update item: ${error.message} ",error )
+                     _userPreference.update {
+                         it.copy(loading = false, errorMessage = error.message )
+                     }
+                 }
+             )
+        }
+    }
+    fun updateZoneTime(zoneTime: String){
+        _userPreference.update {
+            it.copy(loading = true)
+        }
+       viewModelScope.launch {
+           runCatching {
+               preferencesRepository.savePreference(zoneTime, Constants.ZONE_TIME_KEY_PREFERENCES)
+           }.fold(
+               onSuccess = {
+                   _userPreference.update {
+                       it.copy(loading = false,)
+                   }
+                   StickNoteLog.info("updateDarkMode:  Time $zoneTime atualizado com sucesso")
+               },
+               onFailure = {error->
+                   Log.e("ERROR", "updateZoneTime: ${error.message} ",error )
+                   _userPreference.update {
+                       it.copy(loading = false, errorMessage = error.message )
+                   }
+               },
+           )
+       }
     }
 
 }

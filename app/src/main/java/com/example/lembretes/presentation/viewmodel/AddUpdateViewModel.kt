@@ -10,7 +10,6 @@ import com.example.lembretes.domain.usecase.sticknote.UpdateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.impl.InsertStickNoteUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

@@ -127,7 +127,6 @@ fun HomeScreen(
         )
     }
      if (uiState.error != null){
-         Log.i("_INFO", "HOME: ${uiState.error}")
          onErrorMessage(uiState.error!!)
          stickNoteViewModel.clearErroMessage()
      }
@@ -214,9 +213,8 @@ private fun checkCreateCancelNotification(
     context: Activity,
     stickNote: StickyNoteDomain,
 ) {
-    if (isRemember) {
-        StickNoteAlarmManeger.criateAlarm(context, stickNote)
-    } else {
+    if (isRemember) StickNoteAlarmManeger.criateAlarm(context, stickNote)
+     else {
         //TODO verificar dando erro de não registrado
         StickNoteAlarmManeger.cancelNotification(context, stickNote)
     }

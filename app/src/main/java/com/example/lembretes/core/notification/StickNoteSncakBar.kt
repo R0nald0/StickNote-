@@ -78,7 +78,7 @@ fun StickNoteSnackBarInfo(
 ) {
 
    Snackbar(
-       action =onAction,
+       action = onAction,
        containerColor = colorContainer
    ) {
        Text(message)

@@ -9,6 +9,8 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +41,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,7 +50,6 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-
 import com.example.lembretes.R
 import com.example.lembretes.core.notification.StickNoteAlarmManeger
 import com.example.lembretes.core.widgets.ShowAndCheckShouldRationale
@@ -58,7 +60,6 @@ import com.example.lembretes.presentation.ui.addsticknote.widgets.StickyNoteCale
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteTextField
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.AddUpdateViewModel
-import com.example.lembretes.presentation.viewmodel.GlobalState
 import com.example.lembretes.presentation.viewmodel.GlobalVIewModel
 import com.example.lembretes.utils.dateFormatToString
 import com.google.gson.Gson
@@ -138,6 +139,7 @@ fun MyScreen(
     modifier: Modifier = Modifier,
 ) {
     val ui by viewModel.addScreenUi.collectAsStateWithLifecycle()
+    val focus = LocalFocusManager.current
 
         var isRemember by rememberSaveable { mutableStateOf(false) }
         val tags = remember { mutableStateListOf<String>() }
@@ -182,7 +184,14 @@ fun MyScreen(
             modifier = Modifier
                 .verticalScroll(state = rememberScrollState())
                 .padding(16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ){
+                    focus.clearFocus()
+                },
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             var lembreteName by rememberSaveable { mutableStateOf(

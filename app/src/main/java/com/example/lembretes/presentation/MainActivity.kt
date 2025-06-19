@@ -2,7 +2,6 @@ package com.example.lembretes.presentation
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -26,7 +25,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,7 +40,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -69,9 +66,9 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+// alterar cor dos titulos do perfil 
 //TODO bug ao ativar e dasativar alarme
-//TODO alterar cor dos titulos do perfil
-//TODO criar animação com rolagem em exibição no perfil
+//criar animação com rolagem em exibição no perfil
 //TODO verificar rolagem na tela de criação de lembretes
 //TODO criar metodo para permitir alteração de timezone em setting
 //TODO criar metodo para permitir alteração de tamanho da fonte em setting
@@ -91,6 +88,7 @@ class MainActivity : ComponentActivity() {
     private val prefViewModel by viewModels<PreferencesViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
     private val globalViewModel by viewModels<GlobalVIewModel>()
+    private var isChargeData = true
 
     val navMenuItems = listOf(
         StickNoteNavItem(
@@ -121,7 +119,8 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition {
-            false
+            prefViewModel.readAllPreferences()
+            isChargeData
         }
         super.onCreate(savedInstanceState)
         setContent {
@@ -135,13 +134,14 @@ class MainActivity : ComponentActivity() {
                 var selectedPage by remember {
                     mutableStateOf(HomeNavigation.route)
                 }
+                isChargeData = !userPef.loading
                 var snackBarEnumType by remember { mutableStateOf(SnackBarEnumType.INFO) }
                 val snackBarHots by remember { mutableStateOf(SnackbarHostState())  }
                 val scope = rememberCoroutineScope()
                 val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
                 val route = currentBackStackEntryAsState?.destination?.route
                 val goToHomeRoute = route == HomeNavigation.route
-
+                
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
@@ -266,6 +266,7 @@ class MainActivity : ComponentActivity() {
                             SettingScreen(
                                 globalVIewModel = globalViewModel,
                                 preferencesViewModel = prefViewModel,
+                                userPreference = userPef,
                                 modifier = Modifier,
                             )
                             BackHandler(enabled = goToHomeRoute.not()) {

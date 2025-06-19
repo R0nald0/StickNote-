@@ -66,7 +66,7 @@ suspend fun findStickNoteToRemeber(context: Context) {
                 }
                 Log.i(
                     "INFO_",
-                    "findStickNoteToRemeber:Title ${stickNote.name} - remember: ${stickNote.isRemember}"
+                    "findStickNoteToRemember:Title ${stickNote.name} - remember: ${stickNote.isRemember}"
                 )
             }
         }
