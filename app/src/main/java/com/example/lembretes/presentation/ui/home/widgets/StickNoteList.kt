@@ -127,7 +127,6 @@ fun MySwippe(
             align = Arrangement.Start
             textTitle = "Atualizar"
             icon = R.drawable.baseline_mode_edit_24
-
             LaunchedEffect(dismissState.currentValue) {
                 dismissState.snapTo(SwipeToDismissBoxValue.Settled)
             }

@@ -34,18 +34,18 @@ class ValidateStickNoteUseCaseImplTest {
 
     @Test
     fun `When validateFieldsStickNote is Executed,shuold retuns erro map contain item with key title`(){
-         val stickyNoteDomain = stickyNotes[0].copy(name = "")
+         val stickyNoteDomain = stickyNotes[1].copy(name = "")
 
         val resul =  validateStickNoteUseCaseImpl.validateFieldsStickNote(stickyNoteDomain.name,stickyNoteDomain.description,stickyNoteDomain.dateTime)
         Truth.assertThat(resul).isNotEmpty()
         Truth.assertThat(resul.containsKey("title")).isTrue()
-        Truth.assertThat(resul.getValue("title")).isEqualTo("O campo titulo precisa ser preenchido")
+        Truth.assertThat(resul.getValue("title")).isEqualTo("O campo título precisa ser preenchido")
         Truth.assertThat(resul.size).isEqualTo(1)
 
     }
     @Test
-    fun `When validateFieldsStickNote is Executed,shuold retuns erro map contained item with key description`(){
-        val stickyNoteDomain = stickyNotes[0].copy(description = "")
+    fun `When validateFieldsStickNote is Executed,should retuns erro map contained item with key description`(){
+        val stickyNoteDomain = stickyNotes[1].copy(description = "")
 
         val resul =  validateStickNoteUseCaseImpl.validateFieldsStickNote(stickyNoteDomain.name,stickyNoteDomain.description,stickyNoteDomain.dateTime)
         Truth.assertThat(resul).isNotEmpty()
@@ -61,7 +61,7 @@ class ValidateStickNoteUseCaseImplTest {
         val resul =  validateStickNoteUseCaseImpl.validateFieldsStickNote(stickyNoteDomain.name,stickyNoteDomain.description,stickyNoteDomain.dateTime)
         Truth.assertThat(resul).isNotEmpty()
         Truth.assertThat(resul.containsKey("date")).isTrue()
-        Truth.assertThat(resul.getValue("date")).isEqualTo("Data Inválida")
+        Truth.assertThat(resul.getValue("date")).isEqualTo("Data inválida")
         Truth.assertThat(resul.size).isEqualTo(1)
     }
 }
@@ -76,7 +76,8 @@ private val stickyNotes = listOf(
         description = "Comprar leite, pão e ovos no mercado",
         dateTime = System.currentTimeMillis() - 3600000,
         isRemember = true,
-        tags = mutableListOf("Compras", "Mercado")
+        tags = mutableListOf("Compras", "Mercado"),
+        noticafitionId = 123
     ),
     StickyNote(
         id = 2,
@@ -84,7 +85,8 @@ private val stickyNotes = listOf(
         description = "Reunião semanal para discutir o progresso do projeto",
         dateTime = System.currentTimeMillis() + 3600000,
         isRemember = true,
-        tags = mutableListOf("Trabalho", "Reunião")
+        tags = mutableListOf("Trabalho", "Reunião"),
+        noticafitionId = 321
     ),
     StickyNote(
         id = 3,
@@ -92,6 +94,7 @@ private val stickyNotes = listOf(
         description = "Sessão de musculação e corrida",
         dateTime = System.currentTimeMillis() + 7200000,
         isRemember = false,
-        tags = mutableListOf("Saúde", "Exercício")
+        tags = mutableListOf("Saúde", "Exercício"),
+        noticafitionId = 32321
     )
 )

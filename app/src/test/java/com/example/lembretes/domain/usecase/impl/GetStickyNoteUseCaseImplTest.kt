@@ -83,22 +83,28 @@ class GetStickyNoteUseCaseImplTest {
             id = 1,
             name = "ler e caminhar",
             description = "caminhar duas horas e ler",
-            dateTime =  Date().convertDateStringToLong("20/05/2025")!!,
-            isRemember = false
+            dateTime = Date().convertDateStringToLong("20/05/2025")!!,
+            isRemember = false,
+            noticafitionId = 123,
+            tags = mutableListOf()
         ),
         StickyNoteDomain(
             id = 2,
             name = "ler e caminhar",
             description = "estudar kotlin",
-            dateTime =  Date().convertDateStringToLong("21/05/2025")!!,
-            isRemember = true
+            dateTime = Date().convertDateStringToLong("21/05/2025")!!,
+            isRemember = true,
+            noticafitionId =1235,
+            tags = mutableListOf()
         ),
         StickyNoteDomain(
             id = 3,
             name = "desenhar",
             description = "desenhar algo",
-            dateTime =  Date().convertDateStringToLong("20/05/2025")!!,
-            isRemember = false
+            dateTime = Date().convertDateStringToLong("20/05/2025")!!,
+            isRemember = false,
+            noticafitionId =12345,
+            tags = mutableListOf()
         )
     )
 }

@@ -56,6 +56,7 @@ import com.example.lembretes.presentation.ui.SearchScreen
 import com.example.lembretes.presentation.ui.addsticknote.AddStickNoteScreen
 import com.example.lembretes.presentation.ui.home.HomeScreen
 import com.example.lembretes.presentation.ui.settings.SettingScreen
+import com.example.lembretes.presentation.ui.theme.GlobalSizeFont
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.GlobalState
 import com.example.lembretes.presentation.viewmodel.GlobalVIewModel
@@ -69,9 +70,8 @@ import kotlinx.coroutines.launch
 // alterar cor dos titulos do perfil 
 //TODO bug ao ativar e dasativar alarme
 //criar animação com rolagem em exibição no perfil
+// criar metodo para permitir alteração de tamanho da fonte em setting
 //TODO verificar rolagem na tela de criação de lembretes
-//TODO criar metodo para permitir alteração de timezone em setting
-//TODO criar metodo para permitir alteração de tamanho da fonte em setting
 
 data class StickNoteNavItem(
     val index: String,
@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
     private val prefViewModel by viewModels<PreferencesViewModel>()
     private val userViewModel by viewModels<UserViewModel>()
     private val globalViewModel by viewModels<GlobalVIewModel>()
-    private var isChargeData = true
+
 
     val navMenuItems = listOf(
         StickNoteNavItem(
@@ -119,9 +119,14 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition {
-            prefViewModel.readAllPreferences()
-            isChargeData
+              val(_,sizeTitleStickNote,sizeDescriptionStickNote,loading) = prefViewModel.userPreference.value
+
+                GlobalSizeFont.titleSize = sizeTitleStickNote ?: 20
+                GlobalSizeFont.descriptionSize = sizeDescriptionStickNote ?: 14
+
+            loading
         }
+
         super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController( )
@@ -129,12 +134,12 @@ class MainActivity : ComponentActivity() {
             val globalState by globalViewModel.globalState.collectAsStateWithLifecycle(GlobalState())
 
             LembretesTheme(
-                darkTheme = if (userPef.isDarkMode == 1) false else if (userPef.isDarkMode == 2) true else isSystemInDarkTheme()
+                darkTheme =  if (userPef.isDarkMode == 1) false else if (userPef.isDarkMode == 2) true else isSystemInDarkTheme()
             ) {
                 var selectedPage by remember {
                     mutableStateOf(HomeNavigation.route)
                 }
-                isChargeData = !userPef.loading
+
                 var snackBarEnumType by remember { mutableStateOf(SnackBarEnumType.INFO) }
                 val snackBarHots by remember { mutableStateOf(SnackbarHostState())  }
                 val scope = rememberCoroutineScope()
@@ -147,6 +152,7 @@ class MainActivity : ComponentActivity() {
                     snackbarHost = {
                         StickNoteSnackBar( snackbarHostState  =snackBarHots,modifier = Modifier, snackBarEnumType = snackBarEnumType)
                     },
+
                     bottomBar = {
                         BottomNavigation(
                             modifier = Modifier.navigationBarsPadding(),
@@ -317,6 +323,7 @@ class MainActivity : ComponentActivity() {
         }
         return route
     }
+
 
 }
 

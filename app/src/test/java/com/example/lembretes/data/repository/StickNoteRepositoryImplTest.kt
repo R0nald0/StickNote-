@@ -77,7 +77,10 @@ class StickNoteRepositoryImplTest {
     @Test
     fun insert_must_add_stickNote_in_list() = runTest {
         val stick = StickyNoteDomain(
-            -1,"beber agua","beber agua a cafa 15 minutos",Date().time,false)
+            -1, "beber agua", "beber agua a cafa 15 minutos", Date().time, false,
+            noticafitionId = 123,
+            tags = mutableListOf()
+        )
 
         Mockito.`when`(lembreteDao.insertLembrete(stick.toLembrete())).thenReturn(1)
         val result = stickNoteRepositoryImpl.insert(stick)

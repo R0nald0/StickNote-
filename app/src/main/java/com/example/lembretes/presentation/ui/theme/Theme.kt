@@ -348,8 +348,6 @@ fun LembretesTheme(
 
     )
 
-
-
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,

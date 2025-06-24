@@ -7,7 +7,6 @@ import com.example.lembretes.core.Constants
 import com.example.lembretes.core.log.StickNoteLog
 import com.example.lembretes.data.repository.PreferenceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,8 +18,8 @@ import javax.inject.Inject
 
 data class UserPreference(
     val isDarkMode :Int?=null,
-    val timeZone : String?=null,
     val sizeTitleStickNote : Int? =null ,
+    val sizeDescriptionStickNote : Int? =null ,
     val loading: Boolean = false,
     val errorMessage : String? = null
 )
@@ -33,7 +32,9 @@ class PreferencesViewModel @Inject constructor(
     private val _userPreference = MutableStateFlow(UserPreference())
     var userPreference : StateFlow<UserPreference> = _userPreference.asStateFlow()
 
-    init {}
+    init {
+        readAllPreferences()
+    }
 
     fun readUniquePreference(){
         viewModelScope.launch {
@@ -65,12 +66,10 @@ class PreferencesViewModel @Inject constructor(
                         userPref.copy(
                             isDarkMode = preference.isDarkMode,
                             loading =false,
-                            timeZone = preference.timeZone,
-                            sizeTitleStickNote = preference.sizeTitleStickNote
+                            sizeTitleStickNote = preference.sizeTitleStickNote,
+                            sizeDescriptionStickNote = preference.sizeDescriptionStickNote
                             )
                     }
-                    delay(timeMillis = 1000L)
-                    userPreference
                 }
         }
     }
@@ -110,7 +109,7 @@ class PreferencesViewModel @Inject constructor(
                      if (pref == null) return@launch
                      _userPreference.update{it.copy(
                          loading = false,
-                         sizeTitleStickNote = pref[Constants.SIZE_TITLE_STICKNOTE] ?: 17
+                         sizeTitleStickNote = pref[Constants.SIZE_TITLE_STICKNOTE]!!
                      ) }
                  },
                  onFailure = {error->
@@ -122,28 +121,29 @@ class PreferencesViewModel @Inject constructor(
              )
         }
     }
-    fun updateZoneTime(zoneTime: String){
+    fun  updateDescription(size : Int){
         _userPreference.update {
             it.copy(loading = true)
         }
-       viewModelScope.launch {
-           runCatching {
-               preferencesRepository.savePreference(zoneTime, Constants.ZONE_TIME_KEY_PREFERENCES)
-           }.fold(
-               onSuccess = {
-                   _userPreference.update {
-                       it.copy(loading = false,)
-                   }
-                   StickNoteLog.info("updateDarkMode:  Time $zoneTime atualizado com sucesso")
-               },
-               onFailure = {error->
-                   Log.e("ERROR", "updateZoneTime: ${error.message} ",error )
-                   _userPreference.update {
-                       it.copy(loading = false, errorMessage = error.message )
-                   }
-               },
-           )
-       }
+        viewModelScope.launch {
+            runCatching {
+                preferencesRepository.savePreference(size, Constants.SIZE_DESCRIPTION_STICKNOTE)
+            }.fold(
+                onSuccess = { pref ->
+                    if (pref == null) return@launch
+                    _userPreference.update{it.copy(
+                        loading = false,
+                        sizeDescriptionStickNote = pref[Constants.SIZE_DESCRIPTION_STICKNOTE] ?: 11
+                    ) }
+                },
+                onFailure = {error->
+                    Log.e("ERROR", "update item: ${error.message} ",error )
+                    _userPreference.update {
+                        it.copy(loading = false, errorMessage = error.message )
+                    }
+                }
+            )
+        }
     }
 
 }

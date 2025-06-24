@@ -37,7 +37,11 @@ class InsertStickNoteUseCaseTest {
 
     @Test
     fun insert()= runTest {
-        val fakeStickNote = StickyNoteDomain(-1,"Estudar algo novo","algo novo á aprender", Date().time,false)
+        val fakeStickNote = StickyNoteDomain(
+            -1, "Estudar algo novo", "algo novo á aprender", Date().time, false,
+            noticafitionId = 123,
+            tags = mutableListOf()
+        )
         Mockito.`when`(repository.insert(fakeStickNote)).thenReturn(1)
 
         val result = stickNoteUseCase.insert(fakeStickNote)

@@ -68,6 +68,8 @@ fun HomeScreen(
     var showRationale by remember {
         mutableStateOf(false)
     }
+
+
     val lauche = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->

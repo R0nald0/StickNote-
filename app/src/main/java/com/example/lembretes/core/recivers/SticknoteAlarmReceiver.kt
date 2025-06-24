@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import com.example.lembretes.core.notification.showNotification
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
+import com.example.lembretes.utils.getDateFromLongOfCurrentSystemDate
 import com.google.gson.Gson
 import kotlinx.datetime.Clock
 
@@ -17,7 +17,7 @@ class SticknoteAlarmReceiver : BroadcastReceiver() {
         if (extra == null)return
 
         val stickNote = Gson().fromJson<StickyNoteDomain>(extra, StickyNoteDomain::class.java)
-        val dateTime = Clock.System.getDateFronLongOfCurrentSystemDate(stickNote.dateTime)
+        val dateTime = Clock.System.getDateFromLongOfCurrentSystemDate(stickNote.dateTime)
 
         Log.i("INFO_", "insert: $dateTime")
         context.showNotification(

@@ -20,4 +20,6 @@
     <string name="vers_o_1_0_0">Versão 1.0.0</string>
     <string name="lembrete_com_a_data_inv_lida">Data inválida para Ativar alarme</string>
     <string name="configura_es">Configurações</string>
+    <string name="tamanho_t_tulo_lembrete">Tamanho título lembrete</string>
+    <string name="tamanho_descri_o_lembrete">Tamanho descrição lembrete</string>
 </resources>

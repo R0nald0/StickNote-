@@ -11,7 +11,6 @@ import com.example.lembretes.core.log.StickNoteLog
 import com.example.lembretes.presentation.viewmodel.UserPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.TimeZone
 import javax.inject.Inject
 
 
@@ -35,8 +34,8 @@ class PreferenceRepository @Inject constructor(
               return  dataStore.data.map {pref ->
                   UserPreference(
                       isDarkMode = pref[Constants.ID_KEY_UI_MODE] ?: 3,
-                      timeZone = pref[Constants.ZONE_TIME_KEY_PREFERENCES] ?: TimeZone.currentSystemDefault().toString(),
-                      sizeTitleStickNote = pref[Constants.SIZE_TITLE_STICKNOTE] ?: 16
+                      sizeTitleStickNote = pref[Constants.SIZE_TITLE_STICKNOTE],
+                      sizeDescriptionStickNote = pref[Constants.SIZE_DESCRIPTION_STICKNOTE]
                   )
               }
 

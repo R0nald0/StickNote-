@@ -3,8 +3,8 @@ package com.example.lembretes.domain.usecase.sticknote.impl
 import com.example.lembretes.domain.model.StickyNoteDomain
 import com.example.lembretes.domain.repository.StickyNoteRepository
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
-import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
-import com.example.lembretes.utils.getDateFronTimeZoneOf
+import com.example.lembretes.utils.getDateCurrentSystemDefaultInLocalDateTime
+import com.example.lembretes.utils.getDateFromLongOfCurrentSystemDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -27,10 +27,10 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
 
     override suspend fun getStickNotesToday(): Flow<List<StickyNoteDomain>> {
 
-        val currenLocalDate = Clock.System.getDateFronTimeZoneOf("America/Sao_Paulo").date
+        val currenLocalDate = Clock.System.getDateCurrentSystemDefaultInLocalDateTime().date
         val currenDate = createLocalDateTime(currenLocalDate, LocalTime(0,0,0))
 
-        val localDate = Clock.System.getDateFronLongOfCurrentSystemDate(System.currentTimeMillis()).date
+        val localDate = Clock.System.getDateFromLongOfCurrentSystemDate(System.currentTimeMillis()).date
          val finalDate   = createLocalDateTime(localDate,LocalTime(23,59,59))
 
         val firsEPock =   currenDate.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
@@ -44,11 +44,11 @@ class GetStickyNoteUseCaseImpl @Inject constructor(
 
     override suspend fun getStickNotesTomorrow(): Flow<List<StickyNoteDomain>> {
 
-        val currenLocalDate = Clock.System.getDateFronTimeZoneOf("America/Sao_Paulo").date.plus(1,
+        val currenLocalDate = Clock.System.getDateCurrentSystemDefaultInLocalDateTime().date.plus(1,
             DateTimeUnit.DAY)
         val newCurrenDate = createLocalDateTime(currenLocalDate, LocalTime(0,0,0))
 
-        val localDate = Clock.System.getDateFronLongOfCurrentSystemDate(System.currentTimeMillis()).date.plus(1,
+        val localDate = Clock.System.getDateFromLongOfCurrentSystemDate(System.currentTimeMillis()).date.plus(1,
             DateTimeUnit.DAY)
         val finalDate   = createLocalDateTime(localDate,LocalTime(23,59,59))
 

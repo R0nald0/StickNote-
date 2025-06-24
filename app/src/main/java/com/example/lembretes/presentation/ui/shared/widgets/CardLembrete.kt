@@ -1,6 +1,5 @@
 package com.example.lembretes.presentation.ui.shared.widgets
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -27,12 +26,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.lembretes.core.Constants.STICK_NOTE_TIME_ZONE
+import androidx.compose.ui.unit.sp
 import com.example.lembretes.domain.model.StickyNoteDomain
+import com.example.lembretes.presentation.ui.theme.GlobalSizeFont
 import com.example.lembretes.utils.dateFormatToString
-import com.example.lembretes.utils.getDateFronLongOfCurrentSystemDate
+import com.example.lembretes.utils.getDateCurrentSystemDefaultInLocalDateTime
+import com.example.lembretes.utils.getDateFromLongOfCurrentSystemDate
 import kotlinx.datetime.Clock
-import kotlinx.datetime.toLocalDateTime
 import java.util.Locale
 
 @Composable
@@ -41,14 +41,10 @@ fun StickNoteCardView(
     onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
     modifier: Modifier
 ) {
+
     val dateIsNotOnPass by remember {
-
-        val actualDate = Clock.System.now().toLocalDateTime(STICK_NOTE_TIME_ZONE)
-        val dateChosedByUser = Clock.System.getDateFronLongOfCurrentSystemDate(stickyNoteDomain.dateTime)
-
-        Log.i("INFO_", "actualDate: $actualDate")
-        Log.i("INFO_", "dateChosedByUser: $dateChosedByUser")
-
+        val actualDate = Clock.System.getDateCurrentSystemDefaultInLocalDateTime()
+        val dateChosedByUser = Clock.System.getDateFromLongOfCurrentSystemDate(stickyNoteDomain.dateTime)
         mutableStateOf(
             actualDate < dateChosedByUser
         )
@@ -65,7 +61,6 @@ fun StickNoteCardView(
         ),
         modifier = modifier.padding(4.dp)
     ) {
-
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
@@ -79,7 +74,11 @@ fun StickNoteCardView(
                         Locale.getDefault()
                     ) else it.toString()
                 },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+
                 style = MaterialTheme.typography.titleLarge.copy(
+                    fontSize = GlobalSizeFont.titleSize.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                     fontWeight = FontWeight.Bold
                 ),
@@ -120,12 +119,12 @@ fun StickNoteCardView(
             },
             overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.bodyMedium.copy(
-                fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+                fontSize = GlobalSizeFont.descriptionSize.sp,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             ),
             maxLines = 2,
             modifier = Modifier
-                .padding(start = 12.dp, bottom = 8.dp)
+                .padding(start = 15.dp, bottom = 8.dp)
         )
         Row(
             horizontalArrangement = Arrangement.spacedBy(5.dp),

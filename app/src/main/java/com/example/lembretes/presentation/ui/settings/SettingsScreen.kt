@@ -1,26 +1,19 @@
 package com.example.lembretes.presentation.ui.settings
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -45,6 +38,7 @@ import com.example.lembretes.presentation.ui.settings.models.ItemMenu
 import com.example.lembretes.presentation.ui.settings.models.RadioButtonClass
 import com.example.lembretes.presentation.ui.settings.widgets.StickNoteItemMenu
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
+import com.example.lembretes.presentation.ui.theme.GlobalSizeFont
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
 import com.example.lembretes.presentation.viewmodel.GlobalVIewModel
 import com.example.lembretes.presentation.viewmodel.PreferencesViewModel
@@ -57,7 +51,6 @@ fun SettingScreen(
     userPreference: UserPreference,
     modifier: Modifier = Modifier,
 ) {
-    var zoneTime by remember { mutableStateOf(userPreference.timeZone) }
     var mode by remember {
         when (userPreference.isDarkMode) {
             1 -> mutableStateOf("Light")
@@ -67,10 +60,18 @@ fun SettingScreen(
     }
     var sizeTitle by remember {
         when (userPreference.sizeTitleStickNote) {
+            18 -> mutableStateOf("Pequeno")
+            20 -> mutableStateOf("Médio")
+            23 -> mutableStateOf("Grande")
+            else -> mutableStateOf("Médio")
+        }
+    }
+    var sizeDesctiption by remember {
+        when (userPreference.sizeDescriptionStickNote) {
             14 -> mutableStateOf("Pequeno")
-            17 -> mutableStateOf("Mêdio")
+            17 -> mutableStateOf("Médio")
             20 -> mutableStateOf("Grande")
-            else -> mutableStateOf("Mêdio")
+            else -> mutableStateOf("Pequeno")
         }
     }
 
@@ -78,10 +79,10 @@ fun SettingScreen(
     var openDialogThemeApp by remember {
         mutableStateOf(false)
     }
-    var openDialogTimeZone by remember {
+    var openDialogTextSize by remember {
         mutableStateOf(false)
     }
-    var openDialogTextSize by remember {
+    var openDialogTextDescriptionSize by remember {
         mutableStateOf(false)
     }
 
@@ -90,7 +91,7 @@ fun SettingScreen(
 
     if (userPreference.errorMessage != null) {
         StickNoteSnackBarInfo(
-            message = userPreference.errorMessage ?: "Erro ao salvar preferência",
+            message = userPreference.errorMessage,
             onAction = {}
         )
     }
@@ -99,6 +100,7 @@ fun SettingScreen(
         StickNoteDialog(
             onDissmisRequest = { openDialogThemeApp = false },
             content = {
+
                 DialogDarkMode(
                     idSelected = userPreference.isDarkMode ?: 3,
                     onSelected = { radioSelected ->
@@ -111,34 +113,72 @@ fun SettingScreen(
         )
     }
 
-    if (openDialogTimeZone) {
-        StickNoteDialog(
-            onDissmisRequest = { openDialogTimeZone = false },
-            content = {
-                TimeZoneContent(
-                    onDissmiss = { openDialogTimeZone = false },
-                    value = zoneTime.toString(),
-                    onSelected = { timezone ->
-                        openDialogTimeZone = false
-                        preferencesViewModel.updateZoneTime(timezone)
-                        zoneTime = timezone
-                        StickNoteLog.info("SettingScreen:$timezone ")
-                    }
-                )
-            }
-        )
-    }
     if (openDialogTextSize) {
         StickNoteDialog(
             onDissmisRequest = { openDialogTextSize = false },
             content = {
                 TextSizeTitleContent (
+                    radiosOptions = listOf(
+                        RadioButtonClass(
+                            id = 18,
+                            isSelected = false,
+                            title = "Pequeno"
+                        ),
+                        RadioButtonClass(
+                            id = 20,
+                            isSelected = false,
+                            title = "Médio"
+                        ),
+                        RadioButtonClass(
+                            id = 23,
+                            isSelected = false,
+                            title = "Grande"
+                        )
+                    ),
+                    titulo = "Título Lembrete",
                     onDissmiss = { openDialogTextSize = false },
-                    idSelected = userPreference.sizeTitleStickNote ?: 2,
+                    idSelected = userPreference.sizeTitleStickNote ?: 20,
                     onSelected = {itemSelected ->
                         val (id,_,title) = itemSelected
                         sizeTitle =  title
+                        GlobalSizeFont.titleSize = id
                         preferencesViewModel.updateSizeTitle(id)
+                    }
+                )
+            }
+        )
+    }
+    if (openDialogTextDescriptionSize) {
+        StickNoteDialog(
+            onDissmisRequest = { openDialogTextDescriptionSize = false },
+            content = {
+                StickNoteLog.info("SIZE TITLE ${userPreference.sizeDescriptionStickNote}")
+                TextSizeTitleContent (
+                     radiosOptions = listOf(
+                         RadioButtonClass(
+                             id = 14,
+                             isSelected = true,
+                             title = "Pequeno"
+                         ),
+                         RadioButtonClass(
+                             id = 17,
+                             isSelected = false,
+                             title = "Médio"
+                         ),
+                         RadioButtonClass(
+                             id = 20,
+                             isSelected = false,
+                             title = "Grande"
+                         )
+                     ),
+                    titulo = "Descrição do lembrete",
+                    onDissmiss = { openDialogTextDescriptionSize = false },
+                    idSelected = userPreference.sizeDescriptionStickNote ?: 14,
+                    onSelected = {itemSelected ->
+                        val (id,_,title) = itemSelected
+                        sizeDesctiption =  title
+                        GlobalSizeFont.descriptionSize = id
+                        preferencesViewModel.updateDescription(id)
                     }
                 )
             }
@@ -154,28 +194,24 @@ fun SettingScreen(
                 action = { openDialogThemeApp = !openDialogThemeApp }
             ),
             ItemMenu(
-                title = "Zona",
-                textOptionSelected = zoneTime
-                    .toString(),
-                action = { openDialogTimeZone = !openDialogTimeZone }
-            ),
-            ItemMenu(
-                title = "Tamanho titulo lembrete",
+                title = stringResource(R.string.tamanho_t_tulo_lembrete),
                 textOptionSelected = sizeTitle,
                 action = {openDialogTextSize = !openDialogTextSize}
+            ),
+            ItemMenu(
+                title = stringResource(R.string.tamanho_descri_o_lembrete),
+                textOptionSelected = sizeDesctiption,
+                action = {openDialogTextDescriptionSize = !openDialogTextDescriptionSize}
             )
         )
-
-
     Box(
-        modifier = Modifier.padding(16.dp),
+        modifier = modifier.padding(16.dp),
         contentAlignment = Alignment.BottomCenter
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-
             Text(text = stringResource(R.string.configura_es))
             Spacer(Modifier.height(15.dp))
 
@@ -199,6 +235,7 @@ fun SettingScreen(
 
 @Composable
 fun DialogDarkMode(
+
     idSelected: Int,
     onSelected: (RadioButtonClass) -> Unit,
     onDissmiss: () -> Unit
@@ -275,96 +312,10 @@ fun DialogDarkMode(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TimeZoneContent(
-    modifier: Modifier = Modifier,
-    value: String,
-    onSelected: (String) -> Unit,
-    onDissmiss: () -> Unit
-) {
-    val timeZones = mapOf(
-        "America/Sao_Paulo" to "America/Sao_Paulo GMT-03:00",
-        "America/Manaus" to "America/Manaus GMT-04:00",
-        "America/Rio_Branco" to "America/Rio_Branco GMT-05:00",
-        "America/Noronha" to "America/NoronhaGMT-02:00",
-    )
-    var selectedItem by remember { mutableStateOf<String>(value) }
-
-    Column(
-        modifier
-            .fillMaxHeight(.5f)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            modifier = Modifier.weight(1f),
-            text = "Escolha a Zona de tempo no App "
-        )
-        LazyColumn(
-            modifier = Modifier.weight(7f)
-        ) {
-            items(timeZones.toList(), key = { it.first }) { item ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            selectedItem = item.first
-                        },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            unselectedColor = MaterialTheme.colorScheme.primary
-                        ),
-                        selected = selectedItem == item.first,
-                        onClick = {
-                            selectedItem = item.first
-                        })
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = item.second,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-                HorizontalDivider()
-            }
-        }
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(2f),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(
-                onClick = onDissmiss
-            ) {
-                Text(
-                    text = "Cancelar",
-                    color = MaterialTheme.colorScheme.error,
-                )
-
-            }
-            TextButton(onClick = {
-                if (selectedItem.isNotBlank()) {
-                    onSelected(selectedItem)
-                    onDissmiss()
-                }
-            }) {
-                Text(
-                    text = "Salvar",
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-            }
-        }
-
-    }
-}
-
 @Composable
 fun TextSizeTitleContent(
+    radiosOptions : List<RadioButtonClass>,
+    titulo : String,
     modifier: Modifier = Modifier,
     idSelected: Int,
     onSelected: (RadioButtonClass) -> Unit,
@@ -374,23 +325,7 @@ fun TextSizeTitleContent(
         mutableIntStateOf(idSelected)
     }
     val radioGroup = remember {
-        mutableStateListOf(
-            RadioButtonClass(
-                id = 14,
-                isSelected = false,
-                title = "Pequeno"
-            ),
-            RadioButtonClass(
-                id = 17,
-                isSelected = false,
-                title = "Mêdio"
-            ),
-            RadioButtonClass(
-                id = 20,
-                isSelected = false,
-                title = "Grande"
-            )
-        )
+        radiosOptions
     }
     Column(
         modifier = modifier
@@ -399,7 +334,7 @@ fun TextSizeTitleContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = "Título Lembrete",
+            text = titulo,
             style = MaterialTheme.typography.titleMedium.copy(
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                 fontWeight = FontWeight.SemiBold
@@ -420,6 +355,7 @@ fun TextSizeTitleContent(
 
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                StickNoteLog.info("selected :$selectedOption")
                 RadioButton(
                     colors = RadioButtonDefaults.colors(
                         selectedColor = MaterialTheme.colorScheme.onPrimaryContainer,

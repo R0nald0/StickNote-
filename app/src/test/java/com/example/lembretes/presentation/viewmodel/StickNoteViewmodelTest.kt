@@ -41,6 +41,8 @@ class StickNoteViewmodelTest {
     lateinit var insertStickNoteUseCase: InsertStickNoteUseCase
     @Mock
     lateinit var  findUserUseCase: FindUser
+    @Mock
+    lateinit var validateUseCase : ValidateStickNoteUseCase
 
 
     private lateinit var stickNoteViewmodel: StickNoteViewmodel
@@ -51,8 +53,8 @@ class StickNoteViewmodelTest {
             getStickyNoteUseCaseImpl = getStickyNoteUseCaseImpl,
             deleteStickNoteUseCase = deleteStickyNoteUseCaseImpl,
             updateStickNoteUseCase = updateStickyNoteUseCaseImpl,
-            findUser = findUserUseCase
-            )
+            validateStickNoteUseCase = validateUseCase
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -120,21 +122,27 @@ fun buildListLStickNotes()= listOf(
         name = "ler e caminhar",
         description = "caminhar duas horas e ler",
         dateTime = Date().time,
-        isRemember = false
+        isRemember = false,
+        noticafitionId = 12234,
+        tags = mutableListOf()
     ),
     StickyNoteDomain(
         id = 2,
         name = "ler e caminhar",
         description = "estudar kotlin",
         dateTime = Date().time,
-        isRemember = true
+        isRemember = true,
+        noticafitionId = 1234,
+        tags = mutableListOf()
     ),
     StickyNoteDomain(
         id = 3,
         name = "desenhar",
         description = "desenhar algo",
         dateTime = Date().time,
-        isRemember = false
+        isRemember = false,
+        noticafitionId = 123,
+        tags = mutableListOf()
     )
 )
 

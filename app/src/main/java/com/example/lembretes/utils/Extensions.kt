@@ -75,7 +75,7 @@ fun Date.dateTimeTomorowLong(dayAfter:Int):Long{
 
 fun Long.dateFormatToString(): String{
      return  Instant.fromEpochMilliseconds(this)
-            .toLocalDateTime(TimeZone.of("America/Sao_Paulo"))
+            .toLocalDateTime(TimeZone.currentSystemDefault() /*TimeZone.of("America/Sao_Paulo")*/)
             .format(LocalDateTime.Format {
                 byUnicodePattern("dd/MM/yyyy 'às' HH:mm")
             })
@@ -84,16 +84,18 @@ fun Clock.getDateFronTimeZoneOf(timeZoneOf: String): LocalDateTime{
     return Clock.System.now().toLocalDateTime(TimeZone.of(timeZoneOf))
 }
 
-fun Clock.getDateNowInLocalDateTime(): LocalDateTime {
+fun Clock.getDateCurrentSystemDefaultInLocalDateTime(): LocalDateTime {
     return Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 }
-fun Clock.getDateInLocalDateFronTimeUTC(myDate : Long): LocalDateTime {
+fun Clock.getDateFromLongOfCurrentSystemDate(date: Long): LocalDateTime{
+    return Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
+}
+
+fun Clock.getDateInLocalDateFromTimeUTC(myDate : Long): LocalDateTime {
     return Instant.fromEpochMilliseconds(myDate).toLocalDateTime(TimeZone.UTC)
 }
 
-fun Clock.getDateFronLongOfCurrentSystemDate(date: Long): LocalDateTime{
-    return Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
-}
+
 
 
 fun Date.convertDateLongToString(dataLong: Long):String?{

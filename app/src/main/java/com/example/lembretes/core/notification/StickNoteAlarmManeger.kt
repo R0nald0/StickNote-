@@ -14,7 +14,7 @@ import com.google.gson.Gson
 
 object StickNoteAlarmManeger {
 
-    private lateinit var stickNoteAlarm: AlarmManager
+    private var stickNoteAlarm: AlarmManager? =null
     private lateinit var stickNotePendingIntent: PendingIntent
 
     @SuppressLint("ScheduleExactAlarm")
@@ -32,7 +32,7 @@ object StickNoteAlarmManeger {
         stickNoteAlarm =
             ContextCompat.getSystemService(context, AlarmManager::class.java) as AlarmManager
 
-        stickNoteAlarm.setExactAndAllowWhileIdle(
+        stickNoteAlarm?.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
              stickyNoteDomain.dateTime,
             stickNotePendingIntent,
@@ -41,7 +41,11 @@ object StickNoteAlarmManeger {
     }
 
     fun cancelNotification(context: Context, stickNote: StickyNoteDomain) {
-        stickNoteAlarm.cancel(stickNotePendingIntent)
+        if (stickNoteAlarm == null) {
+            Toast.makeText(context, "Alarm não inicializado", Toast.LENGTH_SHORT).show()
+            return
+        }
+        stickNoteAlarm?.cancel(stickNotePendingIntent)
         stickNotePendingIntent.cancel()
         context.cancelNotification(stickNote.noticafitionId.toInt()
         )
