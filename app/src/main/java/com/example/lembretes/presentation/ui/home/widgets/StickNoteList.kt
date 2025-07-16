@@ -35,7 +35,7 @@ internal fun StateListStickNote(
     onUpdate: (StickyNoteDomain) -> Unit,
     context: Context,
     onDelete: (StickyNoteDomain) -> Unit,
-    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit
+    onUpdateStateNotificaion: (StickyNoteDomain?, Boolean) -> Unit
 ) {
     when {
         uiState.listData != null -> {
@@ -67,7 +67,7 @@ fun StickNoteStateLazyList(
     stickNotes: List<StickyNoteDomain>,
     onNavigateToAddStickNote: (StickyNoteDomain) -> Unit,
     onDelete: (StickyNoteDomain) -> Unit,
-    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
+    onUpdateStateNotificaion: (StickyNoteDomain?, Boolean) -> Unit,
 ) {
 
     LazyColumn(
@@ -92,7 +92,9 @@ fun StickNoteStateLazyList(
 
             MySwippe(
                 modifier = modifier,
-                onUpdateStateNotificaion = onUpdateStateNotificaion,
+                  {isUpadete ->
+                     onUpdateStateNotificaion(stickNote,isUpadete)
+                },
                 stickNote = stickNote,
                 context = context,
                 dismissState = switToDismessState
@@ -105,7 +107,7 @@ fun StickNoteStateLazyList(
 @Composable
 fun MySwippe(
     modifier: Modifier = Modifier,
-    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
+    onUpdateStateNotificaion: (Boolean) -> Unit,
     dismissState: SwipeToDismissBoxState,
     stickNote: StickyNoteDomain,
     context: Context,
@@ -147,7 +149,7 @@ fun MySwippe(
         }) {
         StickNoteCardView(
             stickyNoteDomain = stickNote,
-            onUpdateStateNotificaion = onUpdateStateNotificaion,
+            onUpdateStateNotification = onUpdateStateNotificaion,
             modifier = modifier,
         )
     }

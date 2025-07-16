@@ -43,8 +43,8 @@ fun StickNoteCheckBox(
                 checkmarkColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 uncheckedColor = MaterialTheme.colorScheme.onPrimaryContainer
             ),
-            onCheckedChange = { isChecek ->
-                isRemember = isChecek
+            onCheckedChange = { isCheck ->
+                isRemember = isCheck
                 isChecked(isRemember)
             })
         Text(text = "Relembrar?",

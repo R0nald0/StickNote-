@@ -6,7 +6,8 @@ import android.content.Intent
 import android.content.res.Resources.NotFoundException
 import android.util.Log
 import android.widget.Toast
-import com.example.lembretes.core.notification.StickNoteAlarmManeger
+import com.example.lembretes.core.log.StickNoteLog
+import com.example.lembretes.core.notification.StickNoteAlarmManager
 import com.example.lembretes.domain.usecase.sticknote.GetStickyNoteUseCase
 import com.example.lembretes.domain.usecase.sticknote.ValidateStickNoteUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -43,7 +44,6 @@ class StickNoteBootReceiver : BroadcastReceiver() {
     }
 
 suspend fun findStickNoteToRemeber(context: Context) {
-
         val allNotes = getStickyNoteUseCaseImpl.getStickyNotes().map {
             it.filter { stickNote ->
                 stickNote.isRemember
@@ -51,25 +51,17 @@ suspend fun findStickNoteToRemeber(context: Context) {
         }
         allNotes
             .catch {e->
-                Log.e(
-                    "INFO_",
-                    "StickNoteBootReceiver Erro : ${e.message}"
-                )
+                StickNoteLog.error("StickNoteBootReceiver Erro : ${e.message}" ,e)
                 throw NotFoundException("Erro ao buscar dados")
             }
             .collect {
             it.forEach { stickNote ->
-                val isValidDate =
-                    validateStickNoteUseCase.validateUpdateNotifcation(stickNote.dateTime)
+                val isValidDate = validateStickNoteUseCase.validateUpdateNotifcation(stickNote.dateTime)
                 if (isValidDate) {
-                    StickNoteAlarmManeger.criateAlarm(context, stickyNoteDomain = stickNote)
+                    StickNoteAlarmManager.criateAlarm(context, stickyNoteDomain = stickNote)
                 }
-                Log.i(
-                    "INFO_",
-                    "findStickNoteToRemember:Title ${stickNote.name} - remember: ${stickNote.isRemember}"
-                )
+                StickNoteLog.info(message = "findStickNoteToRemember:Title ${stickNote.name} - remember: ${stickNote.isRemember}")
             }
         }
-
     }
 }

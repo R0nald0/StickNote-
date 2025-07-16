@@ -1,7 +1,8 @@
 package com.example.lembretes.core.widgets
 
+import android.Manifest
 import android.app.Activity
-import android.content.pm.PackageManager
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,27 +30,48 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.lembretes.R
+import com.example.lembretes.core.log.StickNoteLog
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteDialog
+
 
 @Composable
 fun ShowAndCheckShouldRationale(
     modifier: Modifier = Modifier,
-    activity :Activity,
-    permission :String,
-    messagem :String,
-    onCancel:()->Unit,
-    onAccept:()->Unit
+    activity: Activity,
+    permission: String,
+    onCancel :()-> Unit,
+    onAccept: () -> Unit
 ) {
 
-    var isRationale = remember {
-        ContextCompat.checkSelfPermission(activity.applicationContext,permission) != PackageManager.PERMISSION_GRANTED
-                && !activity.shouldShowRequestPermissionRationale(permission)
+    var showRationale by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+    var permi by remember { mutableStateOf(permission) }
+
+
+
+    when (permi) {
+        Manifest.permission.SCHEDULE_EXACT_ALARM -> {
+            message =
+                "Para garantir que você receba lembretes importantes,este aplicativo precisa da permissão de Alarme,Isso nos permite exibir\n" +
+                        "alertas sobre suas tarefas e compromissos no momento certo.Conceda a\n" +
+                        "permissão para manter seus lembretes sempre à vista!"
+            showRationale = true
+        }
+
+        Manifest.permission.POST_NOTIFICATIONS -> {
+            if (activity.shouldShowRequestPermissionRationale(permission)) {
+                message = ContextCompat.getString(activity, R.string.permission_explication)
+                showRationale = true
+            }
+        }
+
     }
 
-    if (isRationale){
+
+    if (showRationale) {
         StickNoteDialog(
             modifier = modifier,
-            onDissmisRequest ={},
+            onDissmisRequest = {},
             content = {
                 Surface(
                     modifier = modifier
@@ -62,13 +87,14 @@ fun ShowAndCheckShouldRationale(
                             .clip(shape = RoundedCornerShape(30.dp)),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Top
-
                     ) {
-                        Text("Permissão Necessaria",
+                        Text(
+                            "Permissão Necessaria",
                             style = MaterialTheme.typography.titleMedium
-                            )
+                        )
                         Spacer(modifier.height(16.dp))
-                        Text(messagem,
+                        Text(
+                            message,
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Spacer(modifier.height(16.dp))
@@ -77,25 +103,36 @@ fun ShowAndCheckShouldRationale(
                             horizontalArrangement = Arrangement.End,
                         ) {
                             TextButton(
-                                onClick = onCancel,
+                                onClick = {
+                                    StickNoteLog.info("SHOW $showRationale")
+                                    showRationale = false
+                                    onCancel()
+                                    StickNoteLog.info("SHOW $showRationale")
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     contentColor = Color.Red,
                                     containerColor = Color.Transparent
                                 ),
                             ) {
-                                Text(stringResource(R.string.negar),
-                                    style =MaterialTheme.typography.labelMedium
-                                    )
+                                Text(
+                                    stringResource(R.string.negar),
+                                    style = MaterialTheme.typography.labelMedium
+                                )
                             }
                             TextButton(
-                                onClick = onAccept,
+                                onClick = {
+                                    showRationale = false
+
+                                    onAccept()
+                                },
                                 colors = ButtonDefaults.buttonColors(
                                     contentColor = MaterialTheme.colorScheme.primary,
                                     containerColor = Color.Transparent
                                 ),
                             ) {
-                                Text(stringResource(R.string.ok),
-                                    style =MaterialTheme.typography.labelLarge
+                                Text(
+                                    stringResource(R.string.ok),
+                                    style = MaterialTheme.typography.labelLarge
                                 )
                             }
                         }

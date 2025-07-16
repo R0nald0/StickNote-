@@ -2,6 +2,7 @@ package com.example.lembretes.presentation
 
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -89,7 +90,6 @@ class MainActivity : ComponentActivity() {
     private val userViewModel by viewModels<UserViewModel>()
     private val globalViewModel by viewModels<GlobalVIewModel>()
 
-
     val navMenuItems = listOf(
         StickNoteNavItem(
             index = HomeNavigation.route,
@@ -118,12 +118,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val splashScreen = installSplashScreen()
+
         splashScreen.setKeepOnScreenCondition {
               val(_,sizeTitleStickNote,sizeDescriptionStickNote,loading) = prefViewModel.userPreference.value
-
                 GlobalSizeFont.titleSize = sizeTitleStickNote ?: 20
                 GlobalSizeFont.descriptionSize = sizeDescriptionStickNote ?: 14
-
             loading
         }
 
@@ -286,10 +285,13 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier,
                                 onClose = { navController.popBackStack() },
                                 context = this@MainActivity,
-                                onUpadteNotification = { stickNote ->
+                                onUpadteNotification = {stickNote ,isRemember ->
                                     if (stickNote?.id == null) return@SearchScreen
-                                    stickNoteViewModel.updateNotificatioStickNote(stickNote) {
 
+                                    stickNoteViewModel.updateNotificatioStickNote(
+                                        stickNote.copy(isRemember = isRemember)) {errorMessage ->
+                                           if (errorMessage == null) return@updateNotificatioStickNote
+                                         Toast.makeText(this@MainActivity, "Notificação de lembrete alterado", Toast.LENGTH_SHORT).show()
                                     }
                                 },
                             )

@@ -38,7 +38,7 @@ import java.util.Locale
 @Composable
 fun StickNoteCardView(
     stickyNoteDomain: StickyNoteDomain,
-    onUpdateStateNotificaion: (StickyNoteDomain?) -> Unit,
+    onUpdateStateNotification: (Boolean) -> Unit,
     modifier: Modifier
 ) {
 
@@ -90,11 +90,11 @@ fun StickNoteCardView(
                     .size(35.dp),
                 onClick = {
                     if (!dateIsNotOnPass) {
-                        onUpdateStateNotificaion(null)
+                        onUpdateStateNotification(stickyNoteDomain.isRemember)
                         return@IconButton
                     }
-                    stickyNoteDomain.isRemember = !stickyNoteDomain.isRemember
-                    onUpdateStateNotificaion(stickyNoteDomain)
+
+                    onUpdateStateNotification(!stickyNoteDomain.isRemember)
 
                 }, content = {
                     if (dateIsNotOnPass) {

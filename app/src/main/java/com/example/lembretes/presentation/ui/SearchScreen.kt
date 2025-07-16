@@ -40,7 +40,7 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
     onClose :()->Unit,
     context: Context,
-    onUpadteNotification:(StickyNoteDomain?) ->Unit
+    onUpadteNotification:(StickyNoteDomain?, Boolean) ->Unit
     ) {
 
     val searchViewModel = hiltViewModel<SerachViewModel>()
@@ -117,10 +117,11 @@ fun SearchScreen(
                             .padding(16.dp)
                     ){
                       items(uiStateSearch.resultSearches){ stickNote->
-                          Log.d("INFO_", "onQueryChange:  ${stickNote.name}")
                           StickNoteCardView(
                               stickyNoteDomain =stickNote ,
-                              onUpdateStateNotificaion = onUpadteNotification,
+                              onUpdateStateNotification = {isRemmeber ->
+                                  onUpadteNotification(stickNote,isRemmeber)
+                              },
                               modifier =modifier
                           )
                       }
