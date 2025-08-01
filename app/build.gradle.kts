@@ -70,6 +70,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.hilt.common)
+    implementation(libs.androidx.work.runtime.ktx)
 
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources.NotFoundException
-import android.util.Log
 import android.widget.Toast
 import com.example.lembretes.core.log.StickNoteLog
 import com.example.lembretes.core.notification.StickNoteAlarmManager
@@ -25,25 +24,25 @@ class StickNoteBootReceiver : BroadcastReceiver() {
    @Inject  lateinit var validateStickNoteUseCase: ValidateStickNoteUseCase
 
     override fun onReceive(context: Context, intent: Intent) {
-        val pendingResult = goAsync()
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                findStickNoteToRemeber(context)
-            }catch (e: NotFoundException){
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-            }finally {
-                pendingResult.finish()
+        if(intent.action == Intent.ACTION_BOOT_COMPLETED){
+
+
+            val pendingResult = goAsync()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    findStickNoteToRemember(context)
+
+                }catch (e: NotFoundException){
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                    StickNoteLog.info("Erro ao criar alarme apos o boot")
+                }finally {
+                    pendingResult.finish()
+                }
             }
-        }
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
-            Log.i(
-                "INFO_",
-                "BOOT COmPLETES :"
-            )
         }
     }
 
-suspend fun findStickNoteToRemeber(context: Context) {
+suspend fun findStickNoteToRemember(context: Context) {
         val allNotes = getStickyNoteUseCaseImpl.getStickyNotes().map {
             it.filter { stickNote ->
                 stickNote.isRemember
@@ -60,7 +59,7 @@ suspend fun findStickNoteToRemeber(context: Context) {
                 if (isValidDate) {
                     StickNoteAlarmManager.criateAlarm(context, stickyNoteDomain = stickNote)
                 }
-                StickNoteLog.info(message = "findStickNoteToRemember:Title ${stickNote.name} - remember: ${stickNote.isRemember}")
+
             }
         }
     }

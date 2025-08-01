@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
@@ -243,7 +244,7 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier,
                                 activity = this@MainActivity,
                                 onClosed = {
-                                    navigatoToAndClearBackStack(navController, HomeNavigation.route)
+                                  selectedPage = navigatoToAndClearBackStack(navController, HomeNavigation.route)
                                 },
                                 onInfo = {infoMessage->
                                     scope.launch {
@@ -280,20 +281,30 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable(route = SearchNavigation.route) {
+                           val focus=  LocalFocusManager.current
                             val stickNoteViewModel = hiltViewModel<StickNoteViewmodel>()
                             SearchScreen(
                                 modifier = Modifier,
                                 onClose = { navController.popBackStack() },
                                 context = this@MainActivity,
                                 onUpadteNotification = {stickNote ,isRemember ->
+                                    focus.clearFocus()
                                     if (stickNote?.id == null) return@SearchScreen
-
                                     stickNoteViewModel.updateNotificatioStickNote(
                                         stickNote.copy(isRemember = isRemember)) {errorMessage ->
                                            if (errorMessage == null) return@updateNotificatioStickNote
                                          Toast.makeText(this@MainActivity, "Notificação de lembrete alterado", Toast.LENGTH_SHORT).show()
                                     }
                                 },
+                                onInfoMessage = {infoMessage->
+                                    focus.clearFocus()
+                                    scope.launch {
+                                        snackBarEnumType = SnackBarEnumType.INFO
+                                        snackBarHots.showSnackbar(
+                                            message = infoMessage
+                                        )
+                                    }
+                                }
                             )
                         }
                     }

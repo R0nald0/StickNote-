@@ -1,5 +1,7 @@
 package com.example.lembretes.presentation.ui.settings
 
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -223,8 +225,14 @@ fun SettingScreen(
                 )
             }
         }
+      val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+        }else{
+            context.packageManager.getPackageInfo(context.packageName,0)
+        }
+
         Text(
-            stringResource(R.string.vers_o_1_0_0),
+            "Versão ${packageInfo.versionName}",
             style = MaterialTheme.typography.bodySmall.copy(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
