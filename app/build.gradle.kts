@@ -24,6 +24,7 @@ android {
             useSupportLibrary = true
         }
 
+        //noinspection WrongGradleMethod
         kapt{
             arguments {
                 arg(name = "room.schemaLocation", "$projectDir/schemas")
@@ -73,8 +74,11 @@ dependencies {
     implementation(libs.androidx.hilt.common)
     implementation(libs.androidx.work.runtime.ktx)
 
-
+    implementation("com.airbnb.android:lottie-compose:6.6.7")
+    implementation(libs.androidx.foundation.layout)
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
+    // https://github.com/canopas/compose-intro-showcase
+    implementation("com.canopas.intro-showcase-view:introshowcaseview:2.0.1")
 
     implementation(libs.androidx.appcompat)
     // hiltViewModel

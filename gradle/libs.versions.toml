@@ -18,7 +18,6 @@ lifecycleRuntimeCompose = "2.8.7"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.0"
 composeBom = "2025.01.01"
-lifecycleRuntimeKtxVersion = "2.7.0"
 lifecycleViewmodelKtx = "2.8.7"
 materialVersion = "1.7.8"
 mockitoCore = "5.11.0"
@@ -33,6 +32,7 @@ truth = "1.4.2"
 uiTextGoogleFonts = "1.7.7"
 hiltCommon = "1.2.0"
 workRuntimeKtx = "2.10.2"
+foundationLayout = "1.8.3"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
@@ -80,6 +80,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 androidx-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "hiltCommon" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
+androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 
 
 [plugins]

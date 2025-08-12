@@ -16,16 +16,17 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,12 +69,6 @@ import com.example.lembretes.presentation.viewmodel.UserViewModel
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-
-// alterar cor dos titulos do perfil 
-//TODO bug ao ativar e dasativar alarme
-//criar animação com rolagem em exibição no perfil
-// criar metodo para permitir alteração de tamanho da fonte em setting
-//TODO verificar rolagem na tela de criação de lembretes
 
 data class StickNoteNavItem(
     val index: String,
@@ -146,7 +141,7 @@ class MainActivity : ComponentActivity() {
                 val currentBackStackEntryAsState by navController.currentBackStackEntryAsState()
                 val route = currentBackStackEntryAsState?.destination?.route
                 val goToHomeRoute = route == HomeNavigation.route
-                
+
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = {
@@ -200,6 +195,7 @@ class MainActivity : ComponentActivity() {
                             HomeScreen(
                                 globalVIewModel = globalViewModel,
                                 modifier = Modifier,
+                                prefViewModel = prefViewModel,
                                 stickNoteViewModel = stickNoteViewModel,
                                 userViewModel = userViewModel,
                                 context = this@MainActivity,

@@ -35,7 +35,8 @@ class PreferenceRepository @Inject constructor(
                   UserPreference(
                       isDarkMode = pref[Constants.ID_KEY_UI_MODE] ?: 3,
                       sizeTitleStickNote = pref[Constants.SIZE_TITLE_STICKNOTE],
-                      sizeDescriptionStickNote = pref[Constants.SIZE_DESCRIPTION_STICKNOTE]
+                      sizeDescriptionStickNote = pref[Constants.SIZE_DESCRIPTION_STICKNOTE],
+                      showIntroApp = pref[Constants.SHOw_INTRO_KEY] ?: true
                   )
               }
 

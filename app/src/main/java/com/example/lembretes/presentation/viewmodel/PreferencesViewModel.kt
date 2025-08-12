@@ -21,7 +21,8 @@ data class UserPreference(
     val sizeTitleStickNote : Int? =null ,
     val sizeDescriptionStickNote : Int? =null ,
     val loading: Boolean = false,
-    val errorMessage : String? = null
+    val errorMessage : String? = null,
+    val showIntroApp: Boolean  = true
 )
 
 @HiltViewModel
@@ -36,18 +37,6 @@ class PreferencesViewModel @Inject constructor(
         readAllPreferences()
     }
 
-    fun readUniquePreference(){
-        viewModelScope.launch {
-             preferencesRepository.readKey(Constants.ID_KEY_UI_MODE)
-                 .catch { error-> }
-                 .collect{ preference ->
-                 _userPreference.update {
-                     it.copy(
-                         isDarkMode = preference[Constants.ID_KEY_UI_MODE] ?: 3,)
-                 }
-             }
-        }
-    }
     fun readAllPreferences(){
         _userPreference.update { it.copy(loading = true) }
         viewModelScope.launch {
@@ -67,11 +56,35 @@ class PreferencesViewModel @Inject constructor(
                             isDarkMode = preference.isDarkMode,
                             loading =false,
                             sizeTitleStickNote = preference.sizeTitleStickNote,
-                            sizeDescriptionStickNote = preference.sizeDescriptionStickNote
+                            sizeDescriptionStickNote = preference.sizeDescriptionStickNote,
+                            showIntroApp = preference.showIntroApp
+
                             )
                     }
                 }
         }
+    }
+    fun updateShowIntroApp(isIntroSHow : Boolean){
+           viewModelScope.launch {
+               _userPreference.update {
+                   it.copy(loading = true)
+               }
+               runCatching {
+                 preferencesRepository.savePreference(isIntroSHow, Constants.SHOw_INTRO_KEY)
+               }.fold(
+                   onSuccess = {
+                       _userPreference.update {
+                           it.copy(loading = false)
+                       }
+                   },
+                   onFailure = {error ->
+                       StickNoteLog.error("Erro ao salvar preferencia de intro do app ", throwable =error )
+                       _userPreference.update {
+                           it.copy(loading = false)
+                       }
+                   }
+               )
+           }
     }
     fun updateDarkMode(isDarkMode :Int){
         _userPreference.update {

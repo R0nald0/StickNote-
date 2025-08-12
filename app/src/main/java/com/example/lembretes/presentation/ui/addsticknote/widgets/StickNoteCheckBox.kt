@@ -47,7 +47,7 @@ fun StickNoteCheckBox(
                 isRemember = isCheck
                 isChecked(isRemember)
             })
-        Text(text = "Relembrar?",
+        Text(text = "Ativar notificação?",
             style = MaterialTheme.typography.labelSmall.copy(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )

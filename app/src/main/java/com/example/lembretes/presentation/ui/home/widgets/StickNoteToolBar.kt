@@ -1,6 +1,5 @@
 package com.example.lembretes.presentation.ui.home.widgets
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -23,8 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
+import com.canopas.lib.showcase.IntroShowcaseScope
+import com.canopas.lib.showcase.component.ShowcaseStyle
 import com.example.lembretes.R
 import com.example.lembretes.domain.model.User
 import com.example.lembretes.presentation.ui.theme.LembretesTheme
@@ -51,20 +50,16 @@ import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StickNoteToolBar(
-    modifier: Modifier = Modifier,
+fun IntroShowcaseScope.StickNoteToolBar(
+    modifier: Modifier,
     user: User,
     numberOfStickNotes: Int = 0,
     onOpenProfile: () -> Unit,
     openSearch: () -> Unit,
 ) {
-    val scroolBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
-    Log.i("INFO_", "StickNoteToolBar:${scroolBehavior.state.collapsedFraction} ")
-
     var isClosed by rememberSaveable { mutableStateOf(false) }
 
-    val heightAnimate by animateDpAsState(targetValue = if (isClosed) 77.dp else 170.dp ,)
+    val heightAnimate by animateDpAsState(targetValue = if (isClosed) 77.dp else 170.dp)
     val colorScheme = MaterialTheme.colorScheme
 
     Column(
@@ -72,40 +67,89 @@ fun StickNoteToolBar(
             .background(
                 color = colorScheme.primary,
                 shape = RoundedCornerShape(bottomEnd = 30.dp, bottomStart = 30.dp)
-            ).height(heightAnimate)
+            )
+            .height(heightAnimate)
             .fillMaxWidth()
             .padding(16.dp)
-            .clickable{
-              isClosed = !isClosed
+            .clickable {
+                isClosed = !isClosed
             }
 
     ) {
         Row(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
                 .padding(2.dp),
             verticalAlignment = Alignment.CenterVertically,
+        ) {
 
-        ){
-
-                    Text(
-                        modifier =  modifier.weight(0.5f),
-                        text = "Lembrete", style = MaterialTheme
-                            .typography.titleLarge
-                            .copy(color = colorScheme.onPrimaryContainer),
-                    )
-
+            Text(
+                modifier = modifier.weight(0.5f),
+                text = "Lembrete",
+                style = MaterialTheme
+                    .typography.titleLarge
+                    .copy(color = colorScheme.onPrimaryContainer),
+            )
 
 
-            IconButton(onClick = openSearch) {
+
+            IconButton(
+                modifier = Modifier.introShowCaseTarget(
+                    index = 1,
+                    style = ShowcaseStyle.Default.copy(
+                        backgroundColor = Color(0xFF7C99AC),
+                        backgroundAlpha = 0.98f,
+                        targetCircleColor = Color.White,
+
+                        ),
+                    content = {
+                        Column {
+                            Text(
+                                text = "Aqui você pode buscar os lembretes por título ou tag",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = colorScheme.onPrimary,
+                                    fontWeight = FontWeight.W600
+                                )
+                            )
+                        }
+                    }
+                ),
+                onClick = openSearch) {
                 Icon(
                     Icons.Default.Search,
                     contentDescription = "User avatar",
                     tint = colorScheme.onPrimaryContainer
-                    )
+                )
             }
+
             AsyncImage(
-                modifier = Modifier
+                modifier = modifier
+                    .introShowCaseTarget(
+                        index = 0,
+                        style = ShowcaseStyle.Default.copy(
+                            backgroundColor = Color(0xFF7C99AC),
+                            backgroundAlpha = 0.98f,
+                            targetCircleColor = Color.White
+
+                        ),
+                        content = {
+                            Column {
+                                Text("Personalize seu perfil",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        color = colorScheme.onPrimary,
+                                        fontWeight = FontWeight.W500
+                                    )
+                                )
+                                Text("Clique para adicionar ou atualizar a sua imagem e nome.",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        color = colorScheme.onPrimary,
+                                        fontWeight = FontWeight.W600
+                                    )
+                                    )
+                            }
+                        }
+
+                    )
                     .size(width = 42.dp, height = 42.dp)
                     .clip(CircleShape)
                     .background(color = Color.Gray)
@@ -141,21 +185,20 @@ fun StickNoteToolBar(
             Text(
                 text = "Você tem",
                 style = MaterialTheme.typography.bodyLarge.copy(
-                    color = colorScheme.onPrimaryContainer ),
+                    color = colorScheme.onPrimaryContainer
+                ),
                 fontSize = 13.sp,
             )
             Text(
                 text = " $numberOfStickNotes ",
-                style = MaterialTheme.typography.bodyLarge.
-                copy(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = colorScheme.onPrimaryContainer
-                    )
+                )
             )
             Text(
                 text = agendadosText,
-                style = MaterialTheme.typography.bodyLarge.
-                copy(
+                style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = 13.sp,
                     color = colorScheme.onPrimaryContainer
                 )
@@ -169,11 +212,13 @@ fun StickNoteToolBar(
 @Composable
 private fun SticnkNoteToolBarPreview() {
     LembretesTheme {
-        StickNoteToolBar(
-            onOpenProfile = {  },
-            user = User(1, "Test", ""),
-            openSearch = {}
-        )
+        /* StickNoteToolBar(
+              onOpenProfile = { },
+              user = User(1, "Test", ""),
+              openSearch = {},
+              modifier = Modifier,
+              numberOfStickNotes = 3
+          )*/
     }
 }
 

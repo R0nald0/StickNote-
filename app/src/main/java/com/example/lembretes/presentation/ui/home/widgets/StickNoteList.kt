@@ -5,30 +5,43 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.canopas.lib.showcase.IntroShowcaseScope
+import com.canopas.lib.showcase.component.ShowcaseStyle
 import com.example.lembretes.R
 import com.example.lembretes.domain.model.StickyNoteDomain
-import com.example.lembretes.presentation.ui.home.StickNoteNoContent
+import com.example.lembretes.presentation.model.StickNoteEnumFilterType
 import com.example.lembretes.presentation.ui.shared.widgets.StickNoteCardView
 import com.example.lembretes.presentation.viewmodel.HomeState
 
 @Composable
-internal fun StateListStickNote(
+internal fun IntroShowcaseScope.StateListStickNote(
     uiState: HomeState,
     modifier: Modifier,
     onNavigateToAddStickNote: () -> Unit,
@@ -41,14 +54,18 @@ internal fun StateListStickNote(
         uiState.listData != null -> {
             val listStickNote = uiState.listData
             if (listStickNote.isEmpty()) {
-                StickNoteNoContent(modifier, uiState.filterType, onNavigateToAddStickNote)
+                StickNoteNoContent(
+                    modifier = modifier,
+                    filterType = uiState.filterType,
+                    onNavigateToAddStickNote = onNavigateToAddStickNote
+                )
             } else {
                 StickNoteStateLazyList(
                     stickNotes = listStickNote,
                     context = context,
                     onNavigateToAddStickNote = onUpdate,
                     onDelete = onDelete,
-                    onUpdateStateNotificaion = onUpdateStateNotificaion
+                    onUpdateStateNotification = onUpdateStateNotificaion
                 )
             }
         }
@@ -61,13 +78,13 @@ internal fun StateListStickNote(
 }
 
 @Composable
-fun StickNoteStateLazyList(
+fun IntroShowcaseScope.StickNoteStateLazyList(
     modifier: Modifier = Modifier,
     context: Context,
     stickNotes: List<StickyNoteDomain>,
     onNavigateToAddStickNote: (StickyNoteDomain) -> Unit,
     onDelete: (StickyNoteDomain) -> Unit,
-    onUpdateStateNotificaion: (StickyNoteDomain?, Boolean) -> Unit,
+    onUpdateStateNotification: (StickyNoteDomain?, Boolean) -> Unit,
 ) {
 
     LazyColumn(
@@ -80,24 +97,24 @@ fun StickNoteStateLazyList(
         items(
             stickNotes, key = { it.id!! }) { stickNote ->
 
-            val switToDismessState = rememberSwipeToDismissBoxState()
+            val suitToDismissState = rememberSwipeToDismissBoxState()
 
-            LaunchedEffect(key1 = switToDismessState.currentValue) {
-                when (switToDismessState.currentValue) {
+            LaunchedEffect(key1 = suitToDismissState.currentValue) {
+                when (suitToDismissState.currentValue) {
                     SwipeToDismissBoxValue.StartToEnd -> onNavigateToAddStickNote(stickNote)
                     SwipeToDismissBoxValue.EndToStart -> onDelete(stickNote)
                     SwipeToDismissBoxValue.Settled -> {}
                 }
             }
 
-            MySwippe(
-                modifier = modifier,
-                  {isUpadete ->
-                     onUpdateStateNotificaion(stickNote,isUpadete)
+            MySwipe(
+
+                onUpdateStateNotification ={ isUpdate ->
+                    onUpdateStateNotification(stickNote, isUpdate)
                 },
                 stickNote = stickNote,
                 context = context,
-                dismissState = switToDismessState
+                dismissState = suitToDismissState
             )
         }
     }
@@ -105,9 +122,9 @@ fun StickNoteStateLazyList(
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun MySwippe(
+fun MySwipe(
     modifier: Modifier = Modifier,
-    onUpdateStateNotificaion: (Boolean) -> Unit,
+    onUpdateStateNotification: (Boolean) -> Unit,
     dismissState: SwipeToDismissBoxState,
     stickNote: StickyNoteDomain,
     context: Context,
@@ -119,7 +136,7 @@ fun MySwippe(
 
     when (dismissState.dismissDirection) {
         SwipeToDismissBoxValue.EndToStart -> {
-            color = MaterialTheme.colorScheme.error
+            color = colorScheme.error
             align = Arrangement.End
             textTitle = "Deletar"
         }
@@ -149,8 +166,72 @@ fun MySwippe(
         }) {
         StickNoteCardView(
             stickyNoteDomain = stickNote,
-            onUpdateStateNotification = onUpdateStateNotificaion,
+            onUpdateStateNotification = onUpdateStateNotification,
             modifier = modifier,
         )
+    }
+}
+
+@Composable
+fun IntroShowcaseScope.StickNoteNoContent(
+    modifier: Modifier,
+    filterType: StickNoteEnumFilterType,
+    onNavigateToAddStickNote: () -> Unit
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp, bottom = 0.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            text = "Você ainda não adicionou nenhum lembrete ${getTextNameSearch(filterType)}.",
+            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp)
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        ElevatedButton(
+            colors = ButtonDefaults.elevatedButtonColors(
+                containerColor = colorScheme.primary,
+            ),
+            onClick = {
+                onNavigateToAddStickNote()
+            }) {
+            //IntroStickNoteBoxExemple()
+
+            Text(
+                modifier = Modifier.introShowCaseTarget(
+                    index = 5,
+                    style = ShowcaseStyle.Default.copy(
+                        targetCircleColor = Color.White,
+                        backgroundColor = Color(0xFF7C99AC),
+                        backgroundAlpha = 0.98f
+                    ),
+                    content = {
+                        Column {
+                            Text(
+                                text = "Aqui você pode iniciar a criação de lembretes,caso ainda não tenha crirado nehnum",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = colorScheme.onPrimary,
+                                    fontWeight = FontWeight.W600
+                                )
+                            )
+                        }
+                    }
+                ),
+                color = colorScheme.onPrimaryContainer,
+                text = "Criar lembrete",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+}
+
+private fun getTextNameSearch(type: StickNoteEnumFilterType): String {
+    return when (type) {
+        StickNoteEnumFilterType.Today -> "para hoje"
+        StickNoteEnumFilterType.TOMORROW -> "para amanhã"
+        else -> ""
     }
 }

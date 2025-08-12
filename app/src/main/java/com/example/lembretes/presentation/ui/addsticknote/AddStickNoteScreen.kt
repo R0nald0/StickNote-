@@ -97,8 +97,6 @@ fun AddStickNoteScreen(
         addUpdateViewModel.clearErroMessage()
     }
 
-    StickNoteLog.info("StickNote s $stickNote")
-
     MyScreen(
         viewModel = addUpdateViewModel,
         activity = activity,
@@ -149,8 +147,6 @@ private fun updateStickNote(
         onClosed()
     }
 }
-
-
 private fun insertStickNote(
     addUpdateViewModel: AddUpdateViewModel,
     stickNote: StickyNoteDomain,
